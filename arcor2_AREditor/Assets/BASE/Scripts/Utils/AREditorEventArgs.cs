@@ -45,6 +45,16 @@ namespace Base {
         }
     }
 
+     public class HololensGameStateEventArgs : EventArgs {
+        public GameManagerH.GameStateEnum Data {
+            get; set;
+        }
+
+        public HololensGameStateEventArgs(GameManagerH.GameStateEnum data) {
+            Data = data;
+        }
+    }
+
     public class EditorStateEventArgs : EventArgs {
         public GameManager.EditorStateEnum Data {
             get; set;
@@ -121,6 +131,17 @@ namespace Base {
         }
 
         public ActionEventArgs(Action action) {
+            Action = action;
+        }
+    }
+
+     public class HololensActionEventArgs : EventArgs {
+        
+        public HAction Action {
+            get; set;
+        }
+
+        public HololensActionEventArgs(HAction action) {
             Action = action;
         }
     }
@@ -450,6 +471,8 @@ namespace Base {
         public delegate void StringListEventHandler(object sender, StringListEventArgs args);
         public delegate void FloatEventHandler(object sender, FloatEventArgs args);
         public delegate void GameStateEventHandler(object sender, GameStateEventArgs args);
+        public delegate void HololensGameStateEventHandler(object sender, HololensGameStateEventArgs args);
+
         public delegate void EditorStateEventHandler(object sender, EditorStateEventArgs args);
         public delegate void ProjectMetaEventHandler(object sender, ProjectMetaEventArgs args);
         public delegate void BareProjectEventHandler(object sender, BareProjectEventArgs args);
@@ -458,6 +481,7 @@ namespace Base {
         public delegate void BareActionPointEventHandler(object sender, BareActionPointEventArgs args);
         public delegate void ActionModelEventHandler(object sender, ActionModelEventArgs args);
         public delegate void ActionEventHandler(object sender, ActionEventArgs args);
+        public delegate void HololensActionEventHandler(object sender, HololensActionEventArgs args);
         public delegate void ProjectActionPointEventHandler(object sender, ProjectActionPointEventArgs args);
         public delegate void ActionPointEventHandler(object sender, ActionPointEventArgs args);
         public delegate void ActionPointOrientationEventHandler(object sender, ActionPointOrientationEventArgs args);

@@ -20,12 +20,16 @@
 [submodule "arcor2_AREditor/Submodules/NativeWebSocket"]
 	path = arcor2_AREditor/Submodules/NativeWebSocket
 	url = https://github.com/endel/NativeWebSocket.git
-[submodule "arcor2_AREditor/Submodules/trilleon"]
-	path = arcor2_AREditor/Submodules/trilleon
-	url = https://github.com/Kapim/trilleon.git
 [submodule "arcor2_AREditor/Submodules/off-screen-indicator"]
 	path = arcor2_AREditor/Submodules/off-screen-indicator
 	url = https://github.com/xBambusekD/off-screen-indicator.git
 [submodule "arcor2_areditor_private"]
 	path = arcor2_AREditor/Submodules/arcor2_areditor_private
 	url = git@github.com:robofit/arcor2_areditor_private.git
+[submodule "arcor2_AREditor/Submodules/QRTracking"]
+	path = arcor2_AREditor/Submodules/QRTracking
+	url = https://github.com/yl-msft/QRTracking.git
+	branch = yl/openxr
+[submodule "arcor2_AREditor/Submodules/QuickOutline"]
+	path = arcor2_AREditor/Submodules/QuickOutline
+	url = https://github.com/chrisnolet/QuickOutline.git

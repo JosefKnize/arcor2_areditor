@@ -9,7 +9,6 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.Events;
 using System.Collections;
 using Newtonsoft.Json;
-using MiniJSON;
 
 namespace Base {
     /// <summary>
@@ -721,9 +720,7 @@ namespace Base {
             ARSession.enabled = false;
 #endif
             Scene.SetActive(false);
-            if (Application.isEditor || Debug.isDebugBuild) {
-                TrilleonAutomation.AutomationMaster.Initialize();
-            }
+
             ActionsManager.Instance.OnActionsLoaded += OnActionsLoaded;
             WebsocketManager.Instance.OnConnectedEvent += OnConnected;
             WebsocketManager.Instance.OnDisconnectEvent += OnDisconnected;

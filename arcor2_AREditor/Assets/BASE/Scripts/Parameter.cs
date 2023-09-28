@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using System.Globalization;
 using Michsky.UI.ModernUIPack;
 using UnityEngine.Events;
+using RosSharp.Urdf;
 
 namespace Base {
     public class Parameter : IO.Swagger.Model.ActionParameter {

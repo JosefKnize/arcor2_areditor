@@ -19,5 +19,10 @@ ln -snf `pwd`/../arcor2_AREditor/Submodules/arcor2_areditor_private/3rdparty/Sim
 ln -snf `pwd`/../arcor2_AREditor/Submodules/arcor2_areditor_private/3rdparty/TriLib ../arcor2_AREditor/Assets/Submodules/TriLib
 ln -snf `pwd`/../arcor2_AREditor/Submodules/arcor2_areditor_private/3rdparty/UIGraph ../arcor2_AREditor/Assets/Submodules/UIGraph
 
+ln -snf `pwd`/../arcor2_AREditor/Submodules/QuickOutline/QuickOutline ../arcor2_AREditor/Assets/Submodules/QuickOutline
+
 rm -f ../arcor2_AREditor/Submodules/RosSharp/Unity3D/Assets/RosSharp/Plugins/External/Newtonsoft.Json.dll*
 rm -f ../arcor2_AREditor/Submodules/RosSharp/Unity3D/Assets/RosSharp/Plugins/External/Newtonsoft.Json.xml*
+
+rm -r ../arcor2_AREditor/Submodules/QRTracking/SampleQRCodes/Assets/MRTK
+rm -r ../arcor2_AREditor/Submodules/QRTracking/SampleQRCodes/Assets/MixedRealityToolkit.Generated

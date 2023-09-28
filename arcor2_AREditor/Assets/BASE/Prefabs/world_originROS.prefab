@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3820892653680126923}
   - component: {fileID: 6375143249791034984}
-  - component: {fileID: 4453244221120798919}
   - component: {fileID: 5325073232680595414}
   m_Layer: 0
   m_Name: Name
@@ -53,6 +52,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -77,14 +77,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!222 &4453244221120798919
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 780849532686944716}
-  m_CullTransparentMesh: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &5325073232680595414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,6 +93,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -231,6 +225,7 @@ GameObject:
   - component: {fileID: 1790867302840684268}
   - component: {fileID: 4131599180588998641}
   - component: {fileID: 8849361225378894378}
+  - component: {fileID: 1711413366550925757}
   m_Layer: 0
   m_Name: world_originROS
   m_TagString: world_anchor
@@ -282,6 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Enabled: 1
+  SetOutlineSize: 0
   OutlineSize: 1
   OutlineHoverSize: 1
   OutlineShaderType: 0
@@ -315,6 +311,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Enabled: 1
   TextToDisplay: {fileID: 5325073232680595414}
+--- !u!114 &1711413366550925757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4476520058714655711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5dd462da48ed9b49a885f1a9cf94fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetColor: {r: 1, g: 0, b: 0, a: 1}
+  needBoxIndicator: 1
+  needArrowIndicator: 1
+  needDistanceText: 1
+  targetGameObject: {fileID: 0}
+  indicator: {fileID: 0}
 --- !u!114 &8446585774033426077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +500,10 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5590630339537497914, guid: 200d5937f487cba428dc60d2d50a3387, type: 3}
+    - {fileID: 540606242358291938, guid: 200d5937f487cba428dc60d2d50a3387, type: 3}
+    - {fileID: 6643197578088290557, guid: 200d5937f487cba428dc60d2d50a3387, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 200d5937f487cba428dc60d2d50a3387, type: 3}
 --- !u!1 &5516978471616236878 stripped
 GameObject:

@@ -19,16 +19,18 @@ public class ImageHelper
     public static Sprite LoadNewSprite(string filePath, float pixelsPerUnit = 100.0f) {
 
         // Load a PNG or JPG image from disk to a Texture2D, assign this texture to a new sprite and return its reference
-
+#if !UNITY_WSA
         Sprite NewSprite;
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-        Texture2D SpriteTexture = NativeCamera.LoadImageAtPath(filePath, 500, false);
-#elif UNITY_EDITOR || UNITY_STANDALONE
-        Texture2D SpriteTexture = LoadTexture(filePath);        
-#endif
-        NewSprite = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), pixelsPerUnit);
+    #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            Texture2D SpriteTexture = NativeCamera.LoadImageAtPath(filePath, 500, false);
+    #elif UNITY_EDITOR || UNITY_STANDALONE
+            Texture2D SpriteTexture = LoadTexture(filePath);        
+    #endif
+            NewSprite = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), pixelsPerUnit);
 
-        return NewSprite;
+            return NewSprite;
+#endif
+    return null;
     }
 
     public static Texture2D LoadTexture(string filePath) {
@@ -57,6 +59,7 @@ public class ImageHelper
         file.Close();
     }
     
+#if !UNITY_WSA
     public async static Task<string> OpenImageDialog() {
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
         waitingForCallback = true;
@@ -87,6 +90,7 @@ public class ImageHelper
             return paths[0].Name;
 #endif
     }
+#endif
 
     public static void GetImagePath(string path) {
         pathToReturn = path;
@@ -94,6 +98,7 @@ public class ImageHelper
     }
 
     public async static Task<Tuple<Sprite, string>> LoadSpriteAndSaveToDb() {
+        #if !UNITY_WSA
         string file = await OpenImageDialog();
         if (!string.IsNullOrEmpty(file)) {
             Sprite sprite = LoadNewSprite(file);
@@ -101,6 +106,7 @@ public class ImageHelper
             SaveTextureToFile(sprite.texture, filename);
             return new Tuple<Sprite, string>(sprite, filename);
         }
+        #endif
         return null;
     }
 }

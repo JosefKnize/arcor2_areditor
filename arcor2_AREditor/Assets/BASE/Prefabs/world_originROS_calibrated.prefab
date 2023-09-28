@@ -16,6 +16,7 @@ MonoBehaviour:
   needBoxIndicator: 0
   needArrowIndicator: 1
   needDistanceText: 0
+  targetGameObject: {fileID: 0}
   indicator: {fileID: 0}
 --- !u!114 &5015043152354357600
 MonoBehaviour:
@@ -44,6 +45,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Mesh
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 648174696750608497, guid: 323d6551af1e8b6498377367ae54d218,
+        type: 3}
+      propertyPath: targetColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 648174696750608497, guid: 323d6551af1e8b6498377367ae54d218,
+        type: 3}
+      propertyPath: targetColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 648174696750608497, guid: 323d6551af1e8b6498377367ae54d218,
+        type: 3}
+      propertyPath: targetColor.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1155019285702261251, guid: 323d6551af1e8b6498377367ae54d218,
         type: 3}
@@ -192,6 +208,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1790867302840684268, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
+    - {fileID: 4453244221120798919, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
+    - {fileID: 73700388704822484, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
+    - {fileID: 5408999296818718220, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
+    - {fileID: 1198344187869156115, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 323d6551af1e8b6498377367ae54d218, type: 3}
 --- !u!1 &7803728040622184820 stripped
 GameObject:
