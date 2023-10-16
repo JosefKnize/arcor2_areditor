@@ -11,9 +11,8 @@ using RosSharp.Urdf.Runtime;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class UrdfManagerH : Singleton<UrdfManagerH> 
-{
- /// <summary>
+public class UrdfManagerH : Singleton<UrdfManagerH> {
+    /// <summary>
     /// Invoked when robot URDF model is fully loaded. Contains type of robot.
     /// Robot model itself needs to be loaded through UrdfManager.Instance.GetRobotModelInstance()
     /// </summary>
@@ -38,32 +37,34 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
     /// <param name="fileName">Where URDF should be stored.</param>
     /// <returns></returns>
 
-    public bool IsMenu { get; set; }
+    public bool IsMenu {
+        get; set;
+    }
     public IEnumerator DownloadUrdfPackage(string robotType, string fileName) {
         //GameManager.Instance.SetTurboFramerate();
 
         //Debug.Log("URDF: download started");
-     //   string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
-       
+        //   string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
+
         string uri = PlayerPrefsHelper.LoadString("ProjectServiceURI", "");
         string suffix = "/files/";
         if (string.IsNullOrEmpty(uri))
             uri = "http://" + WebSocketManagerH.Instance.GetServerDomain() + ":6790" + suffix;
         else
-           uri = uri + suffix;
+            uri = uri + suffix;
         uri = uri + fileName;
         UnityWebRequest www;
         try {
             www = UnityWebRequest.Get(uri);
         } catch (WebException ex) {
-         //   Notifications.Instance.ShowNotification("Failed to load robot model", ex.Message);
+            // Notifications.Instance.ShowNotification("Failed to load robot model", ex.Message);
             yield break;
         }
         // Request and wait for the desired page.
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError) {
             Debug.LogError(www.error + " (" + uri + ")");
-      //      Notifications.Instance.ShowNotification("Failed to download URDF", www.error);
+            // Notifications.Instance.ShowNotification("Failed to download URDF", www.error);
         } else {
             string robotDictionary = string.Format("{0}/urdf/{1}/", Application.persistentDataPath, robotType);
             Directory.CreateDirectory(robotDictionary);
@@ -91,14 +92,14 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
                                             ex is InvalidDataException ||
                                             ex is UnauthorizedAccessException) {
                 Debug.LogError(ex);
-             //   Notifications.Instance.ShowNotification("Failed to extract URDF", "");
+                //   Notifications.Instance.ShowNotification("Failed to extract URDF", "");
             }
         }
-            
-        
-        
-        
-        
+
+
+
+
+
     }
 
     /// <summary>
@@ -146,7 +147,7 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
 
     private void OnDisable() {
         // unsubscribe for UrdfImporter event
-        if(UrdfAssetImporterRuntime.Instance != null)
+        if (UrdfAssetImporterRuntime.Instance != null)
             UrdfAssetImporterRuntime.Instance.OnModelImported -= OnModelImported;
     }
 
@@ -157,7 +158,7 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
     /// <param name="robotType">Type of the robot.</param>
     /// </summary>
     private void ImportUrdfObject(string filename, string robotType) {
-        UrdfRobot urdfRobot = UrdfRobotExtensionsRuntime.Create(filename, useColliderInVisuals:true, useUrdfMaterials:true);
+        UrdfRobot urdfRobot = UrdfRobotExtensionsRuntime.Create(filename, useColliderInVisuals: true, useUrdfMaterials: true);
         urdfRobot.transform.parent = transform;
         urdfRobot.transform.localPosition = Vector3.zero;
         urdfRobot.transform.localEulerAngles = Vector3.zero;
@@ -215,7 +216,7 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
         robotModelGameObject.transform.localEulerAngles = Vector3.zero;
 
         RobotModelH robot = new RobotModelH(robotToCopy.RobotType, robotModelGameObject);
-        robot.LoadLinks(copyOfRobotModel:true);
+        robot.LoadLinks(copyOfRobotModel: true);
         robot.RobotLoaded = true;
 
         return robot;
@@ -272,13 +273,13 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
             // Check whether downloading can be started and start it, if so.
             return CanIDownload(fileName);
         }
-     //   string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
+        //   string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
         string uri = PlayerPrefsHelper.LoadString("ProjectServiceURI", "");
         string suffix = "/files/";
         if (string.IsNullOrEmpty(uri))
             uri = "http://" + WebSocketManagerH.Instance.GetServerDomain() + ":6790" + suffix;
         else
-           uri = uri + suffix;
+            uri = uri + suffix;
         uri = uri + fileName;
         try {
             HttpWebRequest httpWebRequest = (HttpWebRequest) WebRequest.Create(uri);
@@ -300,7 +301,7 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
             Notifications.Instance.ShowNotification("Failed to get robot model", ex.Message);
             return false;
         }
-        
+
     }
 
     /// <summary>
@@ -349,8 +350,7 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
             if (urdfDataPackageFilename != null ? CheckIfNewerRobotModelExists(robotType, urdfDataPackageFilename) : false) {
                 RemoveOldModels(robotType);
                 StartCoroutine(DownloadUrdfPackage(robotType, urdfDataPackageFilename));
-            }
-            else {
+            } else {
                 if (RobotModels.TryGetValue(robotType, out List<RobotModelH> robotModels)) {
                     if (robotModels.Count > 0) {
                         foreach (RobotModelH robotModel in robotModels) {
@@ -383,14 +383,13 @@ public class UrdfManagerH : Singleton<UrdfManagerH>
         }
         // Robot model does not exist, lets create an entry in RobotModels and initiate downloading process
         else {
-            
+
             RobotModels.Add(robotType, new List<RobotModelH>() { });
-            
+
             if (urdfDataPackageFilename != null ? CheckIfNewerRobotModelExists(robotType, urdfDataPackageFilename) : false) {
                 RemoveOldModels(robotType);
                 StartCoroutine(DownloadUrdfPackage(robotType, urdfDataPackageFilename));
-            }
-            else {
+            } else {
                 BuildRobotModelFromUrdf(robotType);
             }
         }
