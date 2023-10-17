@@ -83,23 +83,16 @@ public class MeshImporterH : Singleton<MeshImporterH> {
     /// <returns></returns>
     private IEnumerator DownloadMesh(string meshId, string fileName, string aoId) {
 
-        //Debug.LogError("MESH: download started");
-        //string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
+        // TODO table has option for PlayerPrefsHelper URI (probably for offline mode)
+        string uri = $"http://{WebSocketManagerH.Instance.GetServerDomain()}:6790/assets/{fileName}/data";
+        Debug.Log($"Downloading mesh: \"{uri}\"");
 
-        //Debug.LogError("MESH: download started");
-        string uri = PlayerPrefsHelper.LoadString("ProjectServiceURI", "");
-        string suffix = "/files/";
-        if (string.IsNullOrEmpty(uri))
-            uri = "http://" + WebSocketManagerH.Instance.GetServerDomain() + ":6790" + suffix;
-        else
-            uri = uri + suffix;
-        uri = "http://" + WebSocketManagerH.Instance.GetServerDomain() + ":6790" + suffix + fileName;
         using (UnityWebRequest www = UnityWebRequest.Get(uri)) {
             // Request and wait for the desired page.
             yield return www.Send();
             if (www.isNetworkError || www.isHttpError) {
                 Debug.LogError(www.error + " (" + uri + ")");
-                //                Notifications.Instance.ShowNotification("Failed to download mesh", www.error);
+                // Notifications.Instance.ShowNotification("Failed to download mesh", www.error);
             } else {
                 string meshDirectory = string.Format("{0}/meshes/{1}", Application.persistentDataPath, meshId);
                 Directory.CreateDirectory(meshDirectory);

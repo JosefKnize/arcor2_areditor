@@ -186,10 +186,6 @@ public class ActionObject3DH : ActionObjectH
 
 
     public override void CreateModel(CollisionModels customCollisionModels = null) {
-
-
-       
-
         if (ActionObjectMetadata.ObjectModel == null || ActionObjectMetadata.ObjectModel.Type == IO.Swagger.Model.ObjectModel.TypeEnum.None) {
             Model = Instantiate(CubePrefab, Visual.transform);
             Model.transform.localScale = new Vector3(0.05f, 0.01f, 0.05f);

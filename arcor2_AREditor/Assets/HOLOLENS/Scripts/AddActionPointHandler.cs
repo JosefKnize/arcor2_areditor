@@ -23,13 +23,9 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>, IMixedRea
             }
             else {
                 actionPointPrefab.GetComponent<Renderer>().enabled = false;
-
             }
-           
         }
     }
-
-  
 
     public void registerHandlers(bool register = true){
         registered = register;

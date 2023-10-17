@@ -41,18 +41,8 @@ public class UrdfManagerH : Singleton<UrdfManagerH> {
         get; set;
     }
     public IEnumerator DownloadUrdfPackage(string robotType, string fileName) {
-        //GameManager.Instance.SetTurboFramerate();
 
-        //Debug.Log("URDF: download started");
-        //   string uri = MainSettingsMenu.Instance.GetProjectServiceURI() + fileName;
-
-        string uri = PlayerPrefsHelper.LoadString("ProjectServiceURI", "");
-        string suffix = "/files/";
-        if (string.IsNullOrEmpty(uri))
-            uri = "http://" + WebSocketManagerH.Instance.GetServerDomain() + ":6790" + suffix;
-        else
-            uri = uri + suffix;
-        uri = uri + fileName;
+        string uri = $"http://{WebSocketManagerH.Instance.GetServerDomain()}:6790/assets/{fileName}/data";
         UnityWebRequest www;
         try {
             www = UnityWebRequest.Get(uri);
