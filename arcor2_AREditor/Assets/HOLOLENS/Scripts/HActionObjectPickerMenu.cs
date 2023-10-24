@@ -12,7 +12,8 @@ using TMPro;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using Microsoft.MixedReality.Toolkit.UI;
 
-public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
+public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
+{
 
     public GameObject models;
     public GameObject collisonObjects;
@@ -26,21 +27,25 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
 
 
-    public enum CollisionObjectType {
+    public enum CollisionObjectType
+    {
         Cube,
         Sphere,
         Cylinder,
         Plane
     }
     // Start is called before the first frame update
-    void Start() {
+    void Start()
+    {
         loadedModels = 0;
         allModels = 0;
         ActionsManagerH.Instance.OnActionsLoaded += LoadModels;
     }
 
-    void Update() {
-        if (!Loaded && allModels != 0 && allModels == loadedModels) {
+    void Update()
+    {
+        if (!Loaded && allModels != 0 && allModels == loadedModels)
+        {
             Loaded = true;
             GameManagerH.Instance.HideLoadingScreen();
             UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
@@ -49,13 +54,15 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
         }
     }
 
-    public void destroyObjects() {
+    public void destroyObjects()
+    {
 
         Loaded = false;
 
         loadedModels = 0;
         allModels = 0;
-        foreach (KeyValuePair<string, GameObject> kvp in objectsModels) {
+        foreach (KeyValuePair<string, GameObject> kvp in objectsModels)
+        {
             Destroy(kvp.Value);
         }
 
@@ -64,9 +71,11 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
 
 
-    public void OnModelLoaded(object sender, ImportedMeshEventArgsH args) {
+    public void OnModelLoaded(object sender, ImportedMeshEventArgsH args)
+    {
 
-        if (objectsModels.TryGetValue(args.Name, out GameObject gameObject)) {
+        if (objectsModels.TryGetValue(args.Name, out GameObject gameObject))
+        {
             args.RootGameObject.gameObject.transform.parent = gameObject.transform;
             Vector3 vec = gameObject.transform.Find("FrontPlate").transform.localPosition;
 
@@ -74,14 +83,14 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
             args.RootGameObject.gameObject.transform.localScale /= 2; // args.RootGameObject.gameObject.transform.localScale
             loadedModels++;
         }
-
-
     }
 
-    private void OnRobotModelLoaded(object sender, RobotUrdfModelArgs args) {
+    private void OnRobotModelLoaded(object sender, RobotUrdfModelArgs args)
+    {
 
         // check if the robot of the type we need was loaded
-        if (objectsModels.TryGetValue(args.RobotType, out GameObject gameObject)) {
+        if (objectsModels.TryGetValue(args.RobotType, out GameObject gameObject))
+        {
             // if so, lets ask UrdfManagerH for the robot model
             RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(args.RobotType);
 
@@ -89,7 +98,8 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
             RobotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
 
             Vector3 vec = gameObject.transform.Find("FrontPlate").transform.localPosition;
-            if (RobotModel.RobotModelGameObject.name.Equals("Eddie")) {
+            if (RobotModel.RobotModelGameObject.name.Equals("Eddie"))
+            {
                 vec = new Vector3(-0.0229000002f, -0.0340999998f, -0.0498000011f);
             }
             //Vector3(-0.0229000002,-0.0340999998,-0.0498000011)
@@ -107,7 +117,8 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
 
 
-    public void LoadModels(object sender, EventArgs args) {
+    public void LoadModels(object sender, EventArgs args)
+    {
         GameManagerH.Instance.ShowLoadingScreen();
         //        if ( GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor) {
         destroyObjects();
@@ -118,44 +129,54 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
 
         // create one button for each object type
-        foreach (ActionObjectMetadataH actionObject in ActionsManagerH.Instance.ActionObjectsMetadata.Values.OrderBy(x => x.Type)) {
+        foreach (ActionObjectMetadataH actionObject in ActionsManagerH.Instance.ActionObjectsMetadata.Values.OrderBy(x => x.Type))
+        {
             if (actionObject.Abstract || actionObject.CollisionObject)
                 continue;
 
-            if (ActionsManagerH.Instance.RobotsMeta.TryGetValue(actionObject.Type, out RobotMeta robotMeta)) {
+            if (ActionsManagerH.Instance.RobotsMeta.TryGetValue(actionObject.Type, out RobotMeta robotMeta))
+            {
                 allModels++;
-                if (!string.IsNullOrEmpty(robotMeta.UrdfPackageFilename)) {
+                if (!string.IsNullOrEmpty(robotMeta.UrdfPackageFilename))
+                {
                     GameObject selectCube = Instantiate(objectCubePrefab);
                     selectCube.GetComponentInChildren<TextMeshPro>().text = robotMeta.Type;
                     selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                     selectCube.transform.parent = models.transform;
                     selectCube.transform.GetComponentInChildren<Interactable>().OnClick.AddListener(() => CreateActionObject(actionObject.Type));
-                    //    selectCube.transform.
                     objectsModels.Add(robotMeta.Type, selectCube);
                     models.GetComponent<GridObjectCollection>().UpdateCollection();
                     // Get the robot model, if it returns null, the robot will be loading itself
                     RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
 
-                    if (RobotModel != null) {
+                    if (RobotModel != null)
+                    {
                         loadedModels++;
 
                         RobotModel.RobotModelGameObject.gameObject.transform.parent = selectCube.transform;
                         GameObject frontPlate = selectCube.transform.Find("FrontPlate").gameObject;
                         //   frontPlate.GetComponent<Interactable>().OnClick.AddListener(() => AddObjectToScene(actionObject.Type));
-                        if (RobotModel.RobotModelGameObject.name.Equals("Eddie")) {
+                        if (RobotModel.RobotModelGameObject.name.Equals("Eddie"))
+                        {
                             RobotModel.RobotModelGameObject.gameObject.transform.localPosition = new Vector3(-0.0229000002f, -0.0340999998f, -0.0498000011f);
-                        } else {
+                        }
+                        else
+                        {
                             RobotModel.RobotModelGameObject.gameObject.transform.localPosition = frontPlate.transform.localPosition;
                         }
                         RobotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                         RobotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 90, 0);
                         RobotModel.SetActiveAllVisuals(true);
-                    } else {
+                    }
+                    else
+                    {
                         // Robot is not loaded yet, let's wait for it to be loaded
                         //  UrdfManagerH.Instance.OnRobotUrdfModelLoaded += OnRobotModelLoaded;
                     }
                 }
-            } else if (actionObject.HasPose) {
+            }
+            else if (actionObject.HasPose)
+            {
                 allModels++;
 
                 GameObject selectCube = Instantiate(objectCubePrefab);
@@ -181,16 +202,17 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
       }*/
 
-    public async void CreateActionObject(string type) {
+    public async void CreateActionObject(string type)
+    {
         string newActionObjectName = SceneManagerH.Instance.GetFreeAOName(type);
 
-        if (ActionsManagerH.Instance.ActionObjectsMetadata.TryGetValue(type, out ActionObjectMetadataH actionObjectMetadata)) {
+        if (ActionsManagerH.Instance.ActionObjectsMetadata.TryGetValue(type, out ActionObjectMetadataH actionObjectMetadata))
+        {
             List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
-            foreach (IO.Swagger.Model.ParameterMeta meta in actionObjectMetadata.Settings) {
+            foreach (IO.Swagger.Model.ParameterMeta meta in actionObjectMetadata.Settings)
+            {
                 IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: meta.Name, value: JsonConvert.SerializeObject(meta.DefaultValue), type: meta.Type);
                 parameters.Add(DataHelper.ActionParameterToParameter(ap));
-
-
             }
 
             /*
@@ -202,7 +224,8 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
                    IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: actionParameter.GetName(), value: JsonConvert.SerializeObject(actionParameter.GetValue()), type: actionParameterMetadata.Type);
                    parameters.Add(DataHelper.ActionParameterToParameter(ap));
                }*/
-            try {
+            try
+            {
                 Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
                 Vector3 point = TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(ray.GetPoint(0.5f)));
                 IO.Swagger.Model.Pose pose = null;
@@ -212,7 +235,9 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
                 await WebSocketManagerH.Instance.AddObjectToScene(newActionObjectName, type, pose, parameters);
                 //   callback?.Invoke();
                 //       Close();
-            } catch (Base.RequestFailedException e) {
+            }
+            catch (Base.RequestFailedException e)
+            {
                 HNotificationManager.Instance.ShowNotification("Failed to add action " + e.Message);
             }
         }
@@ -220,39 +245,47 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu> {
 
 
 
-    private void AddVirtualCollisionObjectResponseCallback(string objectType, string data) {
+    private void AddVirtualCollisionObjectResponseCallback(string objectType, string data)
+    {
         AddVirtualCollisionObjectToSceneResponse response = JsonConvert.DeserializeObject<AddVirtualCollisionObjectToSceneResponse>(data);
-        if (response == null || !response.Result) {
+        if (response == null || !response.Result)
+        {
             HNotificationManager.Instance.ShowNotification($"Failed to add {objectType} :" + response.Messages.FirstOrDefault());
         }
     }
-    public async void CreateCube() {
+    public async void CreateCube()
+    {
         ObjectTypeMeta newObjectType = CreateObjectTypeMeta(CollisionObjectType.Cube);
         await WebSocketManagerH.Instance.AddVirtualCollisionObjectToScene(newObjectType.Type, newObjectType.ObjectModel, HSight.Instance.CreatePoseInTheView(), AddVirtualCollisionObjectResponseCallback);
     }
 
-    public async void CreatePlne() {
+    public async void CreatePlne()
+    {
         ObjectTypeMeta newObjectType = CreateObjectTypeMeta(CollisionObjectType.Plane);
         await WebSocketManagerH.Instance.AddVirtualCollisionObjectToScene(newObjectType.Type, newObjectType.ObjectModel, HSight.Instance.CreatePoseInTheView(), AddVirtualCollisionObjectResponseCallback);
     }
 
-    public async void CreateCylinder() {
+    public async void CreateCylinder()
+    {
         ObjectTypeMeta newObjectType = CreateObjectTypeMeta(CollisionObjectType.Cylinder);
         await WebSocketManagerH.Instance.AddVirtualCollisionObjectToScene(newObjectType.Type, newObjectType.ObjectModel, HSight.Instance.CreatePoseInTheView(), AddVirtualCollisionObjectResponseCallback);
     }
 
-    public async void CreateSphere() {
+    public async void CreateSphere()
+    {
         ObjectTypeMeta newObjectType = CreateObjectTypeMeta(CollisionObjectType.Sphere);
         await WebSocketManagerH.Instance.AddVirtualCollisionObjectToScene(newObjectType.Type, newObjectType.ObjectModel, HSight.Instance.CreatePoseInTheView(), AddVirtualCollisionObjectResponseCallback);
     }
 
-    public IO.Swagger.Model.ObjectTypeMeta CreateObjectTypeMeta(CollisionObjectType collisionObjectType) {
+    public IO.Swagger.Model.ObjectTypeMeta CreateObjectTypeMeta(CollisionObjectType collisionObjectType)
+    {
         string name;
         IO.Swagger.Model.ObjectModel objectModel = new IO.Swagger.Model.ObjectModel();
 
         IO.Swagger.Model.ObjectTypeMeta objectTypeMeta;
         IO.Swagger.Model.ObjectModel.TypeEnum modelType = new IO.Swagger.Model.ObjectModel.TypeEnum();
-        switch (collisionObjectType) {
+        switch (collisionObjectType)
+        {
             case CollisionObjectType.Cube:
                 name = SceneManagerH.Instance.GetFreeObjectTypeName("Cube");
                 modelType = IO.Swagger.Model.ObjectModel.TypeEnum.Box;

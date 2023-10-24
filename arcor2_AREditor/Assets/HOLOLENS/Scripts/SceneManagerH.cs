@@ -13,7 +13,7 @@ using WebSocketSharp;
 using Base;
 using Hololens;
 
-public class SceneManagerH :  Singleton<SceneManagerH>
+public class SceneManagerH : Singleton<SceneManagerH>
 {
 
     /// <summary>
@@ -51,7 +51,8 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <summary>
     /// Indicates if robots end effector should be visible
     /// </summary>
-    public bool RobotsEEVisible {
+    public bool RobotsEEVisible
+    {
         get;
         private set;
     }
@@ -116,7 +117,7 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Defines if scene was started on server - e.g. if all robots and other action objects
     /// are instantioned and are ready
     /// </summary>
-        private bool sceneStarted = false;
+    private bool sceneStarted = false;
 
     public HIRobot SelectedRobot;
 
@@ -134,7 +135,7 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Holds all action objects in scene
     /// </summary>
     public Dictionary<string, ActionObjectH> ActionObjects = new Dictionary<string, ActionObjectH>();
-   
+
     public event AREditorEventArgs.SceneStateHandler OnSceneStateEvent;
 
     /// <summary>
@@ -147,16 +148,19 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// OnSceneSavedStatusChanged when sceneChanged value differs from original value (i.e. when scene
     /// was not changed and now it is and vice versa)
     /// </summary>
-    public bool SceneChanged {
+    public bool SceneChanged
+    {
         get => sceneChanged;
-        set {
+        set
+        {
             bool origVal = SceneChanged;
             sceneChanged = value;
             if (!Valid)
                 return;
             OnSceneChanged?.Invoke(this, EventArgs.Empty);
-            if (origVal != value) {
-              //  OnSceneSavedStatusChanged?.Invoke(this, EventArgs.Empty);
+            if (origVal != value)
+            {
+                //  OnSceneSavedStatusChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
@@ -168,13 +172,14 @@ public class SceneManagerH :  Singleton<SceneManagerH>
         WebSocketManagerH.Instance.OnRobotJointsUpdated += RobotJointsUpdated;
 
         WebSocketManagerH.Instance.OnSceneStateEvent += OnSceneState;
-     //   
+        //   
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (updateScene) {
+        if (updateScene)
+        {
             SceneChanged = true;
             updateScene = false;
         }
@@ -185,34 +190,39 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnSceneLoaded(object sender, EventArgs e) {
-       /* if (RobotsEEVisible) {
-            ShowRobotsEE();
-        }*/
+    private void OnSceneLoaded(object sender, EventArgs e)
+    {
+        /* if (RobotsEEVisible) {
+             ShowRobotsEE();
+         }*/
     }
 
 
-    public bool SceneStarted {
+    public bool SceneStarted
+    {
         get => sceneStarted;
         private set => sceneStarted = value;
     }
-    public HRobotEE SelectedEndEffector {
+    public HRobotEE SelectedEndEffector
+    {
         get => selectedEndEffector;
         set => selectedEndEffector = value;
     }
 
-    private async void OnSceneState(object sender, SceneStateEventArgs args) {
-        switch (args.Event.State) {
+    private async void OnSceneState(object sender, SceneStateEventArgs args)
+    {
+        switch (args.Event.State)
+        {
             case SceneStateData.StateEnum.Starting:
-           //     GameManager.Instance.ShowLoadingScreen("Going online...");
+                //     GameManager.Instance.ShowLoadingScreen("Going online...");
                 OnSceneStateEvent?.Invoke(this, args); // needs to be rethrown to ensure all subscribers has updated data
                 break;
             case SceneStateData.StateEnum.Stopping:
                 SceneStarted = false;
-               // GameManager.Instance.ShowLoadingScreen("Going offline...");
-          /*      if (!args.Event.Message.IsNullOrEmpty()) {
-                    Notifications.Instance.ShowNotification("Scene service failed", args.Event.Message);
-                }*/
+                // GameManager.Instance.ShowLoadingScreen("Going offline...");
+                /*      if (!args.Event.Message.IsNullOrEmpty()) {
+                          Notifications.Instance.ShowNotification("Scene service failed", args.Event.Message);
+                      }*/
                 OnSceneStateEvent?.Invoke(this, args); // needs to be rethrown to ensure all subscribers has updated data
                 break;
             case SceneStateData.StateEnum.Started:
@@ -220,7 +230,7 @@ public class SceneManagerH :  Singleton<SceneManagerH>
                 break;
             case SceneStateData.StateEnum.Stopped:
                 SceneStarted = false;
-           //     GameManager.Instance.HideLoadingScreen();
+                //     GameManager.Instance.HideLoadingScreen();
                 SelectedRobot = null;
                 SelectedArmId = null;
                 SelectedEndEffector = null;
@@ -236,13 +246,16 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="send">To subscribe or to unsubscribe</param>
     /// <param name="what">Pose of end effectors or joints</param>
-    public void RegisterRobotsForEvent(bool send, RegisterForRobotEventRequestArgs.WhatEnum what) {
-        foreach (HIRobot robot in GetRobots()) {
+    public void RegisterRobotsForEvent(bool send, RegisterForRobotEventRequestArgs.WhatEnum what)
+    {
+        foreach (HIRobot robot in GetRobots())
+        {
             WebSocketManagerH.Instance.RegisterForRobotEvent(robot.GetId(), send, what);
         }
     }
-    
-    private IEnumerator WaitUntillSceneValid(UnityEngine.Events.UnityAction callback) {
+
+    private IEnumerator WaitUntillSceneValid(UnityEngine.Events.UnityAction callback)
+    {
         yield return new WaitUntil(() => Valid);
         callback();
     }
@@ -254,28 +267,33 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public ActionObjectH GetActionObject(string id) {
+    public ActionObjectH GetActionObject(string id)
+    {
         if (ActionObjects.TryGetValue(id, out ActionObjectH actionObject))
             return actionObject;
         throw new KeyNotFoundException("Action object not found");
     }
-    
+
     /// <summary>
     /// Returns all robots in scene
     /// </summary>
     /// <returns></returns>
-    public List<HIRobot> GetRobots() {
+    public List<HIRobot> GetRobots()
+    {
         List<HIRobot> robots = new List<HIRobot>();
-        foreach (ActionObjectH actionObject in ActionObjects.Values) {
-            if (actionObject.IsRobot()) {
-                robots.Add((RobotActionObjectH) actionObject);
-            }                    
+        foreach (ActionObjectH actionObject in ActionObjects.Values)
+        {
+            if (actionObject.IsRobot())
+            {
+                robots.Add((RobotActionObjectH)actionObject);
+            }
         }
         return robots;
     }
 
-    
-    private async void OnSceneStarted(SceneStateEventArgs args) {
+
+    private async void OnSceneStarted(SceneStateEventArgs args)
+    {
         SceneStarted = true;
         if (RobotsEEVisible)
             OnShowRobotsEE?.Invoke(this, EventArgs.Empty);
@@ -284,46 +302,64 @@ public class SceneManagerH :  Singleton<SceneManagerH>
         SelectedArmId = PlayerPrefsHelper.LoadString(SceneMeta.Id + "/selectedRobotArmId", null);
         string selectedEndEffectorId = PlayerPrefsHelper.LoadString(SceneMeta.Id + "/selectedEndEffectorId", null);
         await SelectRobotAndEE(selectedRobotID, SelectedArmId, selectedEndEffectorId);
-    //    GameManager.Instance.HideLoadingScreen();
+        //    GameManager.Instance.HideLoadingScreen();
         OnSceneStateEvent?.Invoke(this, args); // needs to be rethrown to ensure all subscribers has updated data
     }
 
-        public async Task SelectRobotAndEE(string robotId, string armId, string eeId) {
-        if (!string.IsNullOrEmpty(robotId)) {
-            try {
+    public async Task SelectRobotAndEE(string robotId, string armId, string eeId)
+    {
+        if (!string.IsNullOrEmpty(robotId))
+        {
+            try
+            {
                 HIRobot robot = GetRobot(robotId);
-                if (!string.IsNullOrEmpty(eeId)) {
-                    try {
+                if (!string.IsNullOrEmpty(eeId))
+                {
+                    try
+                    {
                         SelectRobotAndEE(await (robot.GetEE(eeId, armId)));
-                    } catch (ItemNotFoundException ex) {
+                    }
+                    catch (ItemNotFoundException ex)
+                    {
                         PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedEndEffectorId", null);
                         PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedRobotArmId", null);
                         Debug.LogError(ex);
                     }
                 }
-            } catch (ItemNotFoundException ex) {
+            }
+            catch (ItemNotFoundException ex)
+            {
                 PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedRobotId", null);
                 Debug.LogError(ex);
             }
-        } else {
+        }
+        else
+        {
             SelectRobotAndEE(null);
         }
     }
 
-    public void SelectRobotAndEE(HRobotEE endEffector) {
-        if (endEffector == null) {
+    public void SelectRobotAndEE(HRobotEE endEffector)
+    {
+        if (endEffector == null)
+        {
             SelectedArmId = null;
             SelectedRobot = null;
             SelectedEndEffector = null;
             PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedRobotId", null);
             PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedRobotArmId", null);
             PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedEndEffectorId", null);
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 SelectedArmId = endEffector.ARMId;
                 SelectedRobot = GetRobot(endEffector.Robot.GetId());
                 SelectedEndEffector = endEffector;
-            } catch (ItemNotFoundException ex) {
+            }
+            catch (ItemNotFoundException ex)
+            {
                 PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedRobotId", null);
                 Debug.LogError(ex);
             }
@@ -341,8 +377,10 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="robotId">UUID of robot</param>
     /// <returns></returns>
-    public HIRobot GetRobot(string robotId) {
-        foreach (HIRobot robot in GetRobots()) {
+    public HIRobot GetRobot(string robotId)
+    {
+        foreach (HIRobot robot in GetRobots())
+        {
             if (robot.GetId() == robotId)
                 return robot;
         }
@@ -360,35 +398,44 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <param name="customCollisionModels">Allows to override collision models with different ones. Usable e.g. for
     /// project running screen.</param>
     /// <returns>True if scene successfully created, false otherwise</returns>
-    public async Task<bool> CreateScene(IO.Swagger.Model.Scene scene, bool loadResources, CollisionModels customCollisionModels = null) {
-       
+    public async Task<bool> CreateScene(IO.Swagger.Model.Scene scene, bool loadResources, CollisionModels customCollisionModels = null)
+    {
+
         Debug.Assert(ActionsManagerH.Instance.ActionsReady);
-       
-        if (SceneMeta != null){
+
+        if (SceneMeta != null)
+        {
             return false;
         }
-      //  SelectorMenu.Instance.Clear();
-      try {
-        SetSceneMeta(DataHelper.SceneToBareScene(scene));   
-        this.loadResources = loadResources;
-     
-        LoadSettings();
-        UpdateActionObjects(scene, customCollisionModels);
-        if (scene.Modified == System.DateTime.MinValue) { //new scene, never saved
-            sceneChanged = true;
-        } else if (scene.IntModified == System.DateTime.MinValue) {
-            sceneChanged = false;
-        } else {
-            sceneChanged = scene.IntModified > scene.Modified;
-        }
-        Valid = true;
-        OnLoadScene?.Invoke(this, EventArgs.Empty);
-      }
-      catch (Exception e){
-        HNotificationManager.Instance.ShowNotification("CreateScene  " +  e.Message);
+        //  SelectorMenu.Instance.Clear();
+        try
+        {
+            SetSceneMeta(DataHelper.SceneToBareScene(scene));
+            this.loadResources = loadResources;
 
-      }      
-       
+            LoadSettings();
+            UpdateActionObjects(scene, customCollisionModels);
+            if (scene.Modified == System.DateTime.MinValue)
+            { //new scene, never saved
+                sceneChanged = true;
+            }
+            else if (scene.IntModified == System.DateTime.MinValue)
+            {
+                sceneChanged = false;
+            }
+            else
+            {
+                sceneChanged = scene.IntModified > scene.Modified;
+            }
+            Valid = true;
+            OnLoadScene?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception e)
+        {
+            HNotificationManager.Instance.ShowNotification("CreateScene  " + e.Message);
+
+        }
+
         return true;
     }
 
@@ -396,7 +443,8 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <summary>
     /// Loads selected setings from player prefs
     /// </summary>
-    internal void LoadSettings() {
+    internal void LoadSettings()
+    {
         ActionObjectsVisibility = PlayerPrefsHelper.LoadFloat("AOVisibilityAR", 0f /*+ (VRModeManager.Instance.VRModeON ? "VR" : "AR"), (VRModeManager.Instance.VRModeON ? 1f : 0f)*/);
         ActionObjectsInteractive = PlayerPrefsHelper.LoadBool("scene/" + SceneMeta.Id + "/AOInteractivity", true);
         RobotsEEVisible = PlayerPrefsHelper.LoadBool("scene/" + SceneMeta.Id + "/RobotsEEVisibility", true);
@@ -406,8 +454,10 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Sets scene metadata
     /// </summary>
     /// <param name="scene">Scene metadata</param>
-    public void SetSceneMeta(BareScene scene) {
-        if (SceneMeta == null) {
+    public void SetSceneMeta(BareScene scene)
+    {
+        if (SceneMeta == null)
+        {
             SceneMeta = new Scene(id: "", name: "");
         }
         SceneMeta.Id = scene.Id;
@@ -418,26 +468,30 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     }
 
 
-    
+
     /// <summary>
     /// Updates action GameObjects in ActionObjects dict based on the data present in IO.Swagger.Model.Scene Data.
     /// </summary>
     /// <param name="scene">Scene description</param>
     /// <param name="customCollisionModels">Allows to override action object collision model</param>
     /// <returns></returns>
-    public void UpdateActionObjects(Scene scene, CollisionModels customCollisionModels = null) {
-        try{
+    public void UpdateActionObjects(Scene scene, CollisionModels customCollisionModels = null)
+    {
+        try
+        {
             List<string> currentAO = new List<string>();
-            foreach (IO.Swagger.Model.SceneObject aoSwagger in scene.Objects) {
+            foreach (IO.Swagger.Model.SceneObject aoSwagger in scene.Objects)
+            {
                 ActionObjectH actionObject = SpawnActionObject(aoSwagger, customCollisionModels);
                 actionObject.ActionObjectUpdate(aoSwagger);
                 currentAO.Add(aoSwagger.Id);
             }
         }
-        catch (Exception e) {
-            HNotificationManager.Instance.ShowNotification("UpdateActionObjects  " +  e.Message);
+        catch (Exception e)
+        {
+            HNotificationManager.Instance.ShowNotification("UpdateActionObjects  " + e.Message);
         }
-       
+
 
     }
 
@@ -445,21 +499,24 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Destroys scene and all objects
     /// </summary>
     /// <returns>True if scene successfully destroyed, false otherwise</returns>
-    public bool DestroyScene() {
+    public bool DestroyScene()
+    {
         SceneStarted = false;
         Valid = false;
         RemoveActionObjects();
-    //    SelectorMenu.Instance.SelectorItems.Clear();
+        //    SelectorMenu.Instance.SelectorItems.Clear();
         SceneMeta = null;
-         HNotificationManager.Instance.ShowNotification("DESTORY SCENE");
+        HNotificationManager.Instance.ShowNotification("DESTORY SCENE");
         return true;
     }
 
     /// <summary>
     /// Destroys and removes references to all action objects in the scene.
     /// </summary>
-    public void RemoveActionObjects() {
-        foreach (string actionObjectId in ActionObjects.Keys.ToList<string>()) {
+    public void RemoveActionObjects()
+    {
+        foreach (string actionObjectId in ActionObjects.Keys.ToList<string>())
+        {
             RemoveActionObject(actionObjectId);
         }
         // just to make sure that none reference left
@@ -470,10 +527,14 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Destroys and removes references to action object of given Id.
     /// </summary>
     /// <param name="Id">Action object ID</param>
-    public void RemoveActionObject(string Id) {
-        try {
+    public void RemoveActionObject(string Id)
+    {
+        try
+        {
             ActionObjects[Id].DeleteActionObject();
-        } catch (NullReferenceException e) {
+        }
+        catch (NullReferenceException e)
+        {
             Debug.LogError(e);
         }
     }
@@ -485,25 +546,35 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <param name="type">Action object type</param>
     /// <param name="customCollisionModels">Allows to override collision model of spawned action objects</param>
     /// <returns>Spawned action object</returns>
-    public ActionObjectH SpawnActionObject(IO.Swagger.Model.SceneObject sceneObject, CollisionModels customCollisionModels = null) {
-        if (!ActionsManagerH.Instance.ActionObjectsMetadata.TryGetValue(sceneObject.Type, out ActionObjectMetadataH aom)) {
+    public ActionObjectH SpawnActionObject(IO.Swagger.Model.SceneObject sceneObject, CollisionModels customCollisionModels = null)
+    {
+        if (!ActionsManagerH.Instance.ActionObjectsMetadata.TryGetValue(sceneObject.Type, out ActionObjectMetadataH aom))
+        {
             return null;
         }
         GameObject obj;
-        if (aom.Robot) {
+        if (aom.Robot)
+        {
             //Debug.Log("URDF: spawning RobotActionObject");
             obj = Instantiate(RobotPrefab, ActionObjectsSpawn.transform);
-        } else if (aom.CollisionObject) {
+        }
+        else if (aom.CollisionObject)
+        {
             obj = Instantiate(CollisionObjectPrefab, ActionObjectsSpawn.transform);
-        } else if (aom.HasPose) {
+        }
+        else if (aom.HasPose)
+        {
             obj = Instantiate(ActionObjectPrefab, ActionObjectsSpawn.transform);
-        } else {
+        }
+        else
+        {
             obj = Instantiate(ActionObjectNoPosePrefab, ActionObjectsSpawn.transform);
         }
-        if( obj == null){
-            HNotificationManager.Instance.ShowNotification( "OBJECT ---- NULLL" );
+        if (obj == null)
+        {
+            HNotificationManager.Instance.ShowNotification("OBJECT ---- NULLL");
         }
-       
+
         ActionObjectH actionObject = obj.GetComponent<ActionObjectH>();
         actionObject.InitActionObject(sceneObject, obj.transform.localPosition, obj.transform.localRotation, aom, customCollisionModels);
         // Add the Action Object into scene reference
@@ -516,41 +587,51 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <summary>
     /// Enables all action objects
     /// </summary>
-    public void EnableAllActionObjects(bool enable, bool includingRobots=true) {
-        foreach (ActionObjectH ao in ActionObjects.Values) {
+    public void EnableAllActionObjects(bool enable, bool includingRobots = true)
+    {
+        foreach (ActionObjectH ao in ActionObjects.Values)
+        {
             if (!includingRobots && ao.IsRobot())
                 continue;
             ao.Enable(enable);
         }
     }
 
-    public void EnableAllRobots(bool enable) {
-        foreach (ActionObjectH ao in ActionObjects.Values) {
+    public void EnableAllRobots(bool enable)
+    {
+        foreach (ActionObjectH ao in ActionObjects.Values)
+        {
             if (ao.IsRobot())
                 ao.Enable(enable);
         }
     }
 
-    public List<ActionObjectH> GetAllActionObjectsWithoutPose() {
+    public List<ActionObjectH> GetAllActionObjectsWithoutPose()
+    {
         List<ActionObjectH> objects = new List<ActionObjectH>();
-        foreach (ActionObjectH actionObject in ActionObjects.Values) {
-            if (!actionObject.ActionObjectMetadata.HasPose && actionObject.gameObject.activeSelf) {
+        foreach (ActionObjectH actionObject in ActionObjects.Values)
+        {
+            if (!actionObject.ActionObjectMetadata.HasPose && actionObject.gameObject.activeSelf)
+            {
                 objects.Add(actionObject);
             }
         }
         return objects;
     }
 
-    public async Task<List<HRobotEE>> GetAllRobotsEEs() {
+    public async Task<List<HRobotEE>> GetAllRobotsEEs()
+    {
         List<HRobotEE> eeList = new List<HRobotEE>();
-        foreach (ActionObjectH ao in ActionObjects.Values) {
+        foreach (ActionObjectH ao in ActionObjects.Values)
+        {
             if (ao.IsRobot())
-                eeList.AddRange(await ((HIRobot) ao).GetAllEE());
+                eeList.AddRange(await ((HIRobot)ao).GetAllEE());
         }
         return eeList;
     }
 
-    public List<ActionObjectH> GetAllObjectsOfType(string type) {
+    public List<ActionObjectH> GetAllObjectsOfType(string type)
+    {
         return ActionObjects.Values.Where(obj => obj.ActionObjectMetadata.Type == type).ToList();
     }
 
@@ -559,7 +640,8 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="sceneObject">Description of action object</param>
     /// <returns></returns>
-    public void SceneObjectAdded(SceneObject sceneObject) {
+    public void SceneObjectAdded(SceneObject sceneObject)
+    {
         ActionObjectH actionObject = SpawnActionObject(sceneObject);
         HActionObjectPickerMenu.Instance.collisonObjects.SetActive(false);
         HActionObjectPickerMenu.Instance.models.SetActive(false);
@@ -570,12 +652,16 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Removes action object from scene
     /// </summary>
     /// <param name="sceneObject">Description of action object</param>
-    public void SceneObjectRemoved(SceneObject sceneObject) {
+    public void SceneObjectRemoved(SceneObject sceneObject)
+    {
         ActionObjectH actionObject = GetActionObject(sceneObject.Id);
-        if (actionObject != null) {
+        if (actionObject != null)
+        {
             ActionObjects.Remove(sceneObject.Id);
             actionObject.DeleteActionObject();
-        } else {
+        }
+        else
+        {
             Debug.LogError("Object " + sceneObject.Name + "(" + sceneObject.Id + ") not found");
         }
         updateScene = true;
@@ -585,25 +671,33 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Updates action object in scene
     /// </summary>
     /// <param name="sceneObject">Description of action object</param>
-    public void SceneObjectUpdated(SceneObject sceneObject) {
+    public void SceneObjectUpdated(SceneObject sceneObject)
+    {
         ActionObjectH actionObject = GetActionObject(sceneObject.Id);
-        if (actionObject != null) {
+        if (actionObject != null)
+        {
             actionObject.ActionObjectUpdate(sceneObject);
-        } else {
+        }
+        else
+        {
             Debug.LogError("Object " + sceneObject.Name + "(" + sceneObject.Id + ") not found");
         }
         SceneChanged = true;
     }
 
-        /// <summary>
+    /// <summary>
     /// Updates metadata of action object in scene
     /// </summary>
     /// <param name="sceneObject">Description of action object</param>
-    public void SceneObjectBaseUpdated(SceneObject sceneObject) {
+    public void SceneObjectBaseUpdated(SceneObject sceneObject)
+    {
         ActionObjectH actionObject = GetActionObject(sceneObject.Id);
-        if (actionObject != null) {
+        if (actionObject != null)
+        {
 
-        } else {
+        }
+        else
+        {
             Debug.LogError("Object " + sceneObject.Name + "(" + sceneObject.Id + ") not found");
         }
         updateScene = true;
@@ -615,17 +709,21 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="str">String to be transformed</param>
     /// <returns>Underscored string</returns>
-    public static string ToUnderscoreCase(string str) {
+    public static string ToUnderscoreCase(string str)
+    {
         return string.Concat(str.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString())).ToLower();
     }
-    
-    public string GetFreeObjectTypeName(string objectTypeName) {
+
+    public string GetFreeObjectTypeName(string objectTypeName)
+    {
         int i = 1;
         bool hasFreeName;
         string freeName = objectTypeName;
-        do {
+        do
+        {
             hasFreeName = true;
-            if (ActionsManagerH.Instance.ActionObjectsMetadata.ContainsKey(freeName)) {
+            if (ActionsManagerH.Instance.ActionObjectsMetadata.ContainsKey(freeName))
+            {
                 hasFreeName = false;
             }
             if (!hasFreeName)
@@ -640,9 +738,12 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="name">Human readable name of actio point</param>
     /// <returns>True if action object with given name exists, false otherwise</returns>
-    public bool ActionObjectsContainName(string name) {
-        foreach (ActionObjectH actionObject in ActionObjects.Values) {
-            if (actionObject.Data.Name == name) {
+    public bool ActionObjectsContainName(string name)
+    {
+        foreach (ActionObjectH actionObject in ActionObjects.Values)
+        {
+            if (actionObject.Data.Name == name)
+            {
                 return true;
             }
         }
@@ -655,13 +756,16 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="aoType">Type of action object</param>
     /// <returns></returns>
-    public string GetFreeAOName(string aoType) {
+    public string GetFreeAOName(string aoType)
+    {
         int i = 1;
         bool hasFreeName;
         string freeName = ToUnderscoreCase(aoType);
-        do {
+        do
+        {
             hasFreeName = true;
-            if (ActionObjectsContainName(freeName)) {
+            if (ActionObjectsContainName(freeName))
+            {
                 hasFreeName = false;
             }
             if (!hasFreeName)
@@ -675,12 +779,16 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// Registers for end effector poses (and if robot has URDF then for joints values as well) and displays EE positions in scene
     /// </summary>
     /// <param name="robotId">Id of robot which should be registered. If null, all robots in scene are registered.</param>
-    public bool ShowRobotsEE() {
+    public bool ShowRobotsEE()
+    {
         RobotsEEVisible = true;
-        if (SceneStarted) {
+        if (SceneStarted)
+        {
             OnShowRobotsEE?.Invoke(this, EventArgs.Empty);
-        } else {
-          //  Notifications.Instance.ShowToastMessage("End effectors will be shown after going online");
+        }
+        else
+        {
+            //  Notifications.Instance.ShowToastMessage("End effectors will be shown after going online");
         }
 
         PlayerPrefsHelper.SaveBool("scene/" + SceneMeta.Id + "/RobotsEEVisibility", true);
@@ -690,7 +798,8 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// <summary>
     /// Hides end effectors and unregister from EE positions and robot joints subscription
     /// </summary>
-    public void HideRobotsEE() {
+    public void HideRobotsEE()
+    {
         Debug.LogError("hide");
         RobotsEEVisible = false;
         OnHideRobotsEE?.Invoke(this, EventArgs.Empty);
@@ -702,20 +811,26 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args">Robot ee data</param>
-    private async void RobotEefUpdated(object sender, RobotEefUpdatedEventArgs args) {
-        if (!RobotsEEVisible || !Valid) {
+    private async void RobotEefUpdated(object sender, RobotEefUpdatedEventArgs args)
+    {
+        if (!RobotsEEVisible || !Valid)
+        {
             return;
         }
-        foreach (RobotEefDataEefPose eefPose in args.Data.EndEffectors) {
-            try {
+        foreach (RobotEefDataEefPose eefPose in args.Data.EndEffectors)
+        {
+            try
+            {
                 HIRobot robot = GetRobot(args.Data.RobotId);
                 HRobotEE ee = await robot.GetEE(eefPose.EndEffectorId, eefPose.ArmId);
                 ee.UpdatePosition(TransformConvertor.ROSToUnity(DataHelper.PositionToVector3(eefPose.Pose.Position)),
                     TransformConvertor.ROSToUnity(DataHelper.OrientationToQuaternion(eefPose.Pose.Orientation)));
-            } catch (ItemNotFoundException) {
+            }
+            catch (ItemNotFoundException)
+            {
                 continue;
             }
-            
+
         }
     }
 
@@ -724,16 +839,20 @@ public class SceneManagerH :  Singleton<SceneManagerH>
     /// </summary>
     /// <param name="sender">Who invoked event.</param>
     /// <param name="args">Robot joints data</param>
-    private async void RobotJointsUpdated(object sender, RobotJointsUpdatedEventArgs args) {
+    private async void RobotJointsUpdated(object sender, RobotJointsUpdatedEventArgs args)
+    {
         // if initializing or deinitializing scene OR scene is not started, dont update robot joints
         if (!Valid || !SceneStarted)
             return;
-        try {
+        try
+        {
             HIRobot robot = GetRobot(args.Data.RobotId);
 
             robot.SetJointValue(args.Data.Joints);
-        } catch (ItemNotFoundException) {
-            
+        }
+        catch (ItemNotFoundException)
+        {
+
         }
     }
 

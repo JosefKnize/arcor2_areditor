@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using Microsoft.MixedReality.Toolkit.UI;
 
-public class ActionObject3DH : ActionObjectH
-{
+public class ActionObject3DH : ActionObjectH {
     public TextMeshPro ActionObjectName;
     public GameObject Visual, Model;
 
@@ -35,7 +34,7 @@ public class ActionObject3DH : ActionObjectH
 
     }
 
-    
+
     public override Vector3 GetScenePosition() {
         return TransformConvertor.ROSToUnity(DataHelper.PositionToVector3(Data.Pose.Position));
     }
@@ -145,12 +144,12 @@ public class ActionObject3DH : ActionObjectH
         Model.layer = LayerMask.NameToLayer(layer);
     }
 
-    
-        public GameObject getInteractObject(){
-            return interactObject;
-        }
 
-     public void setInterarction(GameObject interactComponents){
+    public GameObject getInteractObject() {
+        return interactObject;
+    }
+
+    public void setInterarction(GameObject interactComponents) {
 
         BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
         collider.size = getInteractObject().transform.localScale;
@@ -160,16 +159,15 @@ public class ActionObject3DH : ActionObjectH
         ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
         boundsControl.BoundsOverride = collider;
 
-        if (ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh)){
-             boundsControl.ScaleLerpTime = 1L;
+        if (ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh)) {
+            boundsControl.ScaleLerpTime = 1L;
             objectManipulator.ScaleLerpTime = 1L;
 
             boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
             boundsControl.RotationHandlesConfig.ShowHandleForX = false;
             //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
             boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-        }
-        else {
+        } else {
             boundsControl.ScaleLerpTime = 0.6f;
             objectManipulator.ScaleLerpTime = 1f;
 
@@ -179,10 +177,10 @@ public class ActionObject3DH : ActionObjectH
             boundsControl.RotationHandlesConfig.ShowHandleForZ = true;
         }
 
-      
-   
+
+
         boundsControl.UpdateBounds();
-     }
+    }
 
 
     public override void CreateModel(CollisionModels customCollisionModels = null) {
@@ -192,11 +190,11 @@ public class ActionObject3DH : ActionObjectH
         } else {
             switch (ActionObjectMetadata.ObjectModel.Type) {
                 case IO.Swagger.Model.ObjectModel.TypeEnum.Box:
-                  
-                         Model = Instantiate(CubePrefab, Visual.transform);
-      
-                    
-                      if (customCollisionModels == null) {
+
+                    Model = Instantiate(CubePrefab, Visual.transform);
+
+
+                    if (customCollisionModels == null) {
                         Model.transform.localScale = TransformConvertor.ROSToUnityScale(new Vector3((float) ActionObjectMetadata.ObjectModel.Box.SizeX, (float) ActionObjectMetadata.ObjectModel.Box.SizeY, (float) ActionObjectMetadata.ObjectModel.Box.SizeZ));
                     } else {
                         foreach (IO.Swagger.Model.Box box in customCollisionModels.Boxes) {
@@ -206,7 +204,7 @@ public class ActionObject3DH : ActionObjectH
                             }
                         }
                     }
-                   
+
                     break;
                 case IO.Swagger.Model.ObjectModel.TypeEnum.Cylinder:
                     Model = Instantiate(CylinderPrefab, Visual.transform);
@@ -247,45 +245,45 @@ public class ActionObject3DH : ActionObjectH
                     break;
             }
         }
-        Vector3 vec =  Model.transform.localScale;
-        interactObject.transform.localScale  =new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
+        Vector3 vec = Model.transform.localScale;
+        interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         interactObject.transform.position = Model.transform.position;
-    //    interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
-      gameObject.GetComponent<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+        //    interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+        gameObject.GetComponent<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
         //if (IsRobot()) {
         //    Model.tag = "Robot";
         //}
-        
+
         gameObject.GetComponent<BindParentToChildH>().ChildToBind = Model;
         Collider = Model.GetComponent<Collider>();
         Colliders.Add(Collider);
-       // Model.GetComponent<OnClickCollider>().Target = gameObject;
+        // Model.GetComponent<OnClickCollider>().Target = gameObject;
 
-      //  outlineOnClick = gameObject.GetComponent<OutlineOnClick>();
+        //  outlineOnClick = gameObject.GetComponent<OutlineOnClick>();
 
         aoRenderers.Clear();
         aoRenderers.AddRange(Model.GetComponentsInChildren<Renderer>(true));
 
-        if(!ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh)){
-            if(Model.GetComponent<Outline>() ==null){
-                  Outline outline =   Model.AddComponent<Outline>();
+        if (!ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh)) {
+            if (Model.GetComponent<Outline>() == null) {
+                Outline outline = Model.AddComponent<Outline>();
 
-            outline.OutlineColor = new Color(45,76,255,255);
-            outline.OutlineWidth = 4;
-            outline.enabled = false;
+                outline.OutlineColor = new Color(45, 76, 255, 255);
+                outline.OutlineWidth = 4;
+                outline.enabled = false;
 
-            gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true );
-            gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false );
-               
+                gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true);
+                gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false);
+
             }
-           
-        }
- /*       BoundsControl boundsControl = transform.GetComponent<BoundsControl>();
-        Debug.Log(boundsControl);
-        transform.GetComponent<BoundsControl>().BoundsOverride = Model.GetComponent<BoxCollider>();*/
 
-      //  outlineOnClick.InitRenderers(aoRenderers);
+        }
+        /*       BoundsControl boundsControl = transform.GetComponent<BoundsControl>();
+               Debug.Log(boundsControl);
+               transform.GetComponent<BoundsControl>().BoundsOverride = Model.GetComponent<BoxCollider>();*/
+
+        //  outlineOnClick.InitRenderers(aoRenderers);
     }
 
     public override GameObject GetModelCopy() {
@@ -302,28 +300,28 @@ public class ActionObject3DH : ActionObjectH
         if (args.Name != this.GetId())
             return;
 
-      //  bool outlineWasHighlighted = outlineOnClick.Highlighted;
+        //  bool outlineWasHighlighted = outlineOnClick.Highlighted;
 
         if (Model != null) {
-          /*  outlineOnClick.UnHighlight();
-            outlineOnClick.ClearRenderers();*/
+            /*  outlineOnClick.UnHighlight();
+              outlineOnClick.ClearRenderers();*/
 
             Model.SetActive(false);
             Destroy(Model);
         }
 
-     
+
 
         Model = args.RootGameObject;
-        Model.gameObject.transform.localScale = new Vector3(1f,1f,1f);
+        Model.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
         Model.gameObject.transform.parent = Visual.transform;
         Model.gameObject.transform.localPosition = Vector3.zero;
         Model.gameObject.transform.localRotation = Quaternion.identity;
 
         gameObject.GetComponent<BindParentToChildH>().ChildToBind = Model;
-        
+
         foreach (Renderer child in Model.GetComponentsInChildren<Renderer>(true)) {
-         //   child.gameObject.AddComponent<OnClickCollider>().Target = gameObject;
+            //   child.gameObject.AddComponent<OnClickCollider>().Target = gameObject;
             child.gameObject.AddComponent<MeshCollider>();
         }
 
@@ -331,47 +329,46 @@ public class ActionObject3DH : ActionObjectH
         Colliders.Clear();
         aoRenderers.AddRange(Model.GetComponentsInChildren<Renderer>(true));
         Colliders.AddRange(Model.GetComponentsInChildren<MeshCollider>(true));
-     /*   outlineOnClick.InitRenderers(aoRenderers);
-        outlineOnClick.InitMaterials();*/
+        /*   outlineOnClick.InitRenderers(aoRenderers);
+           outlineOnClick.InitMaterials();*/
 
-        if (aoRenderers.Count > 0) 
-        {
-            Bounds totalBounds = new Bounds ();
+        if (aoRenderers.Count > 0) {
+            Bounds totalBounds = new Bounds();
 
             totalBounds = aoRenderers[0].bounds;
 
-            foreach(Renderer renderer in aoRenderers){
-                totalBounds.Encapsulate (renderer.bounds);
+            foreach (Renderer renderer in aoRenderers) {
+                totalBounds.Encapsulate(renderer.bounds);
             }
-        //      totalBounds.Encapsulate (robotColliders[6].bounds);
+            //      totalBounds.Encapsulate (robotColliders[6].bounds);
             interactObject.transform.localScale = transform.InverseTransformVector(totalBounds.size);
-            interactObject.transform.position = totalBounds.center;      
-            interactObject.transform.localRotation =  Quaternion.identity;
+            interactObject.transform.position = totalBounds.center;
+            interactObject.transform.localRotation = Quaternion.identity;
         }
 
         //transparent = false; //needs to be set before 1st call of SetVisibility after model loading
-        SetVisibility(visibility, forceShaderChange:true);
+        SetVisibility(visibility, forceShaderChange: true);
 
-    /*    if (outlineWasHighlighted) {
-            outlineOnClick.Highlight();*/
-          /*  if (SelectorMenu.Instance.ManuallySelected) {
-                DisplayOffscreenIndicator(true);
-            }*/
-    //    }
-     if(Model.GetComponent<Outline>() == null){
-           Outline outline =   Model.AddComponent<Outline>();
+        /*    if (outlineWasHighlighted) {
+                outlineOnClick.Highlight();*/
+        /*  if (SelectorMenu.Instance.ManuallySelected) {
+              DisplayOffscreenIndicator(true);
+          }*/
+        //    }
+        if (Model.GetComponent<Outline>() == null) {
+            Outline outline = Model.AddComponent<Outline>();
 
-            outline.OutlineColor = new Color(45,76,255,255);
+            outline.OutlineColor = new Color(45, 76, 255, 255);
             outline.OutlineWidth = 4;
             outline.enabled = false;
 
-            gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true );
-            gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false );
-               
-    }
+            gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true);
+            gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false);
 
-    MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
-  
+        }
+
+        MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
+
     }
 
 
@@ -380,7 +377,7 @@ public class ActionObject3DH : ActionObjectH
     /// </summary>
     /// <param name="obj"></param>
     private void OnModelLoadError(IContextualizedError obj) {
-     //   Notifications.Instance.ShowNotification("Unable to show mesh " + this.GetName(), obj.GetInnerException().Message);
+        //   Notifications.Instance.ShowNotification("Unable to show mesh " + this.GetName(), obj.GetInnerException().Message);
     }
 
 
@@ -426,8 +423,8 @@ public class ActionObject3DH : ActionObjectH
             if (Blocklisted) {
                 SetVisibility(0);
             } else {
-                 SetVisibility((float) 0.5);
-            //    SetVisibility(MainSettingsMenu.Instance.GetVisibilityActionObjects());
+                SetVisibility((float) 0.5);
+                //    SetVisibility(MainSettingsMenu.Instance.GetVisibilityActionObjects());
             }
         }
     }
@@ -453,9 +450,9 @@ public class ActionObject3DH : ActionObjectH
     }
 
     public override void EnableVisual(bool enable) {
-      //  interactObject.GetComponent<Outline>().enabled = enable;
+        //  interactObject.GetComponent<Outline>().enabled = enable;
         Visual.SetActive(enable);
-      //  interactObject.SetActive(enable);
+        //  interactObject.SetActive(enable);
     }
 
     public override void UpdateModel() {
@@ -465,7 +462,7 @@ public class ActionObject3DH : ActionObjectH
         switch (ActionObjectMetadata.ObjectModel.Type) {
             case ObjectModel.TypeEnum.Box:
                 dimensions = TransformConvertor.ROSToUnityScale(new Vector3((float) ActionObjectMetadata.ObjectModel.Box.SizeX, (float) ActionObjectMetadata.ObjectModel.Box.SizeY, (float) ActionObjectMetadata.ObjectModel.Box.SizeZ));
-               break;
+                break;
             case ObjectModel.TypeEnum.Sphere:
                 dimensions = TransformConvertor.ROSToUnityScale(new Vector3((float) ActionObjectMetadata.ObjectModel.Sphere.Radius, (float) ActionObjectMetadata.ObjectModel.Sphere.Radius, (float) ActionObjectMetadata.ObjectModel.Sphere.Radius));
                 break;
@@ -477,8 +474,8 @@ public class ActionObject3DH : ActionObjectH
         if (dimensions != null)
             Model.transform.localScale = new Vector3(dimensions.Value.x, dimensions.Value.y, dimensions.Value.z);
 
-        Vector3 vec =  Model.transform.localScale;
-        interactObject.transform.localScale  =new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
+        Vector3 vec = Model.transform.localScale;
+        interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         interactObject.transform.position = Model.transform.position;
     }
 }
