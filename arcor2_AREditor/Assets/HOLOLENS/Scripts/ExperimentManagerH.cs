@@ -53,19 +53,21 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         if (!ghostRobotsCreated)
         {
             // Add invisible robots in scene
-            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(0, 0, 0), new Vector3(0, 90, 0));             // TODO
-            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(0, 0, 0), new Vector3(0, 90, 0)); // TODO
-            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt");
+            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.571f, 0, 0.569f), new Vector3(0, 134.81f, 0));             
+            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.279f, 0.141f, -0.443f), new Vector3(0, 0, 0)); 
+            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.273f, 0, 0.140f), new Vector3(0, -90, 0));             
             ghostRobotsCreated = true;
         }
     }
 
-    GameObject CreateGhostConveyorBelt(string type)
+    GameObject CreateGhostConveyorBelt(string type, Vector3 scenePosition, Vector3 rotation)
     {
         MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
 
         var gameObject = new GameObject($"GhostRobot_ConveyorBelt");
         gameObject.transform.parent = SceneOrigin.transform;
+        gameObject.transform.localEulerAngles = rotation;
+        gameObject.transform.localPosition = scenePosition;
 
         var actionObject = ActionsManagerH.Instance.ActionObjectsMetadata.Values.First(x => x.Type == type);
         MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
@@ -77,8 +79,8 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     {
         args.RootGameObject.gameObject.transform.parent = refConveyorBelt.transform;
 
-        args.RootGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0); // TODO
-        args.RootGameObject.gameObject.transform.localPosition = new Vector3(0, 0, 0); // TODO
+        args.RootGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0); 
+        args.RootGameObject.gameObject.transform.localPosition = new Vector3(0, 0, 0);
         MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
     }
 
@@ -89,11 +91,14 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
             var gameObject = new GameObject($"GhostRobot_{type}");
             gameObject.transform.parent = SceneOrigin.transform;
 
+            gameObject.transform.localEulerAngles = rotation;
+            gameObject.transform.localPosition = scenePosition;
+
             RobotModelH robotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
             robotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
             robotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            robotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = rotation;
-            robotModel.RobotModelGameObject.gameObject.transform.localPosition = scenePosition;
+            robotModel.RobotModelGameObject.gameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
+            robotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
             robotModel.SetActiveAllVisuals(true);
 
             return gameObject;
@@ -116,11 +121,11 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         var dobot_m1 = GameObject.Find("dobot_m1");
 
         float DobotM1_distance = Vector3.Distance(refDobotM1.transform.position, dobot_m1.transform.position);
-        float DobotM1_angleDifference = Mathf.Abs(dobot_m1.transform.rotation.eulerAngles.y - 90 - refDobotM1.transform.rotation.eulerAngles.y);
+        float DobotM1_angleDifference = Mathf.Abs(dobot_m1.transform.rotation.eulerAngles.y - refDobotM1.transform.rotation.eulerAngles.y);
         DobotM1_angleDifference = (DobotM1_angleDifference > 180f) ? 360f - DobotM1_angleDifference : DobotM1_angleDifference;
 
         float DobotMagician_distance = Vector3.Distance(refDobotMagician.transform.position, dobot_magician.transform.position);
-        float DobotMagician_angleDifference = Mathf.Abs(dobot_magician.transform.rotation.eulerAngles.y - 90 - refDobotMagician.transform.rotation.eulerAngles.y);
+        float DobotMagician_angleDifference = Mathf.Abs(dobot_magician.transform.rotation.eulerAngles.y - refDobotMagician.transform.rotation.eulerAngles.y);
         DobotMagician_angleDifference = (DobotMagician_angleDifference > 180f) ? 360f - DobotMagician_angleDifference : DobotMagician_angleDifference;
 
         float ConveyorBelt_distance = Vector3.Distance(refConveyorBelt.transform.position, conveyor_belt.transform.position);

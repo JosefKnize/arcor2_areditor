@@ -1,3 +1,6 @@
+#define REMOTING
+
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,7 +49,7 @@ using QRTracking;
         void Awake()
         {
 
-    #if !UNITY_EDITOR
+    #if !UNITY_EDITOR || REMOTING
             /*SETUP QR*/
             GameObject QRInfo = qrCodePrefab.transform.Find("QRInfo").gameObject;
             GameObject Axis = QRInfo.transform.Find("Axis").gameObject;
@@ -79,21 +82,21 @@ using QRTracking;
 
 
          public void StartCalibration(object sender, EventArgs e){
-            #if !UNITY_EDITOR
-                QRCodesManager.Instance.StartQRTracking();
+#if !UNITY_EDITOR || REMOTING
+        QRCodesManager.Instance.StartQRTracking();
             #else
            //  GameManagerH.Instance.SceneSetParent( helpPr.transform);
                GameManagerH.Instance.Scene.transform.parent = EditorScenePrefab.transform;
-                 GameManagerH.Instance.Scene.transform.localPosition = new Vector3(0f, 0f, 0f);
+               GameManagerH.Instance.Scene.transform.localPosition = new Vector3(0f, 0f, 0f);
             #endif
 
          }
          public void SetCalibration(object sender, EventArgs e){
             Calibrated = false;
         //  isScene = false;
-    #if !UNITY_EDITOR
-        
-            GameManagerH.Instance.SceneSetParent(null);
+#if !UNITY_EDITOR || REMOTING
+
+        GameManagerH.Instance.SceneSetParent(null);
            
             GameManagerH.Instance.SceneSetActive(false);
             QRCodesManager.Instance.StopQRTracking();

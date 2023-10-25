@@ -25,7 +25,7 @@ public class HLandingManager : Singleton<HLandingManager>
         Debug.Assert(user != null);
         GameManagerH.Instance.OnConnectedToServer += ConnectedToServer;
      //   GameManagerH.Instance.OnDisconnectedFromServer += DisconnectedFromServer;
-        domain.text = PlayerPrefs.GetString("arserver_domain", "");
+        //domain.text = PlayerPrefs.GetString("arserver_domain", "");
         port.text = PlayerPrefs.GetInt("arserver_port", 6789).ToString();
         user.text = PlayerPrefs.GetString("arserver_username", "user1").ToString();
         connectButton.OnClick.AddListener(() => ConnectToServer(true));
@@ -39,7 +39,9 @@ public class HLandingManager : Singleton<HLandingManager>
         }
 
         var trimedDomain = domain.text.Trim();
-       
+        trimedDomain = "192.168.104.100";
+
+
         int portInt = int.Parse(port.text);
         PlayerPrefs.SetString("arserver_domain", trimedDomain);
         PlayerPrefs.SetInt("arserver_port", portInt);
