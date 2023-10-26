@@ -25,6 +25,7 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     public GameObject RobotPrefab;
 
     public bool Running { get; set; } = false;
+    public bool DisplayModels { get; private set; } = true;
 
     private bool ghostRobotsCreated = false;
 
@@ -53,9 +54,12 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         if (!ghostRobotsCreated)
         {
             // Add invisible robots in scene Vector3(Dopøedu/Dozadu, Nahoru/Dolu, Doleva/Doprava)
-            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5553f, 0, 0.5556f), new Vector3(0, 135f, 0));             
-            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.3285f, 0.141f, -0.4535f), new Vector3(0, 0, 0)); 
-            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.3475f, 0, 0.1150f), new Vector3(0, -90, 0));
+            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.56f, 0, 0.56f), new Vector3(0, 135f, 0));
+            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.28f, 0.141f, -0.44f), new Vector3(0, 0, 0));
+            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.295f, 0, 0.145f), new Vector3(0, -90, 0));
+            //refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5553f, 0, 0.5556f), new Vector3(0, 135f, 0));             
+            //refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.3285f, 0.141f, -0.4535f), new Vector3(0, 0, 0)); 
+            //refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.3475f, 0, 0.1150f), new Vector3(0, -90, 0));
             //refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.571f, 0, 0.569f), new Vector3(0, 134.81f, 0));
             //refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.279f, 0.141f, -0.443f), new Vector3(0, 0, 0));
             //refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.273f, 0, 0.140f), new Vector3(0, -90, 0));
@@ -65,15 +69,17 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
     GameObject CreateGhostConveyorBelt(string type, Vector3 scenePosition, Vector3 rotation)
     {
-        MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
-
         var gameObject = new GameObject($"GhostRobot_ConveyorBelt");
         gameObject.transform.parent = SceneOrigin.transform;
         gameObject.transform.localEulerAngles = rotation;
         gameObject.transform.localPosition = scenePosition;
 
-        var actionObject = ActionsManagerH.Instance.ActionObjectsMetadata.Values.First(x => x.Type == type);
-        MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
+        if (DisplayModels)
+        {
+            MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
+            var actionObject = ActionsManagerH.Instance.ActionObjectsMetadata.Values.First(x => x.Type == type);
+            MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
+        }
 
         return gameObject;
     }
@@ -82,34 +88,36 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     {
         args.RootGameObject.gameObject.transform.parent = refConveyorBelt.transform;
 
-        args.RootGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0); 
+        args.RootGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
         args.RootGameObject.gameObject.transform.localPosition = new Vector3(0, 0, 0);
         MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
     }
 
     GameObject CreateGhostRobot(string type, Vector3 scenePosition, Vector3 rotation)
     {
-        if (ActionsManagerH.Instance.RobotsMeta.TryGetValue(type, out RobotMeta robotMeta))
+        var gameObject = new GameObject($"GhostRobot_{type}");
+        gameObject.transform.parent = SceneOrigin.transform;
+        gameObject.transform.localEulerAngles = rotation;
+        gameObject.transform.localPosition = scenePosition;
+
+        if (DisplayModels)
         {
-            var gameObject = new GameObject($"GhostRobot_{type}");
-            gameObject.transform.parent = SceneOrigin.transform;
-
-            gameObject.transform.localEulerAngles = rotation;
-            gameObject.transform.localPosition = scenePosition;
-
-            RobotModelH robotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
-            robotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
-            robotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            robotModel.RobotModelGameObject.gameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
-            robotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-            robotModel.SetActiveAllVisuals(true);
-
-            return gameObject;
+            if (ActionsManagerH.Instance.RobotsMeta.TryGetValue(type, out RobotMeta robotMeta))
+            {
+                RobotModelH robotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
+                robotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
+                robotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
+                robotModel.RobotModelGameObject.gameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
+                robotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+                robotModel.SetActiveAllVisuals(true);
+            }
+            else
+            {
+                throw new Exception("Experiment manager couldn't create ghost robot");
+            }
         }
-        else
-        {
-            throw new Exception("Experiment manager couldn't create ghost robot");
-        }
+
+        return gameObject;
     }
 
     public void StopExperiment()
@@ -124,15 +132,15 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         var dobot_m1 = GameObject.Find("dobot_m1");
 
         float DobotM1_distance = Vector3.Distance(refDobotM1.transform.position, dobot_m1.transform.position);
-        float DobotM1_angleDifference = Mathf.Abs(dobot_m1.transform.rotation.eulerAngles.y - refDobotM1.transform.rotation.eulerAngles.y);
+        float DobotM1_angleDifference = Mathf.Abs(dobot_m1.transform.localEulerAngles.y - refDobotM1.transform.localEulerAngles.y);
         DobotM1_angleDifference = (DobotM1_angleDifference > 180f) ? 360f - DobotM1_angleDifference : DobotM1_angleDifference;
 
         float DobotMagician_distance = Vector3.Distance(refDobotMagician.transform.position, dobot_magician.transform.position);
-        float DobotMagician_angleDifference = Mathf.Abs(dobot_magician.transform.rotation.eulerAngles.y - refDobotMagician.transform.rotation.eulerAngles.y);
+        float DobotMagician_angleDifference = Mathf.Abs(dobot_magician.transform.localEulerAngles.y - refDobotMagician.transform.localEulerAngles.y);
         DobotMagician_angleDifference = (DobotMagician_angleDifference > 180f) ? 360f - DobotMagician_angleDifference : DobotMagician_angleDifference;
 
         float ConveyorBelt_distance = Vector3.Distance(refConveyorBelt.transform.position, conveyor_belt.transform.position);
-        float ConveyorBelt_angleDifference = Mathf.Abs(conveyor_belt.transform.rotation.eulerAngles.y - refConveyorBelt.transform.rotation.eulerAngles.y);
+        float ConveyorBelt_angleDifference = Mathf.Abs(conveyor_belt.transform.localEulerAngles.y - refConveyorBelt.transform.localEulerAngles.y);
         ConveyorBelt_angleDifference = (ConveyorBelt_angleDifference > 180f) ? 360f - ConveyorBelt_angleDifference : ConveyorBelt_angleDifference;
 
         float averageDistance = (DobotM1_distance + DobotMagician_distance + ConveyorBelt_distance) / 3;
@@ -144,6 +152,7 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         {
             Directory.CreateDirectory(Application.persistentDataPath);
         }
-        File.WriteAllText(filePath, $"Time: {time}\nDistance: {totalDistance}\nRobot position error: {averageDistance}\nRobot rotation error: {averageAngleDifference}");
+
+        File.WriteAllText(filePath, $"Time: {time}\nDistance: {totalDistance}\nRobot position error: {averageDistance}\nRobot rotation error: {averageAngleDifference}\nDobotM1: {dobot_m1.transform.localPosition}{dobot_m1.transform.localEulerAngles}\nConveyorBelt: {conveyor_belt.transform.localPosition}{conveyor_belt.transform.localEulerAngles}\nDobotMagician: {dobot_magician.transform.localPosition}{dobot_magician.transform.localEulerAngles}");
     }
 }
