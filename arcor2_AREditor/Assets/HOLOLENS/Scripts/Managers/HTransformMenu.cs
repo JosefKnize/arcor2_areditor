@@ -173,8 +173,6 @@ public class HTransformMenu : Singleton<HTransformMenu> {
             actionPoint.EnableOffscreenIndicator(false);
             actionPoint.EnableVisual(false);
 
-
-
         } else if(interactiveObject is RobotActionObjectH robot){
             model = robot.GetModelCopy();
             model.transform.SetParent(p: GizmoTransform);
