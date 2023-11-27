@@ -8,7 +8,7 @@ using System.Linq;
 
 public class HLockingEventCache : Singleton<HLockingEventCache>
 {
-            /// <summary>
+        /// <summary>
         /// Invoked when an object is locked or unlocked
         /// </summary>
         public event AREditorEventArgs.ObjectLockingEventHandler OnObjectLockingEvent;

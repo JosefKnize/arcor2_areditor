@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Base;
-using Microsoft.MixedReality.Toolkit.UI;
 using System.Threading.Tasks;
 using Hololens;
-using System;
 using UnityEngine.Events;
 
 
@@ -331,16 +329,16 @@ public class HSelectorManager : Singleton<HSelectorManager> {
 
     public void OnSelectObject(HInteractiveObject selectedObject) {
         // lastClicked = null;
-        this.selectedObject = selectedObject;
-        if (lastClicked == ClickedEnum.Transform && HHandMenuManager.Instance.getActualClicked().Equals(HHandMenuManager.AllClickedEnum.Transform)) {
-            unlockObject();
-            if (!HTransformMenu.Instance.isDeactivated()) {
-                StartCoroutine(WaitUntilLastTransformDestroyed(() => selectedAction?.Invoke()));
-            } else {
-                selectedAction?.Invoke();
-            }
-        } else {
-            selectedAction?.Invoke();
-        }
+        //this.selectedObject = selectedObject;
+        //if (lastClicked == ClickedEnum.Transform && HHandMenuManager.Instance.getActualClicked().Equals(HHandMenuManager.AllClickedEnum.Transform)) {
+        //    unlockObject();
+        //    if (!HTransformMenu.Instance.isDeactivated()) {
+        //        StartCoroutine(WaitUntilLastTransformDestroyed(() => selectedAction?.Invoke()));
+        //    } else {
+        //        selectedAction?.Invoke();
+        //    }
+        //} else {
+        //    selectedAction?.Invoke();
+        //}
     }
 }

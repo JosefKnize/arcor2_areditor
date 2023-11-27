@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Base;
 using UnityEngine;
-using Microsoft.MixedReality.Toolkit.Utilities;
-using Microsoft.MixedReality.Toolkit.UI;
 
 
 public class HConnectionManagerArcoro : Base.Singleton<HConnectionManagerArcoro>

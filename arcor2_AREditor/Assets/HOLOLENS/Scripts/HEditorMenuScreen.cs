@@ -1,22 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Microsoft.MixedReality.Toolkit.UI;
 using System;
 using Base;
 using IO.Swagger.Model;
 using Newtonsoft.Json;
 using System.Linq;
-
-
+using MixedReality.Toolkit;
 
 public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 {
 
-    public Interactable closeSceneButton;
+    public StatefulInteractable closeSceneButton;
 
-    public Interactable notificationButton;
-    public Interactable switchSceneState;
+    public StatefulInteractable notificationButton;
+    public StatefulInteractable switchSceneState;
 
     // Start is called before the first frame update
     void Start()
@@ -27,8 +25,8 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
        // GameManagerH.Instance.OnOpenProjectEditor += OnOpenEditorSceneMenu;
     
      //   closeSceneButton.OnClick.AddListener(() => CloseScene());
-        notificationButton.OnClick.AddListener(() => HNotificationManager.Instance.ShowNotificationScreen());
-        switchSceneState.OnClick.AddListener(() => SwitchSceneState());
+        //notificationButton.OnClicked.AddListener(() => HNotificationManager.Instance.ShowNotificationScreen());
+        //switchSceneState.OnClicked.AddListener(() => SwitchSceneState());
         SceneManagerH.Instance.OnSceneStateEvent += OnSceneStateEvent;
 
 
@@ -91,10 +89,10 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 
     private void OnSceneStateEvent(object sender, SceneStateEventArgs args) {
         if (args.Event.State == IO.Swagger.Model.SceneStateData.StateEnum.Started) {
-            switchSceneState.IsToggled = true;
+            switchSceneState.ForceSetToggled(true);
         } 
         else {
-            switchSceneState.IsToggled = false;
+            switchSceneState.ForceSetToggled(false);
         }
     }
 

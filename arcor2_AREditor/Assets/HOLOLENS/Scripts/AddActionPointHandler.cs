@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Microsoft.MixedReality.Toolkit.Input;
 using Base;
-using Microsoft.MixedReality.Toolkit;
-using Microsoft.MixedReality.Toolkit.Utilities;
-using Hololens;
+using UnityEngine.InputSystem;
+using MixedReality.Toolkit;
+using UnityEngine.XR;
+using MixedReality.Toolkit.Subsystems;
 
-public class AddActionPointHandler : Singleton<AddActionPointHandler>, IMixedRealityPointerHandler,  IMixedRealityFocusChangedHandler
+public class AddActionPointHandler : Singleton<AddActionPointHandler>
 {
 
     private bool isFocused = false;
@@ -15,58 +13,73 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>, IMixedRea
 
     public GameObject actionPointPrefab;
 
-    void Update() {
-        if(registered){
-            if(HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Any, out MixedRealityPose pose)){
+    [SerializeField]
+    private InputActionReference leftHandReference;
+    [SerializeField]
+    private InputActionReference rightHandReference;
+
+
+
+    void Update()
+    {
+        ProcessHand(XRNode.LeftHand);
+        ProcessHand(XRNode.RightHand);
+    }
+
+    void ProcessHand(XRNode hand)
+    {
+        if (registered)
+        {
+            var aggregator = XRSubsystemHelpers.GetFirstRunningSubsystem<HandsAggregatorSubsystem>();
+            if (aggregator.TryGetJoint(TrackedHandJoint.IndexTip, hand, out HandJointPose pose))
+            {
                 actionPointPrefab.GetComponent<Renderer>().enabled = true;
                 actionPointPrefab.transform.position = pose.Position;
             }
-            else {
+            else
+            {
                 actionPointPrefab.GetComponent<Renderer>().enabled = false;
             }
         }
     }
 
-    public void registerHandlers(bool register = true){
+    public void registerHandlers(bool register = true)
+    {
         registered = register;
-        CoreServices.InputSystem?.RegisterHandler<IMixedRealityPointerHandler>(this); 
-        CoreServices.InputSystem?.RegisterHandler< IMixedRealityFocusChangedHandler>(this); 
+        leftHandReference.action.performed += HandActionPerformed;
+        rightHandReference.action.performed += HandActionPerformed;
     }
 
-    public void unregisterHandlers(){
-        if(registered){
+
+
+    public void unregisterHandlers()
+    {
+        if (registered)
+        {
             actionPointPrefab.GetComponent<Renderer>().enabled = false;
         }
         registered = false;
-         
-        CoreServices.InputSystem?.UnregisterHandler<IMixedRealityPointerHandler>(this); 
-        CoreServices.InputSystem?.UnregisterHandler< IMixedRealityFocusChangedHandler>(this); 
 
-    }
-    void IMixedRealityPointerHandler.OnPointerUp(MixedRealityPointerEventData eventData){}
-    void IMixedRealityPointerHandler.OnPointerDown(MixedRealityPointerEventData eventData){}
-    void IMixedRealityPointerHandler.OnPointerDragged(MixedRealityPointerEventData eventData){}
-    void  IMixedRealityFocusChangedHandler.OnBeforeFocusChange(FocusEventData eventData){}
-    void  IMixedRealityFocusChangedHandler.OnFocusChanged(FocusEventData eventData ) {
-
-        if(eventData.NewFocusedObject == null){
-            isFocused = false;
-        }
-        else {
-            isFocused = true;
-        } 
+        leftHandReference.action.performed -= HandActionPerformed;
+        rightHandReference.action.performed -= HandActionPerformed;
     }
 
 
-    void IMixedRealityPointerHandler.OnPointerClicked(MixedRealityPointerEventData eventData)
+    private void HandActionPerformed(InputAction.CallbackContext obj)
     {
-        GameObject targetObject = eventData.Pointer.Result.CurrentPointerTarget;
-        if(targetObject == null || targetObject.name.Contains("SpatialMesh")){
-            HSelectorManager.Instance.OnSelectObject(null);
-        }
-      /*  if(!isFocused){
-            HSelectorManager.Instance.OnSelectObject(null);
-        }*/
+
     }
+
+    //void IMixedRealityPointerHandler.OnPointerClicked(MixedRealityPointerEventData eventData)
+    //{
+    //    GameObject targetObject = eventData.Pointer.Result.CurrentPointerTarget;
+    //    if (targetObject == null || targetObject.name.Contains("SpatialMesh"))
+    //    {
+    //        HSelectorManager.Instance.OnSelectObject(null);
+    //    }
+    //    /*  if(!isFocused){
+    //          HSelectorManager.Instance.OnSelectObject(null);
+    //      }*/
+    //}
 
 }

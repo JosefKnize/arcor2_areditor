@@ -8,9 +8,8 @@ using IO.Swagger.Model;
 using TriLibCore;
 using System;
 using TriLibCore.General;
-using System.Threading.Tasks;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
+using MixedReality.Toolkit.SpatialManipulation;
+using MixedReality.Toolkit;
 
 public class ActionObject3DH : ActionObjectH {
     public TextMeshPro ActionObjectName;
@@ -157,29 +156,28 @@ public class ActionObject3DH : ActionObjectH {
 
         BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
         ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-        boundsControl.BoundsOverride = collider;
 
         if (ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh)) {
             boundsControl.ScaleLerpTime = 1L;
             objectManipulator.ScaleLerpTime = 1L;
 
-            boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-            boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-            //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-            boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
+            //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
+            //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
+            ////boundsControl.RotationHandlesConfig.ShowHandleForY = false;
+            //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
         } else {
             boundsControl.ScaleLerpTime = 0.6f;
             objectManipulator.ScaleLerpTime = 1f;
 
-            boundsControl.ScaleHandlesConfig.ShowScaleHandles = true;
-            boundsControl.RotationHandlesConfig.ShowHandleForX = true;
-            boundsControl.RotationHandlesConfig.ShowHandleForY = true;
-            boundsControl.RotationHandlesConfig.ShowHandleForZ = true;
+            //boundsControl.ScaleHandlesConfig.ShowScaleHandles = true;
+            //boundsControl.RotationHandlesConfig.ShowHandleForX = true;
+            //boundsControl.RotationHandlesConfig.ShowHandleForY = true;
+            //boundsControl.RotationHandlesConfig.ShowHandleForZ = true;
         }
 
 
 
-        boundsControl.UpdateBounds();
+        //boundsControl.UpdateBounds();
     }
 
 
@@ -249,7 +247,7 @@ public class ActionObject3DH : ActionObjectH {
         interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         interactObject.transform.position = Model.transform.position;
         //    interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
-        gameObject.GetComponent<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+        gameObject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
         //if (IsRobot()) {
         //    Model.tag = "Robot";
@@ -273,8 +271,8 @@ public class ActionObject3DH : ActionObjectH {
                 outline.OutlineWidth = 4;
                 outline.enabled = false;
 
-                gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true);
-                gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false);
+                gameObject.GetComponent<ObjectManipulator>().hoverEntered.AddListener((a) => outline.enabled = true);
+                gameObject.GetComponent<ObjectManipulator>().hoverExited.AddListener((a) => outline.enabled = false);
 
             }
 
@@ -362,8 +360,8 @@ public class ActionObject3DH : ActionObjectH {
             outline.OutlineWidth = 4;
             outline.enabled = false;
 
-            gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) => outline.enabled = true);
-            gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => outline.enabled = false);
+            gameObject.GetComponent<ObjectManipulator>().hoverEntered.AddListener((a) => outline.enabled = true);
+            gameObject.GetComponent<ObjectManipulator>().hoverExited.AddListener((a) => outline.enabled = false);
 
         }
 

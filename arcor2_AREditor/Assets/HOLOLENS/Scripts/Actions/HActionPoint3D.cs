@@ -6,10 +6,8 @@ using TMPro;
 using System;
 using System.Threading.Tasks;
 using Base;
-using Hololens;
-using Base;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.SpatialManipulation;
 
 //[RequireComponent(typeof(OutlineOnClick))]
 //[RequireComponent(typeof(Target))]
@@ -26,7 +24,7 @@ public class HActionPoint3D : HActionPoint
 
 
     private void Awake() {
-        interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+        interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
 
     }
 
@@ -246,7 +244,8 @@ public class HActionPoint3D : HActionPoint
 
         BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
         ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-        boundsControl.BoundsOverride = collider;
+
+        //boundsControl.BoundsOverride = collider;
 
              
         boundsControl.ScaleLerpTime = 1L;
@@ -254,12 +253,10 @@ public class HActionPoint3D : HActionPoint
         objectManipulator.ScaleLerpTime = 1L;
         objectManipulator.RotateLerpTime = 1L;
 
-        boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-
-   
-        boundsControl.UpdateBounds();
+        //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
+        //boundsControl.UpdateBounds();
     }
 }

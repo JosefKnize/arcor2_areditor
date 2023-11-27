@@ -5,11 +5,8 @@ using Hololens;
 using System.Threading.Tasks;
 using System;
 using Base;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
-
-
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.SpatialManipulation;
 
 public abstract class HStartEndAction : HAction
 {
@@ -25,7 +22,7 @@ public abstract class HStartEndAction : HAction
 
     public virtual void Init(IO.Swagger.Model.Action projectAction, ActionMetadataH metadata, HActionPoint ap, IActionProviderH actionProvider, string actionType) {
         base.Init(projectAction, metadata, ap, actionProvider);
-        interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+        interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
 
 
         if (!HProjectManager.Instance.ProjectMeta.HasLogic) {
@@ -101,7 +98,6 @@ public abstract class HStartEndAction : HAction
 
         BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
         ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-        boundsControl.BoundsOverride = collider;
 
              
         boundsControl.ScaleLerpTime = 1L;
@@ -109,12 +105,10 @@ public abstract class HStartEndAction : HAction
         objectManipulator.ScaleLerpTime = 1L;
         objectManipulator.RotateLerpTime = 1L;
 
-        boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-
-   
-        boundsControl.UpdateBounds();
+        //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
+        //boundsControl.UpdateBounds();
     }
 }

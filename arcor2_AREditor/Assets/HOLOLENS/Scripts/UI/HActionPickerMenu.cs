@@ -1,19 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using System.Linq;
 using Hololens;
-using Microsoft.MixedReality.Toolkit;
-using Microsoft.MixedReality.Toolkit.UI;
-using IO.Swagger.Model;
 using Newtonsoft.Json;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using Base;
-
-using System.Threading.Tasks;
-using Microsoft.MixedReality.Toolkit.Input;
-using UnityEngine.XR.WSA.Input;
+using MixedReality.Toolkit;
 
 public class HActionPickerMenu : Singleton<HActionPickerMenu> {
 
@@ -32,8 +23,8 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu> {
 
     void Start() {
         // GestureRecognizer gesture = new GestureRecognizer();
-        closeButton.GetComponent<Interactable>().OnClick.AddListener(() => { cancelAction(); HSelectorManager.Instance.clickedAddAPButton(); });
-        HProjectManager.Instance.OnActionAddedToScene += OnActionAddedToScene;
+        //closeButton.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => { cancelAction(); HSelectorManager.Instance.clickedAddAPButton(); });
+        //HProjectManager.Instance.OnActionAddedToScene += OnActionAddedToScene;
         //SceneManagerH.Instance.OnSceneStateEvent += OnSceneStateEvent;
     }
 
@@ -86,12 +77,12 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu> {
                 GameObject button = Instantiate(actionPrefab);
                 button.transform.parent = actionsList.transform;
                 button.transform.eulerAngles = actionsList.transform.eulerAngles;
-                Interactable interact = button.GetComponent<Interactable>();
-                ButtonConfigHelper buttonConfigHelper = button.GetComponent<ButtonConfigHelper>();
-                buttonConfigHelper.MainLabelText = am.Name;
-                actionsList.GetComponent<GridObjectCollection>().UpdateCollection();
+                //StatefulInteractable interact = button.GetComponent<StatefulInteractable>();
+                //ButtonConfigHelper buttonConfigHelper = button.GetComponent<ButtonConfigHelper>();
+                //buttonConfigHelper.MainLabelText = am.Name;
+                //actionsList.GetComponent<GridObjectCollection>().UpdateCollection();
                 listOfActions.Add(am.Name, button);
-                interact.OnClick.AddListener(() => CreateNewAction(am.Name, actionObject));
+                //interact.OnClick.AddListener(() => CreateNewAction(am.Name, actionObject));
             }
         }
     }

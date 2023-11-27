@@ -10,8 +10,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Hololens;
 using Base;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
+
+using UnityEngine.XR.Interaction.Toolkit;
+using MixedReality.Toolkit.UX;
+using MixedReality.Toolkit;
+using RequestResult = Base.RequestResult;
 
 //[RequireComponent(typeof(OutlineOnClick))]
 //[RequireComponent(typeof(Target))]
@@ -31,9 +34,9 @@ public class HAction3D : HAction
 
     protected override void Start() {
         base.Start();
-        interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+        interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
-      //  GameManagerH.Instance.OnStopPackage += OnProjectStop;
+        //  GameManagerH.Instance.OnStopPackage += OnProjectStop;
     }
 
     private void LateUpdate() {

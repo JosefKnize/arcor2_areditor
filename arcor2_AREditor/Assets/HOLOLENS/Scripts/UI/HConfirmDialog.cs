@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using Microsoft.MixedReality.Toolkit.UI;
-
+using MixedReality.Toolkit.UX.Deprecated;
+using MixedReality.Toolkit;
 
 public class HConfirmDialog : MonoBehaviour
 {
@@ -15,19 +13,19 @@ public class HConfirmDialog : MonoBehaviour
 
     public virtual void Open(string title, string description, UnityAction confirmationCallback, UnityAction cancelCallback, string confirmLabel = "Confirm", string cancelLabel = "Cancel", bool wideButtons = false) {
        
-       buttonLeft.GetComponent<Interactable>().OnClick.RemoveAllListeners();
-       buttonRight.GetComponent<Interactable>().OnClick.RemoveAllListeners();
-       buttonLeft.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
-       buttonRight.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
-       dialogShell.TitleText.text = title;
-       dialogShell.DescriptionText.text = description;
-       buttonLeft.GetComponent<ButtonConfigHelper>().MainLabelText = confirmLabel;
-       buttonRight.GetComponent<ButtonConfigHelper>().MainLabelText = cancelLabel;
-       buttonLeft.GetComponent<ButtonConfigHelper>().OnClick.AddListener(confirmationCallback);
-       buttonRight.GetComponent<ButtonConfigHelper>().OnClick.AddListener(() => Close());
-       buttonLeft.GetComponent<Interactable>().OnClick.AddListener(confirmationCallback);
-       buttonRight.GetComponent<Interactable>().OnClick.AddListener(() => Close());
-       gameObject.SetActive(true);
+       //buttonLeft.GetComponent<StatefulInteractable>().OnClicked.RemoveAllListeners();
+       //buttonRight.GetComponent<StatefulInteractable>().OnClicked.RemoveAllListeners();
+       //buttonLeft.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
+       //buttonRight.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
+       //dialogShell.TitleText.text = title;
+       //dialogShell.DescriptionText.text = description;
+       //buttonLeft.GetComponent<ButtonConfigHelper>().MainLabelText = confirmLabel;
+       //buttonRight.GetComponent<ButtonConfigHelper>().MainLabelText = cancelLabel;
+       //buttonLeft.GetComponent<ButtonConfigHelper>().OnClick.AddListener(confirmationCallback);
+       //buttonRight.GetComponent<ButtonConfigHelper>().OnClick.AddListener(() => Close());
+       //buttonLeft.GetComponent<StatefulInteractable>().OnClick.AddListener(confirmationCallback);
+       //buttonRight.GetComponent<StatefulInteractable>().OnClick.AddListener(() => Close());
+       //gameObject.SetActive(true);
     }
 
     public virtual void Close(){

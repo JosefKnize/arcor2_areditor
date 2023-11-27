@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using Base;
+using MixedReality.Toolkit.UX.Deprecated;
+using MixedReality.Toolkit.UX;
 
 public class HRenameDialog : MonoBehaviour
 {  
@@ -38,16 +36,16 @@ public class HRenameDialog : MonoBehaviour
 
         dialogShell.DescriptionText.text = "Rename " + interactiveObject.GetObjectTypeName();
        
-        buttonCancel.GetComponent<Interactable>().OnClick.RemoveAllListeners();
-        buttonCancel.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
-        buttonConfirm.GetComponent<ButtonConfigHelper>().MainLabelText = "Confirm";
-        buttonCancel.GetComponent<ButtonConfigHelper>().MainLabelText = "Cancel";
+        //buttonCancel.GetComponent<Interactable>().OnClick.RemoveAllListeners();
+        //buttonCancel.GetComponent<ButtonConfigHelper>().OnClick.RemoveAllListeners();
+        //buttonConfirm.GetComponent<ButtonConfigHelper>().MainLabelText = "Confirm";
+        //buttonCancel.GetComponent<ButtonConfigHelper>().MainLabelText = "Cancel";
 
-        buttonCancel.GetComponent<ButtonConfigHelper>().OnClick.AddListener(() => Close());
-        buttonCancel.GetComponent<Interactable>().OnClick.AddListener(() => Close());
+        //buttonCancel.GetComponent<ButtonConfigHelper>().OnClick.AddListener(() => Close());
+        //buttonCancel.GetComponent<Interactable>().OnClick.AddListener(() => Close());
 
-        if (cancelCallback != null)
-             buttonCancel.GetComponent<Interactable>().OnClick.AddListener(cancelCallback);
+        //if (cancelCallback != null)
+        //     buttonCancel.GetComponent<Interactable>().OnClick.AddListener(cancelCallback);
         this.confirmCallback = confirmationCallback;
         gameObject.SetActive(true);
         

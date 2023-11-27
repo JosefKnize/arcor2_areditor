@@ -7,10 +7,8 @@ using Hololens;
 using Base;
 using IO.Swagger.Model;
 using Newtonsoft.Json;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using TMPro;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
+using MixedReality.Toolkit;
 
 public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 {
@@ -143,9 +141,9 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                     selectCube.GetComponentInChildren<TextMeshPro>().text = robotMeta.Type;
                     selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                     selectCube.transform.parent = models.transform;
-                    selectCube.transform.GetComponentInChildren<Interactable>().OnClick.AddListener(() => CreateActionObject(actionObject.Type));
+                    selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
                     objectsModels.Add(robotMeta.Type, selectCube);
-                    models.GetComponent<GridObjectCollection>().UpdateCollection();
+                    //models.GetComponent<ObjectCollection>().UpdateCollection();
                     // Get the robot model, if it returns null, the robot will be loading itself
                     RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
 
@@ -183,10 +181,10 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 selectCube.GetComponentInChildren<TextMeshPro>().text = actionObject.Type;
                 selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                 selectCube.transform.parent = models.transform;
-                selectCube.transform.GetComponentInChildren<Interactable>().OnClick.AddListener(() => CreateActionObject(actionObject.Type));
+                selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
 
                 objectsModels.Add(actionObject.Type, selectCube);
-                models.GetComponent<GridObjectCollection>().UpdateCollection();
+                //models.GetComponent<GridObjectCollection>().UpdateCollection();
                 MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
             }
         }

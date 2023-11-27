@@ -903,7 +903,6 @@ public class GameManagerH : Singleton<GameManagerH> {
         Scene.transform.localEulerAngles = new Vector3(0f, 90f, 90f);
     }
 
-
     public void InvokeScenesListChanged() {
         OnScenesListChanged?.Invoke(this, EventArgs.Empty);
     }

@@ -1,18 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using IO.Swagger.Model;
-using RosSharp.Urdf;
 using TMPro;
 using UnityEngine;
 using Base;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using Microsoft.MixedReality.Toolkit.UI;
-
+using MixedReality.Toolkit;
+using MixedReality.Toolkit.SpatialManipulation;
 
 namespace Hololens {
 
@@ -247,7 +243,7 @@ namespace Hololens {
             robotRenderers.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>(true));
             robotColliders.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Collider>(true));
           //  interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
-            gameObject.GetComponent<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
+            gameObject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
 
              /*UrdfRobot urdfRobot = RobotModel.RobotModelGameObject.GetComponent<UrdfRobot>();
 
@@ -288,8 +284,8 @@ namespace Hololens {
                // Destroy(RobotModel.RobotModelGameObject.GetComponent<Outline>());
             }
            
-                gameObject.GetComponent<ObjectManipulator>().OnHoverEntered.AddListener((a) =>  RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = true );
-                gameObject.GetComponent<ObjectManipulator>().OnHoverExited.AddListener((a) => RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = false );
+                gameObject.GetComponent<ObjectManipulator>().hoverEntered.AddListener((a) =>  RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = true );
+                gameObject.GetComponent<ObjectManipulator>().hoverExited.AddListener((a) => RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = false );
          
         
             SetOutlineSizeBasedOnScale();
@@ -828,16 +824,15 @@ namespace Hololens {
 
         BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
         ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-        boundsControl.BoundsOverride = collider;
        
         boundsControl.ScaleLerpTime = 1L;
         objectManipulator.ScaleLerpTime = 1L;
 
-        boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-        //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-        boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-        boundsControl.UpdateBounds();
+        //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
+        ////boundsControl.RotationHandlesConfig.ShowHandleForY = false;
+        //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
+        //boundsControl.UpdateBounds();
      }
 
     }

@@ -1,4 +1,4 @@
-//#define REMOTING
+#define REMOTING
 
 
 using System.Collections;
@@ -7,7 +7,6 @@ using UnityEngine;
 using System;
 using Hololens;
 using Base;
-using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine.XR.WSA;
 using QRTracking;
 
