@@ -4,8 +4,8 @@ using Base;
 using UnityEngine.UI;
 using Hololens;
 using UnityEngine;
-using MixedReality.Toolkit;
 using MixedReality.Toolkit.UX;
+using MixedReality.Toolkit;
 
 public class HLandingManager : Singleton<HLandingManager>
 {
@@ -41,8 +41,12 @@ public class HLandingManager : Singleton<HLandingManager>
         }
 
         var trimedDomain = domain.text.Trim();
+
         trimedDomain = "192.168.104.100";
+
+#if UNITY_EDITOR
         trimedDomain = "127.0.0.1";
+#endif
 
 
         int portInt = int.Parse(port.text);

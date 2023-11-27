@@ -25,7 +25,7 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     public GameObject RobotPrefab;
 
     public bool Running { get; set; } = false;
-    public bool DisplayModels { get; private set; } = true;
+    public bool DisplayModels { get; private set; } = false;
 
     private bool ghostRobotsCreated = false;
 
