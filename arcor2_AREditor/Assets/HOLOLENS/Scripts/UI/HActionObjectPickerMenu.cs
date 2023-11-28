@@ -48,7 +48,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             GameManagerH.Instance.HideLoadingScreen();
             UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
             MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
-
         }
     }
 
@@ -75,7 +74,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         if (objectsModels.TryGetValue(args.Name, out GameObject gameObject))
         {
             args.RootGameObject.gameObject.transform.parent = gameObject.transform;
-            Vector3 vec = gameObject.transform.Find("FrontPlate").transform.localPosition;
+            Vector3 vec = gameObject.transform.Find("Frontplate").transform.localPosition;
 
             args.RootGameObject.gameObject.transform.localPosition = vec;
             args.RootGameObject.gameObject.transform.localScale /= 2; // args.RootGameObject.gameObject.transform.localScale
@@ -85,7 +84,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 
     private void OnRobotModelLoaded(object sender, RobotUrdfModelArgs args)
     {
-
         // check if the robot of the type we need was loaded
         if (objectsModels.TryGetValue(args.RobotType, out GameObject gameObject))
         {
@@ -95,7 +93,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 
             RobotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
 
-            Vector3 vec = gameObject.transform.Find("FrontPlate").transform.localPosition;
+            Vector3 vec = gameObject.transform.Find("Frontplate").transform.localPosition;
             if (RobotModel.RobotModelGameObject.name.Equals("Eddie"))
             {
                 vec = new Vector3(-0.0229000002f, -0.0340999998f, -0.0498000011f);
@@ -109,7 +107,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             loadedModels++;
 
             // if robot is loaded, unsubscribe from UrdfManagerH event
-            //     UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
+            // UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
         }
     }
 
@@ -118,7 +116,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
     public void LoadModels(object sender, EventArgs args)
     {
         GameManagerH.Instance.ShowLoadingScreen();
-        //        if ( GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor) {
+        // if ( GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor) {
         destroyObjects();
         UrdfManagerH.Instance.OnRobotUrdfModelLoaded += OnRobotModelLoaded;
         MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
@@ -138,7 +136,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 if (!string.IsNullOrEmpty(robotMeta.UrdfPackageFilename))
                 {
                     GameObject selectCube = Instantiate(objectCubePrefab);
-                    selectCube.GetComponentInChildren<TextMeshPro>().text = robotMeta.Type;
+                    selectCube.GetComponentInChildren<TextMeshProUGUI>().text = robotMeta.Type;
                     selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                     selectCube.transform.parent = models.transform;
                     selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
@@ -178,7 +176,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 allModels++;
 
                 GameObject selectCube = Instantiate(objectCubePrefab);
-                selectCube.GetComponentInChildren<TextMeshPro>().text = actionObject.Type;
+                selectCube.GetComponentInChildren<TextMeshProUGUI>().text = actionObject.Type;
                 selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                 selectCube.transform.parent = models.transform;
                 selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
@@ -189,16 +187,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             }
         }
     }
-
-    /*  private void AddObjectToScene(string type) {
-          if (ActionsManagerH.Instance.ActionObjectsMetadata.TryGetValue(type, out ActionObjectMetadataH actionObjectMetadata)) {            
-              ShowAddObjectDialog(type);
-          } else {
-
-              //ERROR
-          }
-
-      }*/
 
     public async void CreateActionObject(string type)
     {

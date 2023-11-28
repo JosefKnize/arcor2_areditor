@@ -8,6 +8,7 @@ using TMPro;
 using RosSharp.Urdf;
 using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
+using Unity.XR.CoreUtils;
 
 public class ListScenes : Singleton<ListScenes>
 {
@@ -27,9 +28,6 @@ public class ListScenes : Singleton<ListScenes>
     public GameObject connectionPrefab;
 
     public Material lineMaterial;
-
-    public GameObject Scrollmenu;
-    public GameObject ScrollMenuContainer;
 
     private Dictionary<string, GameObject> scenes = new Dictionary<string, GameObject>();
     private Dictionary<string, Dictionary<string, GameObject>> actions_scenes = new Dictionary<string, Dictionary<string, GameObject>>();
@@ -53,12 +51,10 @@ public class ListScenes : Singleton<ListScenes>
         GameManagerH.Instance.OnOpenProjectEditor += OnShowEditorScreen;
     }
 
-
     public void OnShowEditorScreen(object sender, EventArgs args)
     {
         // SceneList.transform.parent = null;
         setActiveMenu(false);
-
     }
 
     public async void UpdateProjects(object sender, EventArgs eventArgs)
@@ -76,11 +72,8 @@ public class ListScenes : Singleton<ListScenes>
             createMenuProject(await WebSocketManagerH.Instance.GetScene(project.SceneId), await WebSocketManagerH.Instance.GetProject(project.Id));
         }
 
-        //SceneList.GetComponent<GridObjectCollection>().UpdateCollection();
         UpdateLogicItem();
         setActiveMenu(true);
-
-        SceneList.transform.parent = ScrollMenuContainer.transform;
     }
 
     public async void UpdateScenes(object sender, EventArgs eventArgs)
@@ -100,11 +93,7 @@ public class ListScenes : Singleton<ListScenes>
             createMenuScene(await WebSocketManagerH.Instance.GetScene(scene.Id));
         }
 
-        //SceneList.GetComponent<GridObjectCollection>().UpdateCollection();
-
         setActiveMenu(true);
-
-        SceneList.transform.parent = ScrollMenuContainer.transform;
     }
 
     internal void createMenuScene(Scene scene)
@@ -113,7 +102,7 @@ public class ListScenes : Singleton<ListScenes>
 
         GameObject newScene = Instantiate(scenePrefab, SceneList.transform);
         newScene.name = scene.Name;
-        newScene.GetComponentInChildren<TextMeshPro>().text = scene.Name;
+        newScene.GetComponentInChildren<TextMeshProUGUI>().text = scene.Name;
         GameObject ActionObjectsSpawn = new GameObject(scene.Name);
 
         Dictionary<string, GameObject> ActionObjects = new Dictionary<string, GameObject>();
@@ -178,26 +167,31 @@ public class ListScenes : Singleton<ListScenes>
 
         Renderer[] meshes = ActionObjectsSpawn.GetComponentsInChildren<Renderer>();
         Bounds bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
+
         foreach (Renderer mesh in meshes)
         {
             bounds.Encapsulate(mesh.bounds);
         }
+
         if (scene.Objects.Count == 0)
         {
-            newScene.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            newScene.transform.position = Vector3.zero;
+            //newScene.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            //newScene.transform.position = Vector3.zero;
         }
         else
         {
-            newScene.transform.localScale = bounds.size;
-            newScene.transform.position = bounds.center;//apply the center and size
+            // bounds around meshes
+            // make box just big enoug to fit in button
+            // put center of bounds in center of button
+
+            //newScene.transform.position = bounds.center; //apply the center and size
             float maxV = Mathf.Max(Mathf.Max(newScene.transform.localScale.x, newScene.transform.localScale.y), newScene.transform.localScale.z);
-            newScene.transform.localScale = new Vector3(maxV, maxV, maxV);
+            //newScene.transform.localScale = new Vector3(maxV, maxV, maxV);
 
-            ActionObjectsSpawn.transform.parent = newScene.transform;
-            newScene.transform.localScale /= 10;
-
-
+            ActionObjectsSpawn.transform.parent = newScene.transform.Find("Frontplate").transform;
+            ActionObjectsSpawn.transform.localPosition = Vector3.zero;
+            ActionObjectsSpawn.transform.localScale /= 10;
+            //newScene.transform.localScale /= 10;
         }
 
         scenes.Add(scene.Name, newScene);
@@ -280,9 +274,6 @@ public class ListScenes : Singleton<ListScenes>
             }
 
         }
-
-
-
 
         Dictionary<string, GameObject> actions_ID = new Dictionary<string, GameObject>();
         GameObject start = Instantiate(StartPrefab, ActionObjectsSpawn.transform);
