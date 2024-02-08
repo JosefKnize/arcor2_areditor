@@ -9,10 +9,13 @@ using IO.Swagger.Model;
 using Newtonsoft.Json;
 using TMPro;
 using MixedReality.Toolkit;
+using TriLibCore.Interfaces;
+using static RosSharp.Urdf.Link.Visual.Material;
+using System.IO;
+using LibTessDotNet;
 
 public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 {
-
     public GameObject models;
     public GameObject collisonObjects;
     public GameObject objectCubePrefab;
@@ -21,9 +24,16 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
     private int allModels;
     public bool Loaded = false;
 
+    private bool use3DModels = true;
+
+    // Taking PNG picture of robots
+    private RenderTexture renderTexture;
+    private GameObject imageTakingcameraGameObject;
+    private Camera robotImageTakingCamera;
+    private const int robotImageWidth = 1920;
+    private const int robotImageHeight = 1080;
+
     public Dictionary<string, GameObject> objectsModels = new Dictionary<string, GameObject>();
-
-
 
     public enum CollisionObjectType
     {
@@ -48,12 +58,12 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             GameManagerH.Instance.HideLoadingScreen();
             UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
             MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
+            Destroy(imageTakingcameraGameObject);
         }
     }
 
     public void destroyObjects()
     {
-
         Loaded = false;
 
         loadedModels = 0;
@@ -62,65 +72,128 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         {
             Destroy(kvp.Value);
         }
-
         objectsModels.Clear();
     }
 
+    private Bounds CalculateTotalBounds(MeshRenderer[] renderers)
+    {
+        Bounds totalBounds = new Bounds(renderers[0].bounds.center, renderers[0].bounds.size);
 
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            totalBounds.Encapsulate(renderers[i].bounds);
+        }
+
+        return totalBounds;
+    }
+
+    private void ResizeModelToFitCube(GameObject modelGameObject, float cubeSize)
+    {
+        MeshRenderer[] largerRenderers = modelGameObject.GetComponentsInChildren<MeshRenderer>();
+        Bounds totalBounds = CalculateTotalBounds(largerRenderers);
+        
+        // Adjust size
+        var maxDimension = Mathf.Max(totalBounds.size.x, totalBounds.size.y, totalBounds.size.z);
+        float scale = 0.075f / maxDimension;
+        modelGameObject.transform.localScale = Vector3.one * 500 * scale;
+
+        // Shift model back inside cube
+        modelGameObject.transform.localPosition += new Vector3(0, 0, totalBounds.size.z * 500 / 2 * scale); 
+        
+        // NOTE: It would be a good idea to shift all robots so that REAL center from bounds is in middle of button (but that would probably require second bounds Calculation)
+        // HACK: DobotM1 uses different center of model. Normally this should be solved at modeling level
+        Debug.Log(modelGameObject.name);
+        if (modelGameObject.name.Equals("Eddie"))
+        {
+            var shift = totalBounds.size * 500 * scale / 2;
+            shift.z = 0;
+            modelGameObject.transform.localPosition -= shift;
+        }
+    }
 
     public void OnModelLoaded(object sender, ImportedMeshEventArgsH args)
     {
-
-        if (objectsModels.TryGetValue(args.Name, out GameObject gameObject))
+        if (objectsModels.TryGetValue(args.Name, out GameObject selectButton))
         {
-            args.RootGameObject.gameObject.transform.parent = gameObject.transform;
-            Vector3 vec = gameObject.transform.Find("Frontplate").transform.localPosition;
+            if(use3DModels)
+            {
+                args.RootGameObject.gameObject.transform.parent = selectButton.transform;
+                args.RootGameObject.gameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
+                ResizeModelToFitCube(args.RootGameObject.gameObject, 0.08f);
 
-            args.RootGameObject.gameObject.transform.localPosition = vec;
-            args.RootGameObject.gameObject.transform.localScale /= 2; // args.RootGameObject.gameObject.transform.localScale
-            loadedModels++;
+                // Fix model going black when making small
+                Shader unlitColorShader = Shader.Find("Unlit/Color");
+                var renderers = args.RootGameObject.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    foreach (var material in renderer.materials)
+                    {
+                        material.shader = unlitColorShader;
+                    }
+                }
+            }
+            else
+            {
+                float moveDownOffstet = args.RootGameObject.gameObject.transform.localScale.y / 2;
+                moveDownOffstet = 0;
+                args.RootGameObject.gameObject.transform.position = new Vector3(1000, 1000 - moveDownOffstet, 1001);
+                args.RootGameObject.gameObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+                SaveCameraViewAsPicture(args.Name);
+                Destroy(args.RootGameObject.gameObject);
+            }
         }
     }
 
     private void OnRobotModelLoaded(object sender, RobotUrdfModelArgs args)
     {
-        // check if the robot of the type we need was loaded
-        if (objectsModels.TryGetValue(args.RobotType, out GameObject gameObject))
+        if (objectsModels.TryGetValue(args.RobotType, out GameObject selectButton))
         {
-            // if so, lets ask UrdfManagerH for the robot model
             RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(args.RobotType);
 
-
-            RobotModel.RobotModelGameObject.gameObject.transform.parent = gameObject.transform;
-
-            Vector3 vec = gameObject.transform.Find("Frontplate").transform.localPosition;
-            if (RobotModel.RobotModelGameObject.name.Equals("Eddie"))
+            if (use3DModels)
             {
-                vec = new Vector3(-0.0229000002f, -0.0340999998f, -0.0498000011f);
+                RobotModel.RobotModelGameObject.transform.parent = selectButton.transform;
+                RobotModel.RobotModelGameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
+                RobotModel.RobotModelGameObject.gameObject.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                RobotModel.SetActiveAllVisuals(true);
+                ResizeModelToFitCube(RobotModel.RobotModelGameObject.gameObject, 0.08f);
+
+                // Fix model going black when making small
+                Shader unlitColorShader = Shader.Find("Unlit/Color");
+                var renderers = RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    foreach (var material in renderer.materials)
+                    {
+                        material.shader = unlitColorShader;
+                    }
+                }
             }
-            //Vector3(-0.0229000002,-0.0340999998,-0.0498000011)
-            RobotModel.RobotModelGameObject.gameObject.transform.localPosition = vec;
-            RobotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            RobotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 90, 0);
-
-            RobotModel.SetActiveAllVisuals(true);
-            loadedModels++;
-
-            // if robot is loaded, unsubscribe from UrdfManagerH event
-            // UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
+            else
+            {
+                float moveDownOffstet = RobotModel.RobotModelGameObject.gameObject.transform.localScale.y / 2;
+                RobotModel.RobotModelGameObject.gameObject.transform.position = new Vector3(1000, 1000 - moveDownOffstet, 1001);
+                //RobotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+                RobotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 90, 0);
+                RobotModel.SetActiveAllVisuals(true);
+                SaveCameraViewAsPicture(args.RobotType);
+                loadedModels++;
+                Destroy(RobotModel.RobotModelGameObject);
+            }
         }
     }
 
-
-
     public void LoadModels(object sender, EventArgs args)
     {
+        imageTakingcameraGameObject = new GameObject("RobotImageTakingCamera");
+        robotImageTakingCamera = imageTakingcameraGameObject.AddComponent<Camera>();
+        imageTakingcameraGameObject.transform.position = new Vector3(1000,1000,1000);
+        robotImageTakingCamera.clearFlags = CameraClearFlags.Nothing;
+
         GameManagerH.Instance.ShowLoadingScreen();
-        // if ( GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor) {
         destroyObjects();
         UrdfManagerH.Instance.OnRobotUrdfModelLoaded += OnRobotModelLoaded;
         MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
-
         ActionsManagerH.Instance.OnActionsLoaded -= LoadModels;
 
 
@@ -137,21 +210,23 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 {
                     GameObject selectCube = Instantiate(objectCubePrefab);
                     selectCube.GetComponentInChildren<TextMeshProUGUI>().text = robotMeta.Type;
-                    selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                     selectCube.transform.parent = models.transform;
+                    selectCube.transform.localScale = new Vector3(1, 1, 1);
+                    selectCube.transform.localPosition = new Vector3(0, 0, -10f);
+                    selectCube.transform.localRotation = Quaternion.Euler(0, 0, 0);
                     selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
                     objectsModels.Add(robotMeta.Type, selectCube);
-                    //models.GetComponent<ObjectCollection>().UpdateCollection();
+
                     // Get the robot model, if it returns null, the robot will be loading itself
                     RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(robotMeta.Type, robotMeta.UrdfPackageFilename);
-
                     if (RobotModel != null)
                     {
                         loadedModels++;
 
                         RobotModel.RobotModelGameObject.gameObject.transform.parent = selectCube.transform;
-                        GameObject frontPlate = selectCube.transform.Find("FrontPlate").gameObject;
-                        //   frontPlate.GetComponent<Interactable>().OnClick.AddListener(() => AddObjectToScene(actionObject.Type));
+                        GameObject frontPlate = selectCube.transform.Find("Frontplate").gameObject;
+                        selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
+                        
                         if (RobotModel.RobotModelGameObject.name.Equals("Eddie"))
                         {
                             RobotModel.RobotModelGameObject.gameObject.transform.localPosition = new Vector3(-0.0229000002f, -0.0340999998f, -0.0498000011f);
@@ -164,11 +239,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                         RobotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 90, 0);
                         RobotModel.SetActiveAllVisuals(true);
                     }
-                    else
-                    {
-                        // Robot is not loaded yet, let's wait for it to be loaded
-                        //  UrdfManagerH.Instance.OnRobotUrdfModelLoaded += OnRobotModelLoaded;
-                    }
                 }
             }
             else if (actionObject.HasPose)
@@ -177,12 +247,13 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 
                 GameObject selectCube = Instantiate(objectCubePrefab);
                 selectCube.GetComponentInChildren<TextMeshProUGUI>().text = actionObject.Type;
-                selectCube.transform.localScale = new Vector3(3f, 3f, 3f);
                 selectCube.transform.parent = models.transform;
+                selectCube.transform.localScale = new Vector3(1, 1, 1);
+                selectCube.transform.localPosition = new Vector3(0, 0, -10f);
+                selectCube.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 selectCube.transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => CreateActionObject(actionObject.Type));
 
                 objectsModels.Add(actionObject.Type, selectCube);
-                //models.GetComponent<GridObjectCollection>().UpdateCollection();
                 MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
             }
         }
@@ -201,15 +272,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 parameters.Add(DataHelper.ActionParameterToParameter(ap));
             }
 
-            /*
-               foreach (IParameter actionParameter in actionParameters) {
-                   if (!parametersMetadata.TryGetValue(actionParameter.GetName(), out Base.ParameterMetadata actionParameterMetadata)) {
-                       Base.Notifications.Instance.ShowNotification("Failed to create new action object", "Failed to get metadata for action object parameter: " + actionParameter.GetName());
-                       return;
-                   }
-                   IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: actionParameter.GetName(), value: JsonConvert.SerializeObject(actionParameter.GetValue()), type: actionParameterMetadata.Type);
-                   parameters.Add(DataHelper.ActionParameterToParameter(ap));
-               }*/
             try
             {
                 Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
@@ -219,8 +281,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                     pose = new IO.Swagger.Model.Pose(position: DataHelper.Vector3ToPosition(point), orientation: DataHelper.QuaternionToOrientation(Quaternion.identity));
 
                 await WebSocketManagerH.Instance.AddObjectToScene(newActionObjectName, type, pose, parameters);
-                //   callback?.Invoke();
-                //       Close();
             }
             catch (Base.RequestFailedException e)
             {
@@ -229,6 +289,29 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         }
     }
 
+    private void SaveCameraViewAsPicture(string pictureName)
+    {
+        RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        robotImageTakingCamera.targetTexture = renderTexture;
+
+        Texture2D screenShot = new Texture2D(robotImageWidth, robotImageHeight, TextureFormat.RGB24, false);
+        robotImageTakingCamera.Render();
+        
+        // Read pixels from the RenderTexture to the Texture2D
+        RenderTexture.active = renderTexture;
+        Rect captureRect = new Rect((Screen.width - robotImageWidth) / 2, (Screen.height - robotImageHeight) / 2, robotImageWidth, robotImageHeight);
+        screenShot.ReadPixels(captureRect, 0, 0);
+        robotImageTakingCamera.targetTexture = null;
+        RenderTexture.active = null;
+        Destroy(renderTexture);
+
+        // Convert the Texture2D to a byte array
+        var bytes = screenShot.EncodeToPNG();
+
+        System.IO.Directory.CreateDirectory($"{Application.dataPath}/RobotImages/");
+        File.WriteAllBytes($"{Application.dataPath}/RobotImages/{pictureName}.png", bytes);
+        Debug.Log("Robot image saved: " + $"{Application.dataPath}/RobotImages/{pictureName}.png");
+    }
 
 
     private void AddVirtualCollisionObjectResponseCallback(string objectType, string data)
