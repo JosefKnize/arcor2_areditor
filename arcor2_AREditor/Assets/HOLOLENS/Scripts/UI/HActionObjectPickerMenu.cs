@@ -121,8 +121,8 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 args.RootGameObject.gameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
                 ResizeModelToFitCube(args.RootGameObject.gameObject, 0.08f);
 
-                // Fix model going black when making small
-                Shader unlitColorShader = Shader.Find("Unlit/Color");
+                // Fix model going black when making it small
+                Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
                 var renderers = args.RootGameObject.GetComponentsInChildren<Renderer>();
                 foreach (Renderer renderer in renderers)
                 {
@@ -159,7 +159,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 ResizeModelToFitCube(RobotModel.RobotModelGameObject.gameObject, 0.08f);
 
                 // Fix model going black when making small
-                Shader unlitColorShader = Shader.Find("Unlit/Color");
+                Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
                 var renderers = RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>();
                 foreach (Renderer renderer in renderers)
                 {
