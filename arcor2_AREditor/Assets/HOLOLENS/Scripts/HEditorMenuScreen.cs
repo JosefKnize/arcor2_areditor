@@ -10,66 +10,54 @@ using MixedReality.Toolkit;
 
 public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 {
-
-    public StatefulInteractable closeSceneButton;
-
-    public StatefulInteractable notificationButton;
+    // public StatefulInteractable closeSceneButton;
+    // public StatefulInteractable notificationButton;
     public StatefulInteractable switchSceneState;
 
     // Start is called before the first frame update
     void Start()
     {
-       // HideEditorSceneMenu();
-
-       // GameManagerH.Instance.OnOpenSceneEditor += OnOpenEditorSceneMenu;
-       // GameManagerH.Instance.OnOpenProjectEditor += OnOpenEditorSceneMenu;
-    
-     //   closeSceneButton.OnClick.AddListener(() => CloseScene());
-        //notificationButton.OnClicked.AddListener(() => HNotificationManager.Instance.ShowNotificationScreen());
-        //switchSceneState.OnClicked.AddListener(() => SwitchSceneState());
         SceneManagerH.Instance.OnSceneStateEvent += OnSceneStateEvent;
-
-
-  //  #if !UNITY_EDITOR
-      //  recalibrateButton.ButtonPressed.AddListener(() => QRTracking.QRCodesManager.Instance.StartQRTracking());
-   // #else
-  //      recalibrateButton.enabled = false;
-  //  #endif
-
     }
 
-     public async void SaveScene() {
-       // SaveButton.SetInteractivity(false, "Saving scene...");
+    public async void SaveScene()
+    {
+        // SaveButton.SetInteractivity(false, "Saving scene...");
         IO.Swagger.Model.SaveSceneResponse saveSceneResponse = await GameManagerH.Instance.SaveScene();
-        if (!saveSceneResponse.Result) {
+        if (!saveSceneResponse.Result)
+        {
             saveSceneResponse.Messages.ForEach(Debug.LogError);
-            HNotificationManager.Instance.ShowNotification("Scene save failed: " + ( saveSceneResponse.Messages.Count > 0 ? saveSceneResponse.Messages[0] : "Failed to save scene"));
+            HNotificationManager.Instance.ShowNotification("Scene save failed: " + (saveSceneResponse.Messages.Count > 0 ? saveSceneResponse.Messages[0] : "Failed to save scene"));
             return;
-        } else {
-             HNotificationManager.Instance.ShowNotification("There are no unsaved changes");
+        }
+        else
+        {
+            HNotificationManager.Instance.ShowNotification("There are no unsaved changes");
         }
     }
 
-    public async void SaveProject(){
-
-
-          IO.Swagger.Model.SaveProjectResponse saveProjectResponse = await WebSocketManagerH.Instance.SaveProject();
-            if (saveProjectResponse != null && !saveProjectResponse.Result) {
-           
-                saveProjectResponse.Messages.ForEach(Debug.LogError);
-                HNotificationManager.Instance.ShowNotification("Failed to save project " + (saveProjectResponse.Messages.Count > 0 ? saveProjectResponse.Messages[0] : ""));
-                return;
-            }
+    public async void SaveProject()
+    {
+        IO.Swagger.Model.SaveProjectResponse saveProjectResponse = await WebSocketManagerH.Instance.SaveProject();
+        if (saveProjectResponse != null && !saveProjectResponse.Result)
+        {
+            saveProjectResponse.Messages.ForEach(Debug.LogError);
+            HNotificationManager.Instance.ShowNotification("Failed to save project " + (saveProjectResponse.Messages.Count > 0 ? saveProjectResponse.Messages[0] : ""));
+            return;
+        }
     }
 
 
-    public async void CloseScene() {
+    public async void CloseScene()
+    {
 
-        if(GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor){
-               SaveScene();
+        if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
+        {
+            SaveScene();
         }
-         else if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor){
-             SaveProject();
+        else if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
+        {
+            SaveProject();
         }
 
 
@@ -78,53 +66,65 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 
         bool success = false;
         string message;
-        if(GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor){
+        if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
+        {
             (success, message) = await GameManagerH.Instance.CloseScene(true);
         }
-        else if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor){
+        else if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
+        {
             (success, message) = await GameManagerH.Instance.CloseProject(true);
         }
 
     }
 
-    private void OnSceneStateEvent(object sender, SceneStateEventArgs args) {
-        if (args.Event.State == IO.Swagger.Model.SceneStateData.StateEnum.Started) {
+    private void OnSceneStateEvent(object sender, SceneStateEventArgs args)
+    {
+        if (args.Event.State == IO.Swagger.Model.SceneStateData.StateEnum.Started)
+        {
             switchSceneState.ForceSetToggled(true);
-        } 
-        else {
+        }
+        else
+        {
             switchSceneState.ForceSetToggled(false);
         }
     }
 
 
-        public void SwitchSceneState() {
+    public void SwitchSceneState()
+    {
         if (SceneManagerH.Instance.SceneStarted)
             StopScene();
         else
             StartScene();
     }
 
-    public async void StartScene() {
-        try {
+    public async void StartScene()
+    {
+        try
+        {
             await WebSocketManagerH.Instance.StartScene(false);
-        } catch (RequestFailedException e) {
-           HNotificationManager.Instance.ShowNotification("Going online failed " +  e.Message);
+        }
+        catch (RequestFailedException e)
+        {
+            HNotificationManager.Instance.ShowNotification("Going online failed " + e.Message);
         }
     }
 
-    private void StopSceneCallback(string _, string data) {
+    private void StopSceneCallback(string _, string data)
+    {
         CloseProjectResponse response = JsonConvert.DeserializeObject<CloseProjectResponse>(data);
         if (!response.Result)
-            HNotificationManager.Instance.ShowNotification("Going offline failed " +  response.Messages.FirstOrDefault());
+            HNotificationManager.Instance.ShowNotification("Going offline failed " + response.Messages.FirstOrDefault());
     }
 
-    public void StopScene() {
+    public void StopScene()
+    {
         WebSocketManagerH.Instance.StopScene(false, StopSceneCallback);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
