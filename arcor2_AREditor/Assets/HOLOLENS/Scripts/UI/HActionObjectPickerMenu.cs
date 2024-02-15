@@ -136,6 +136,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 SaveCameraViewAsPicture(args.Name);
                 Destroy(args.RootGameObject.gameObject);
             }
+            loadedModels++;
         }
     }
 
@@ -175,6 +176,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 loadedModels++;
                 Destroy(RobotModel.RobotModelGameObject);
             }
+            loadedModels++;
         }
     }
 

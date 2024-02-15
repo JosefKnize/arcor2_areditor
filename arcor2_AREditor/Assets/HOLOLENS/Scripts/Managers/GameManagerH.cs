@@ -12,7 +12,8 @@ using Newtonsoft.Json;
 using Base;
 using RosSharp.Urdf;
 using Hololens;
-public class GameManagerH : Singleton<GameManagerH> {
+public class GameManagerH : Singleton<GameManagerH>
+{
 
     private bool updatingPackageState;
 
@@ -71,7 +72,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Enum specifying connection states
     /// </summary>
-    public enum ConnectionStatusEnum {
+    public enum ConnectionStatusEnum
+    {
         Connected, Disconnected, Connecting
     }
 
@@ -143,7 +145,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     ///
     /// For selecting states - other interaction than selecting of requeste object is disabled
     /// </summary>
-    public enum EditorStateEnum {
+    public enum EditorStateEnum
+    {
         /// <summary>
         /// No editor (scene or project) opened
         /// </summary>
@@ -193,7 +196,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Enum specifying aplication states
     /// </summary>
-    public enum GameStateEnum {
+    public enum GameStateEnum
+    {
         /// <summary>
         /// Not connected to server
         /// </summary>
@@ -227,7 +231,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Change game state and invoke coresponding event
     /// </summary>
     /// <param name="value">New game state</param>
-    public void SetGameState(GameStateEnum value) {
+    public void SetGameState(GameStateEnum value)
+    {
         gameState = value;
         OnGameStateChanged?.Invoke(this, new HololensGameStateEventArgs(gameState));
     }
@@ -240,9 +245,12 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Holds connection status and invokes callback when status changed
     /// </summary>
-    public ConnectionStatusEnum ConnectionStatus {
-        get => connectionStatus; set {
-            if (connectionStatus != value) {
+    public ConnectionStatusEnum ConnectionStatus
+    {
+        get => connectionStatus; set
+        {
+            if (connectionStatus != value)
+            {
                 OnConnectionStatusChanged(value);
             }
         }
@@ -251,7 +259,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Binds events and sets initial state of app
     /// </summary>
-    void Start() {
+    void Start()
+    {
         Scene.SetActive(false);
         WebSocketManagerH.Instance.OnConnectedEvent += OnConnected;
         WebSocketManagerH.Instance.OnDisconnectEvent += OnDisconnected;
@@ -268,23 +277,29 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// When connected to server, checks for requests for delayd scene, project, package or main screen openning
     /// </summary>
-    private async Task Update() {
+    private async Task Update()
+    {
         // Only when connected to server
         if (ConnectionStatus != ConnectionStatusEnum.Connected)
             return;
 
         // request for delayed openning of scene to allow loading of action objects and their actions
-        if (openScene) {
+        if (openScene)
+        {
             openScene = false;
-            if (newScene != null) {
+            if (newScene != null)
+            {
                 Scene scene = newScene;
                 newScene = null;
                 await SceneOpened(scene);
             }
             // request for delayed openning of project to allow loading of action objects and their actions
-        } else if (openProject) {
+        }
+        else if (openProject)
+        {
             openProject = false;
-            if (newProject != null && newScene != null) {
+            if (newProject != null && newScene != null)
+            {
                 Scene scene = newScene;
                 Project project = newProject;
                 newScene = null;
@@ -303,7 +318,8 @@ public class GameManagerH : Singleton<GameManagerH> {
                   nextPackageState = null;
               }*/
         // request for delayed openning of main screen to allow loading of action objects and their actions
-        if (openMainScreenRequest && ActionsManagerH.Instance.ActionsReady) {
+        if (openMainScreenRequest && ActionsManagerH.Instance.ActionsReady)
+        {
             openMainScreenRequest = false;
             await OpenMainScreen(openMainScreenData.What, openMainScreenData.Highlight);
         }
@@ -319,7 +335,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnActionsLoaded(object sender, EventArgs e) {
+    private void OnActionsLoaded(object sender, EventArgs e)
+    {
         Debug.Log("OnActionLoaded");
     }
 
@@ -327,7 +344,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Shows loading screen
     /// </summary>
-    public void ShowLoadingScreen() {
+    public void ShowLoadingScreen()
+    {
 
         LoadingScreen.SetActive(true);
 
@@ -338,7 +356,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="domain">hostname or IP address</param>
     /// <param name="port">Port of ARServer</param>
-    public async void ConnectToSever(string domain, int port) {
+    public async void ConnectToSever(string domain, int port)
+    {
         // ShowLoadingScreen("Connecting to server");
 
         HNotificationManager.Instance.ShowNotification("Connectig to server");
@@ -350,19 +369,26 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Asks server to open scene
     /// </summary>
     /// <param name="id">Scene id</param>
-    public async Task OpenScene(string id) {
+    public async Task OpenScene(string id)
+    {
         ShowLoadingScreen();
-        try {
+        try
+        {
             await WebSocketManagerH.Instance.OpenScene(id);
-        } catch (RequestFailedException e) {
+        }
+        catch (RequestFailedException e)
+        {
             HNotificationManager.Instance.ShowNotification("Open scene failed " + e);
             HideLoadingScreen();
             return;
         }
-        try {
+        try
+        {
             await Task.Run(() => WaitForSceneReady(5000));
             return;
-        } catch (TimeoutException e) {
+        }
+        catch (TimeoutException e)
+        {
             HNotificationManager.Instance.ShowNotification("Open scene failed");
             HideLoadingScreen();
         }
@@ -374,15 +400,21 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Asks server to open project
     /// </summary>
     /// <param name="id">Project id</param>
-    public async void OpenProject(string id) {
+    public async void OpenProject(string id)
+    {
         ShowLoadingScreen();
-        try {
+        try
+        {
             await WebSocketManagerH.Instance.OpenProject(id);
             await Task.Run(() => WaitForProjectReady(5000));
-        } catch (RequestFailedException ex) {
+        }
+        catch (RequestFailedException ex)
+        {
             HNotificationManager.Instance.ShowNotification("Failed to open project  :" + ex.Message);
             HideLoadingScreen();
-        } catch (TimeoutException e) {
+        }
+        catch (TimeoutException e)
+        {
             HNotificationManager.Instance.ShowNotification("Open project failed - Failed to load project");
             HideLoadingScreen();
         }
@@ -393,10 +425,12 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Waits until scene is loaded
     /// </summary>
     /// <param name="timeout">TimeoutException is thrown after timeout ms when scene is not loaded</param>
-    public void WaitForSceneReady(int timeout) {
+    public void WaitForSceneReady(int timeout)
+    {
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         sw.Start();
-        while (SceneManagerH.Instance.SceneMeta == null) {
+        while (SceneManagerH.Instance.SceneMeta == null)
+        {
             if (sw.ElapsedMilliseconds > timeout)
                 throw new TimeoutException();
             System.Threading.Thread.Sleep(100);
@@ -408,10 +442,12 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Waits until project is loaded
     /// </summary>
     /// <param name="timeout">TimeoutException is thrown after timeout ms when project is not loaded</param>
-    public void WaitForProjectReady(int timeout) {
+    public void WaitForProjectReady(int timeout)
+    {
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         sw.Start();
-        while (HProjectManager.Instance.ProjectMeta == null) {
+        while (HProjectManager.Instance.ProjectMeta == null)
+        {
             if (sw.ElapsedMilliseconds > timeout)
                 throw new TimeoutException();
             System.Threading.Thread.Sleep(100);
@@ -423,7 +459,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Hides loading screen
     /// </summary>
-    public void HideLoadingScreen(bool force = false) {
+    public void HideLoadingScreen(bool force = false)
+    {
 
         LoadingScreen.SetActive(false);
 
@@ -433,7 +470,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Sets initial state of app
     /// </summary>
-    private void Awake() {
+    private void Awake()
+    {
         ConnectionStatus = ConnectionStatusEnum.Disconnected;
         // OpenDisconnectedScreen();
     }
@@ -441,7 +479,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Disconnects from server
     /// </summary>
-    public void DisconnectFromSever() {
+    public void DisconnectFromSever()
+    {
         ConnectionStatus = ConnectionStatusEnum.Disconnected;
         WebSocketManagerH.Instance.DisconnectFromSever();
     }
@@ -452,7 +491,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    private void OnDisconnected(object sender, EventArgs e) {
+    private void OnDisconnected(object sender, EventArgs e)
+    {
 
     }
 
@@ -461,7 +501,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    private void OnConnected(object sender, EventArgs args) {
+    private void OnConnected(object sender, EventArgs args)
+    {
         // initialize when connected to the server
         ConnectionStatus = ConnectionStatusEnum.Connected;
         HNotificationManager.Instance.ShowNotification("Connected");
@@ -474,19 +515,25 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    private async void OnConnectionStatusChanged(ConnectionStatusEnum newState) {
-        switch (newState) {
+    private async void OnConnectionStatusChanged(ConnectionStatusEnum newState)
+    {
+        switch (newState)
+        {
             case ConnectionStatusEnum.Connected:
                 IO.Swagger.Model.SystemInfoResponseData systemInfo;
-                try {
+                try
+                {
                     systemInfo = await WebSocketManagerH.Instance.GetSystemInfo();
                     await WebSocketManagerH.Instance.RegisterUser(HLandingManager.Instance.GetUsername());
-                } catch (RequestFailedException ex) {
+                }
+                catch (RequestFailedException ex)
+                {
                     DisconnectFromSever();
                     HNotificationManager.Instance.ShowNotification("Connection failed " + ex.Message);
                     return;
                 }
-                if (!CheckApiVersion(systemInfo)) {
+                if (!CheckApiVersion(systemInfo))
+                {
                     DisconnectFromSever();
                     return;
                 }
@@ -498,9 +545,12 @@ public class GameManagerH : Singleton<GameManagerH> {
                 await UpdateRobotsMeta();
                 await UpdateActionObjects();
 
-                try {
+                try
+                {
                     await Task.Run(() => ActionsManagerH.Instance.WaitUntilActionsReady(15000));
-                } catch (TimeoutException e) {
+                }
+                catch (TimeoutException e)
+                {
                     HNotificationManager.Instance.ShowNotification("Connection failed Some actions were not loaded within timeout");
                     DisconnectFromSever();
                     return;
@@ -529,11 +579,15 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <param name="highlightedObject">When set, object with this ID will gets highlighted for a few seconds in menu
     /// to inform user about it</param>
     /// <returns></returns>
-    public async Task UpdateActionObjects() {
-        try {
+    public async Task UpdateActionObjects()
+    {
+        try
+        {
             List<IO.Swagger.Model.ObjectTypeMeta> objectTypeMetas = await WebSocketManagerH.Instance.GetObjectTypes();
             ActionsManagerH.Instance.UpdateObjects(objectTypeMetas);
-        } catch (RequestFailedException ex) {
+        }
+        catch (RequestFailedException ex)
+        {
             Debug.LogError(ex);
             HNotificationManager.Instance.ShowNotification("Failed to update action objects");
             GameManagerH.Instance.DisconnectFromSever();
@@ -546,7 +600,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Updates robot metadata from server
     /// </summary>
     /// <returns></returns>
-    private async Task UpdateRobotsMeta() {
+    private async Task UpdateRobotsMeta()
+    {
         ActionsManagerH.Instance.UpdateRobotsMetadata(await WebSocketManagerH.Instance.GetRobotMeta());
     }
 
@@ -555,13 +610,15 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="systemInfo">Version string in format 0.0.0 (major.minor.patch)</param>
     /// <returns>True if versions are compatibile</returns>
-    public bool CheckApiVersion(IO.Swagger.Model.SystemInfoResponseData systemInfo) {
+    public bool CheckApiVersion(IO.Swagger.Model.SystemInfoResponseData systemInfo)
+    {
 
         if (systemInfo.ApiVersion == ApiVersion)
             return true;
 
         if (GetMajorVersion(systemInfo.ApiVersion) != GetMajorVersion(ApiVersion) ||
-            (GetMajorVersion(systemInfo.ApiVersion) == 0 && (GetMinorVersion(systemInfo.ApiVersion) != GetMinorVersion(ApiVersion)))) {
+            (GetMajorVersion(systemInfo.ApiVersion) == 0 && (GetMinorVersion(systemInfo.ApiVersion) != GetMinorVersion(ApiVersion))))
+        {
             HNotificationManager.Instance.ShowNotification("Incompatibile api versions Editor API version: " + ApiVersion + ", server API version: " + systemInfo.ApiVersion);
             return false;
         }
@@ -575,7 +632,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="versionString">Version string in format 0.0.0 (major, minor, patch)</param>
     /// <returns>First number (major version)</returns>
-    public int GetMajorVersion(string versionString) {
+    public int GetMajorVersion(string versionString)
+    {
         return int.Parse(SplitVersionString(versionString)[0]);
     }
 
@@ -585,7 +643,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="versionString">Version string in format 0.0.0 (major, minor, patch)</param>
     /// <returns>Second number (minor version)</returns>
-    public int GetMinorVersion(string versionString) {
+    public int GetMinorVersion(string versionString)
+    {
         return int.Parse(SplitVersionString(versionString)[1]);
     }
 
@@ -595,7 +654,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="versionString">Version string in format 0.0.0 (major.minor.patch)</param>
     /// <returns>List of components of the version string</returns>
-    public List<string> SplitVersionString(string versionString) {
+    public List<string> SplitVersionString(string versionString)
+    {
         List<string> version = versionString.Split('.').ToList<string>();
         Debug.Assert(version.Count == 3, versionString);
         return version;
@@ -606,7 +666,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Opens scene editor
     /// </summary>
-    public void OpenSceneEditor() {
+    public void OpenSceneEditor()
+    {
 #if !UNITY_EDITOR
              
         if (CalibrationManagerH.Instance.Calibrated) {
@@ -629,7 +690,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Opens project editor
     /// </summary>
-    public void OpenProjectEditor() {
+    public void OpenProjectEditor()
+    {
 #if !UNITY_EDITOR
         if (CalibrationManagerH.Instance.Calibrated) {
             Scene.SetActive(true);
@@ -649,7 +711,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Returns editor state
     /// </summary>
     /// <returns>Editor state</returns>
-    public EditorStateEnum GetEditorState() {
+    public EditorStateEnum GetEditorState()
+    {
         return editorState;
     }
 
@@ -659,7 +722,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// and invoke corresponding event
     /// </summary>
     /// <param name="newState">New state</param>
-    public void SetEditorState(EditorStateEnum newState) {
+    public void SetEditorState(EditorStateEnum newState)
+    {
         editorState = newState;
         //     OnEditorStateChanged?.Invoke(this, new EditorStateEventArgs(newState));
         /*    switch (newState) {
@@ -674,7 +738,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <param name="what">Defines what list should be displayed (scenes/projects/packages)</param>
     /// <param name="highlight">ID of element to highlight (e.g. when scene is closed, it is highlighted for a few seconds</param>
     /// <returns></returns>
-    public async Task OpenMainScreen(ShowMainScreenData.WhatEnum what, string highlight) {
+    public async Task OpenMainScreen(ShowMainScreenData.WhatEnum what, string highlight)
+    {
 
         Scene.SetActive(false);
         SetGameState(GameStateEnum.MainScreen);
@@ -686,7 +751,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Asks server to save scene
     /// </summary>
     /// <returns></returns>
-    public async Task<IO.Swagger.Model.SaveSceneResponse> SaveScene() {
+    public async Task<IO.Swagger.Model.SaveSceneResponse> SaveScene()
+    {
         //  ShowLoadingScreen("Saving scene...");
         IO.Swagger.Model.SaveSceneResponse response = await WebSocketManagerH.Instance.SaveScene();
         //   HideLoadingScreen();
@@ -699,21 +765,28 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="scene">Scene desription from the server</param>
     /// <returns></returns>
-    internal async Task SceneOpened(Scene scene) {
-        //  SetGameState(GameStateEnum.LoadingScene);
-        if (!ActionsManagerH.Instance.ActionsReady || !HActionObjectPickerMenu.Instance.Loaded) {
+    internal async Task SceneOpened(Scene scene)
+    {
+        if (!ActionsManagerH.Instance.ActionsReady || !HActionObjectPickerMenu.Instance.Loaded)
+        {
             newScene = scene;
             openScene = true;
             return;
         }
-        try {
-            if (await SceneManagerH.Instance.CreateScene(scene, true)) {
+        try
+        {
+            if (await SceneManagerH.Instance.CreateScene(scene, true))
+            {
                 OpenSceneEditor();
-            } else {
-                Debug.LogError("Failed to initialize scene");
-                //         HideLoadingScreen();
             }
-        } catch (TimeoutException ex) {
+            else
+            {
+                Debug.LogError("Failed to initialize scene");
+                // HideLoadingScreen();
+            }
+        }
+        catch (TimeoutException ex)
+        {
             Debug.LogError(ex);
             //     HideLoadingScreen();
         }
@@ -722,14 +795,17 @@ public class GameManagerH : Singleton<GameManagerH> {
     }
 
 
-    public void EnableInteractWthActionObjects(bool isEnable) {
+    public void EnableInteractWthActionObjects(bool isEnable)
+    {
         RobotActionObjectH[] robots = Scene.GetComponentsInChildren<RobotActionObjectH>();
         ActionObject3DH[] models = Scene.GetComponentsInChildren<ActionObject3DH>();
-        foreach (RobotActionObjectH robot in robots) {
+        foreach (RobotActionObjectH robot in robots)
+        {
             UrdfRobot urdfRobot = robot.RobotModel.RobotModelGameObject.GetComponentInChildren<UrdfRobot>();
             urdfRobot.SetCollidersConvex(isEnable);
         }
-        foreach (ActionObject3DH model in models) {
+        foreach (ActionObject3DH model in models)
+        {
             BoxCollider collider = model.Model.GetComponent<BoxCollider>();
             if (collider != null)
                 collider.isTrigger = !isEnable;
@@ -742,37 +818,47 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="project">Project desription from the server</param>
     /// <returns></returns>
-    internal async void ProjectOpened(Scene scene, Project project) {
+    internal async void ProjectOpened(Scene scene, Project project)
+    {
         var state = GetGameState();
-        if (!ActionsManagerH.Instance.ActionsReady || !HActionObjectPickerMenu.Instance.Loaded) {
+        if (!ActionsManagerH.Instance.ActionsReady || !HActionObjectPickerMenu.Instance.Loaded)
+        {
             newProject = project;
             newScene = scene;
             openProject = true;
             return;
         }
-        if (GetGameState() == GameStateEnum.SceneEditor) {
+        if (GetGameState() == GameStateEnum.SceneEditor)
+        {
             SetEditorState(EditorStateEnum.InteractionDisabled);
             SceneManagerH.Instance.DestroyScene();
         }
         //    SetGameState(GameStateEnum.LoadingProject);
-        try {
+        try
+        {
 
             // ListScenes.Instance.createMenuScene(scene,project);
-            if (!await SceneManagerH.Instance.CreateScene(scene, true)) {
+            if (!await SceneManagerH.Instance.CreateScene(scene, true))
+            {
                 HNotificationManager.Instance.ShowNotification("Failed to initialize scene Project CreateScene");
 
                 //   HideLoadingScreen();
                 return;
             }
-            if (await HProjectManager.Instance.CreateProject(project, true)) {
+            if (await HProjectManager.Instance.CreateProject(project, true))
+            {
                 OpenProjectEditor();
-            } else {
+            }
+            else
+            {
                 HNotificationManager.Instance.ShowNotification("Failed to initialize scene Project CreateProject");
 
                 // Notifications.Instance.SaveLogs(scene, project, "Failed to initialize project");
                 //   HideLoadingScreen();
             }
-        } catch (TimeoutException ex) {
+        }
+        catch (TimeoutException ex)
+        {
             Debug.LogError(ex);
             HNotificationManager.Instance.ShowNotification("Failed to initialize scene Project TimeOut");
             //   HideLoadingScreen();
@@ -787,8 +873,10 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sceneId">ID of scene</param>
     /// <returns>Name of scene</returns>
-    public string GetSceneName(string sceneId) {
-        foreach (ListScenesResponseData scene in Scenes) {
+    public string GetSceneName(string sceneId)
+    {
+        foreach (ListScenesResponseData scene in Scenes)
+        {
             if (scene.Id == sceneId)
                 return scene.Name;
         }
@@ -802,10 +890,14 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    private async void OnShowMainScreen(object sender, ShowMainScreenEventArgs args) {
-        if (ActionsManagerH.Instance.ActionsReady) {
+    private async void OnShowMainScreen(object sender, ShowMainScreenEventArgs args)
+    {
+        if (ActionsManagerH.Instance.ActionsReady)
+        {
             await OpenMainScreen(args.Data.What, args.Data.Highlight);
-        } else {
+        }
+        else
+        {
             openMainScreenRequest = true;
             openMainScreenData = args.Data;
         }
@@ -816,7 +908,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Callback when project was closed
     /// </summary>
-    internal void ProjectClosed() {
+    internal void ProjectClosed()
+    {
         HNotificationManager.Instance.ShowNotification("CLOSE PROJECT");
         SetGameState(GameStateEnum.ClosingProject);
         //  ShowLoadingScreen();
@@ -830,7 +923,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <summary>
     /// Callback when scene was closed
     /// </summary>
-    internal void SceneClosed() {
+    internal void SceneClosed()
+    {
         HNotificationManager.Instance.ShowNotification("CLOSE SCENE");
         SetGameState(GameStateEnum.ClosingScene);
         //  ShowLoadingScreen();
@@ -845,13 +939,18 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <param name="force">True if the server should close scene with unsaved changes</param>
     /// <param name="dryRun">Only check if the scene could be closed without forcing</param>
     /// <returns>True if request was successfull. If not, message describing error is attached</returns>
-    public async Task<RequestResult> CloseScene(bool force, bool dryRun = false) {
+    public async Task<RequestResult> CloseScene(bool force, bool dryRun = false)
+    {
 
-        try {
+        try
+        {
             await WebSocketManagerH.Instance.CloseScene(force, dryRun);
             return (true, "");
-        } catch (RequestFailedException ex) {
-            if (!dryRun && force) {
+        }
+        catch (RequestFailedException ex)
+        {
+            if (!dryRun && force)
+            {
                 HNotificationManager.Instance.ShowNotification("Failed to close scene");
                 //   HideLoadingScreen();                   
             }
@@ -866,13 +965,18 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// <param name="force">True if the server should close project with unsaved changes</param>
     /// <param name="dryRun">Only check if the project could be closed without forcing</param>
     /// <returns></returns>
-    public async Task<RequestResult> CloseProject(bool force, bool dryRun = false) {
+    public async Task<RequestResult> CloseProject(bool force, bool dryRun = false)
+    {
 
-        try {
+        try
+        {
             await WebSocketManagerH.Instance.CloseProject(force, dryRun: dryRun);
             return (true, "");
-        } catch (RequestFailedException ex) {
-            if (!dryRun && force) {
+        }
+        catch (RequestFailedException ex)
+        {
+            if (!dryRun && force)
+            {
                 HNotificationManager.Instance.ShowNotification("Failed to close project - " + ex.Message);
                 //  HideLoadingScreen();
             }
@@ -885,7 +989,8 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Returns current game state
     /// </summary>
     /// <returns>Current game state</returns>
-    public GameStateEnum GetGameState() {
+    public GameStateEnum GetGameState()
+    {
         return gameState;
     }
 
@@ -893,21 +998,25 @@ public class GameManagerH : Singleton<GameManagerH> {
     /// Activates/Disactivates the Scene and calls all necessary methods (Selector menu update).
     /// </summary>
     /// <param name="active"></param>
-    public void SceneSetActive(bool active) {
+    public void SceneSetActive(bool active)
+    {
         Scene.SetActive(active);
     }
 
-    public void SceneSetParent(Transform transform) {
+    public void SceneSetParent(Transform transform)
+    {
         Scene.transform.parent = transform;
         Scene.transform.localPosition = new Vector3(0f, 0f, 0f);
         Scene.transform.localEulerAngles = new Vector3(0f, 90f, 90f);
     }
 
-    public void InvokeScenesListChanged() {
+    public void InvokeScenesListChanged()
+    {
         OnScenesListChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public void InvokeProjectsListChanged() {
+    public void InvokeProjectsListChanged()
+    {
         OnProjectsListChanged?.Invoke(this, EventArgs.Empty);
     }
 }

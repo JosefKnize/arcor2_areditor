@@ -246,7 +246,6 @@ public class ActionObject3DH : ActionObjectH {
         Vector3 vec = Model.transform.localScale;
         interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         interactObject.transform.position = Model.transform.position;
-        //    interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
         gameObject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
         //if (IsRobot()) {

@@ -400,14 +400,12 @@ public class SceneManagerH : Singleton<SceneManagerH>
     /// <returns>True if scene successfully created, false otherwise</returns>
     public async Task<bool> CreateScene(IO.Swagger.Model.Scene scene, bool loadResources, CollisionModels customCollisionModels = null)
     {
-
         Debug.Assert(ActionsManagerH.Instance.ActionsReady);
 
         if (SceneMeta != null)
         {
             return false;
         }
-        //  SelectorMenu.Instance.Clear();
         try
         {
             SetSceneMeta(DataHelper.SceneToBareScene(scene));
