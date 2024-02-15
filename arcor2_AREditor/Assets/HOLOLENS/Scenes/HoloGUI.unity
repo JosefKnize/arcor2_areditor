@@ -4412,8 +4412,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1947121577341454505, guid: 506cbd034c7d76f45b0ef11fe23b8e53,
         type: 3}
+      propertyPath: flatHandThreshold
+      value: 60.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1947121577341454505, guid: 506cbd034c7d76f45b0ef11fe23b8e53,
+        type: 3}
       propertyPath: useGazeActivation
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1947121577341454505, guid: 506cbd034c7d76f45b0ef11fe23b8e53,
+        type: 3}
+      propertyPath: facingCameraTrackingThreshold
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 1947121577341454506, guid: 506cbd034c7d76f45b0ef11fe23b8e53,
         type: 3}
