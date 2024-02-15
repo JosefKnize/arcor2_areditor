@@ -643,8 +643,6 @@ public class SceneManagerH : Singleton<SceneManagerH>
     public void SceneObjectAdded(SceneObject sceneObject)
     {
         ActionObjectH actionObject = SpawnActionObject(sceneObject);
-        HActionObjectPickerMenu.Instance.collisonObjects.SetActive(false);
-        HActionObjectPickerMenu.Instance.models.SetActive(false);
         updateScene = true;
     }
 

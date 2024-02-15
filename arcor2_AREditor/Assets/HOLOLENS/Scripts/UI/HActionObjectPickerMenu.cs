@@ -87,28 +87,23 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         return totalBounds;
     }
 
-    private void ResizeModelToFitCube(GameObject modelGameObject, float cubeSize)
+    private void FitModelToCube(GameObject modelGameObject, float cubeSize, GameObject selectButton)
     {
-        MeshRenderer[] largerRenderers = modelGameObject.GetComponentsInChildren<MeshRenderer>();
-        Bounds totalBounds = CalculateTotalBounds(largerRenderers);
+        MeshRenderer[] modelRenders = modelGameObject.GetComponentsInChildren<MeshRenderer>();
+        Bounds modelBounds = CalculateTotalBounds(modelRenders);
         
         // Adjust size
-        var maxDimension = Mathf.Max(totalBounds.size.x, totalBounds.size.y, totalBounds.size.z);
+        var maxDimension = Mathf.Max(modelBounds.size.x, modelBounds.size.y, modelBounds.size.z);
         float scale = 0.075f / maxDimension;
         modelGameObject.transform.localScale = Vector3.one * 500 * scale;
 
-        // Shift model back inside cube
-        modelGameObject.transform.localPosition += new Vector3(0, 0, totalBounds.size.z * 500 / 2 * scale); 
-        
-        // NOTE: It would be a good idea to shift all robots so that REAL center from bounds is in middle of button (but that would probably require second bounds Calculation)
-        // HACK: DobotM1 uses different center of model. Normally this should be solved at modeling level
-        Debug.Log(modelGameObject.name);
-        if (modelGameObject.name.Equals("Eddie"))
-        {
-            var shift = totalBounds.size * 500 * scale / 2;
-            shift.z = 0;
-            modelGameObject.transform.localPosition -= shift;
-        }
+        // Center model inside button
+        modelBounds = CalculateTotalBounds(modelRenders);
+        Vector3 offset = selectButton.transform.position - modelBounds.center;
+        modelGameObject.transform.position += offset;
+
+        // Shift model inside button
+        modelGameObject.transform.localPosition += new Vector3(0, 0, modelBounds.size.z * 500 / 2 * scale); 
     }
 
     public void OnModelLoaded(object sender, ImportedMeshEventArgsH args)
@@ -119,7 +114,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             {
                 args.RootGameObject.gameObject.transform.parent = selectButton.transform;
                 args.RootGameObject.gameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
-                ResizeModelToFitCube(args.RootGameObject.gameObject, 0.08f);
+                FitModelToCube(args.RootGameObject.gameObject, 0.08f, selectButton);
 
                 // Fix model going black when making it small
                 Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
@@ -156,7 +151,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
                 RobotModel.RobotModelGameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
                 RobotModel.RobotModelGameObject.gameObject.transform.localRotation = Quaternion.Euler(0, 90, 0);
                 RobotModel.SetActiveAllVisuals(true);
-                ResizeModelToFitCube(RobotModel.RobotModelGameObject.gameObject, 0.08f);
+                FitModelToCube(RobotModel.RobotModelGameObject.gameObject, 0.08f, selectButton);
 
                 // Fix model going black when making small
                 Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
