@@ -15,7 +15,7 @@ namespace Hololens
 
     public class RobotActionObjectH : ActionObjectH, HIRobot
     {
-
+        public GameObject InteractObject;
         public TextMeshPro ActionObjectName;
         public GameObject RobotPlaceholderPrefab;
         public GameObject LockIcon;
@@ -252,18 +252,12 @@ namespace Hololens
         private async void RobotModelLoaded()
         {
             RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            RobotModel.RobotModelGameObject.transform.parent = transform;
+            RobotModel.RobotModelGameObject.transform.parent = InteractionWrapper.transform;
             RobotModel.RobotModelGameObject.transform.localPosition = Vector3.zero;
             RobotModel.RobotModelGameObject.transform.localRotation = Quaternion.identity;
 
             RobotModel.SetActiveAllVisuals(true);
             RobotPlaceholder.SetActive(false);
-
-            /*  Outline oldOutline = gameObject.GetComponent<Outline>();
-              Color colorX = oldOutline.OutlineColor;
-              float widthO = oldOutline.OutlineWidth;
-
-              Destroy(gameObject.GetComponent<Outline>());*/
 
             Destroy(RobotPlaceholder);
 
@@ -271,12 +265,9 @@ namespace Hololens
             robotRenderers.Clear();
             robotRenderers.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>(true));
             robotColliders.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Collider>(true));
-            // interactObject.GetComponentInChildren<Interactable>().OnClick.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
-            gameObject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+            InteractionWrapper.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
-            //UrdfRobot urdfRobot = RobotModel.RobotModelGameObject.GetComponent<UrdfRobot>();
 
-            // Bounds totalBounds = new Bounds ();
             if (robotRenderers.Count > 0)
             {
                 Bounds totalBounds = new Bounds();
@@ -287,23 +278,16 @@ namespace Hololens
                 {
                     totalBounds.Encapsulate(renderer.bounds);
                 }
+
+                InteractObject.transform.localScale = transform.InverseTransformVector(totalBounds.size);
+                InteractObject.transform.position = totalBounds.center;
+                InteractObject.transform.localRotation = Quaternion.identity;
+
+                if (InteractionWrapper.GetComponent<BoundsControl>() is { isActiveAndEnabled: true } boundsControl)
+                {
+                    boundsControl.RecomputeBounds();
+                }
             }
-
-            if (RobotModel.RobotModelGameObject.GetComponent<Outline>() == null)
-            {
-                Outline outline = RobotModel.RobotModelGameObject.AddComponent<Outline>();
-
-                outline.OutlineColor = new Color(45, 76, 255, 255);
-                outline.OutlineWidth = 4;
-                outline.enabled = false;
-
-
-                // Destroy(RobotModel.RobotModelGameObject.GetComponent<Outline>());
-            }
-
-            //gameObject.GetComponent<ObjectManipulator>().hoverEntered.AddListener((a) => RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = true);
-            //gameObject.GetComponent<ObjectManipulator>().hoverExited.AddListener((a) => RobotModel.RobotModelGameObject.GetComponent<Outline>().enabled = false);
-
 
             SetOutlineSizeBasedOnScale();
 
@@ -327,7 +311,6 @@ namespace Hololens
                     break;
                 }
             }
-            //       outlineOnClick.CompensateOutlineByModelScale(robotScale);
         }
 
         private void SetDefaultJoints()
@@ -597,12 +580,10 @@ namespace Hololens
 
         public override void CreateModel(CollisionModels customCollisionModels = null)
         {
-            RobotPlaceholder = Instantiate(RobotPlaceholderPrefab, transform);
-            RobotPlaceholder.transform.parent = transform;
-            RobotPlaceholder.transform.localPosition = Vector3.zero;
-            RobotPlaceholder.transform.localPosition = Vector3.zero;
+            var modelParent = InteractionWrapper.transform;
 
-            //   RobotPlaceholder.GetComponent<OnClickCollider>().Target = gameObject;
+            RobotPlaceholder = Instantiate(RobotPlaceholderPrefab, modelParent);
+            RobotPlaceholder.transform.localPosition = Vector3.zero;
 
             robotColliders.Clear();
             robotRenderers.Clear();
@@ -947,7 +928,7 @@ namespace Hololens
 
 
 
-        public void setInterarction(GameObject interactComponents)
+        public void SetInteraction(GameObject interactComponents)
         {
             BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
             BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();

@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using IO.Swagger.Model;
 using System;
 using Base;
+using MixedReality.Toolkit.SpatialManipulation;
+using UnityEngine.XR.Interaction.Toolkit;
+using RequestResult = Base.RequestResult;
 
 
 namespace Hololens {
@@ -15,6 +18,7 @@ namespace Hololens {
         protected float visibility;
 
         public Collider Collider;
+        public GameObject InteractionWrapper;
 
         public IO.Swagger.Model.SceneObject Data = new IO.Swagger.Model.SceneObject(id: "", name: "", pose: DataHelper.CreatePose(new Vector3(), new Quaternion()), type: "");
         public ActionObjectMetadataH ActionObjectMetadata;
@@ -33,19 +37,14 @@ namespace Hololens {
                 SetScenePosition(position);
                 SetSceneOrientation(orientation);
             }
+
             CreateModel(customCollisionModels);
             enabled = true;
-          //  SelectorItem = SelectorMenu.Instance.CreateSelectorItem(this);
-            //if (VRModeManager.Instance.VRModeON) {
-                SetVisibility(PlayerPrefsHelper.LoadFloat("AOVisibilityVR", 1f));
-         //   } else {
-        //        SetVisibility(PlayerPrefsHelper.LoadFloat("AOVisibilityAR", 0f));
-       //     }
+            SetVisibility(PlayerPrefsHelper.LoadFloat("AOVisibilityVR", 1f));
 
             if (PlayerPrefsHelper.LoadBool($"ActionObject/{GetId()}/blocklisted", false)) {
                 Enable(false, true, false);
             }
-
         }
         
         public virtual void UpdateObjectName(string newUserId) {
@@ -315,5 +314,62 @@ namespace Hololens {
         public Transform GetSpawnPoint() {
             return transform;
         }
+
+        internal void SetupTransformation()
+        {
+            var boundsControl = InteractionWrapper.GetComponent<BoundsControl>();
+            var objectManipulator = InteractionWrapper.GetComponent<ObjectManipulator>();
+
+
+            // Send new position to server TODO: TransformMenu UpdatePosition
+            boundsControl.ManipulationEnded.AddListener(EndTransform);
+            objectManipulator.lastSelectExited.AddListener(EndTransform);
+
+
+            // On start lock object 
+            //objectManipulator.selectEntered.AddListener((SelectEnterEventArgs a) => Debug.Log("A"));
+            objectManipulator.firstSelectEntered.AddListener(StartTransform);
+            boundsControl.ManipulationStarted.AddListener(StartTransform);
+        }
+
+        private async void EndTransform(SelectExitEventArgs arg0)
+        {
+            // Move rotation and scale from InteractionWrapper to whole object (this is done because the bounding box is not at root object because hover box )
+            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + InteractionWrapper.transform.localRotation.eulerAngles);
+            InteractionWrapper.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+            transform.localScale = new Vector3(transform.localScale.x * InteractionWrapper.transform.localScale.x,
+                                               transform.localScale.y * InteractionWrapper.transform.localScale.y,
+                                               transform.localScale.z * InteractionWrapper.transform.localScale.z);
+            InteractionWrapper.transform.localScale = new Vector3(1, 1, 1);
+
+            InteractionWrapper.GetComponent<BoundsControlHandlesOnHoverAndGrab>().UpdateHoverBox();
+
+            await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
+                new IO.Swagger.Model.Pose(
+                    position: DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(transform.position))),
+                    orientation: DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(Quaternion.Inverse(GameManagerH.Instance.Scene.transform.rotation) * this.transform.rotation)))
+                );
+
+            await WriteUnlock();
+        }
+
+        private async void StartTransform(SelectEnterEventArgs arg0)
+        {
+            if (await WriteLock(true))
+            {
+                // TODO for some reason there was a list of locked objects
+                // TODO what if the locking takes for too long
+                return;
+            }
+            else
+            {
+                // TODO probably end manipulation
+                // TODO probably lock manipulation for few second
+                // TODO probably notify user MAYBE just sound
+            }
+        }
+
+
     }
 }

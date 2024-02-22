@@ -161,9 +161,11 @@ public class MeshImporterH : Singleton<MeshImporterH> {
         }
     }
 
-    private void OnModelLoadError(IContextualizedError obj) {
+    private void OnModelLoadError(IContextualizedError obj) 
+    {
         //    Notifications.Instance.ShowNotification("Unable to show mesh ", obj.GetInnerException().Message);
-        Debug.LogError(obj.GetInnerException().Message);
+        Debug.Log("JsemTady");
+        Debug.LogError(obj?.GetInnerException()?.Message);
     }
 
     /// <summary>

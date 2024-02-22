@@ -236,7 +236,7 @@ public class HActionPoint3D : HActionPoint
     public GameObject getInteractObject(){
             return interactObject;
     }
-    public void setInterarction(GameObject interactComponents){
+    public void setInteraction(GameObject interactComponents){
 
         BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
         collider.size = Visual.transform.localScale;

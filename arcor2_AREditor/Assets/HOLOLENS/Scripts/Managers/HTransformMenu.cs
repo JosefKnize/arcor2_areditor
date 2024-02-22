@@ -32,8 +32,6 @@ public class HTransformMenu : Singleton<HTransformMenu>
         //GizmoTransform.gameObject.GetComponent<ObjectManipulator>().OnManipulationEnded.AddListener((s) => updatePosition());
         //GizmoTransform.gameObject.GetComponent<BoundsControl>().ScaleStopped.AddListener(() => updateScale());
         //GizmoTransform.gameObject.GetComponent<BoundsControl>().RotateStopped.AddListener(() => updatePosition());
-
-
     }
 
     void Update()
@@ -47,7 +45,6 @@ public class HTransformMenu : Singleton<HTransformMenu>
             //gizmo.SetXDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).y));
             //gizmo.SetYDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).x));
             //gizmo.SetZDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).z));
-
         }
     }
 

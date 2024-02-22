@@ -20,6 +20,7 @@ TagManager:
   - gizmo_x
   - gizmo_y
   - gizmo_z
+  - HoverOnly
   layers:
   - Default
   - TransparentFX

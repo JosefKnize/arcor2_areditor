@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class ActionObjectNoPoseH : ActionObjectH
 {
-
-
     public override void CreateModel(CollisionModels customCollisionModels = null) {
         // no pose object has no model
     }
