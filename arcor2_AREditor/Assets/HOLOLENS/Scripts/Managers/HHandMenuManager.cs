@@ -33,7 +33,6 @@ public class HHandMenuManager : Singleton<HHandMenuManager>
     void Start()
     {
         ShowScenesButton.OnClicked.AddListener(OpenScenesClicked);
-        AddObjectMenu.OnClicked.AddListener(AddObjectClicked);
     }
 
     private void ExperimentButtonPressed()
@@ -46,11 +45,6 @@ public class HHandMenuManager : Singleton<HHandMenuManager>
         {
             ExperimentManager.Instance.StopExperiment();
         }
-    }
-
-    private void AddObjectClicked()
-    {
-        
     }
 
     public async void OpenScenesClicked()

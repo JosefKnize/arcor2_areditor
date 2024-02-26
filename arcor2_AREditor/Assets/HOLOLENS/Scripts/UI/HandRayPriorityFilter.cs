@@ -58,10 +58,10 @@ public class XRTargetingFilter : XRBaseTargetFilter
                 s_InteractableFinalScoreMap[firstHoverObject.Item2] = 0.0f;
             }
 
-            if (results.Count > 0)
-            {
-                Debug.Log($"Hand priority filter returned {results[0]} from {targets.Count}");
-            }
+            //if (results.Count > 0)
+            //{
+            //    Debug.Log($"Hand priority filter returned {results[0]} from {targets.Count}");
+            //}
 
             results.Sort(CompareInteractible);
         }

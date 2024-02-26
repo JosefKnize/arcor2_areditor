@@ -113,10 +113,15 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1419901516234266519, guid: b9be915cf0822e24f99a435a510c506d,
+        type: 3}
+      propertyPath: overrideBounds
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4117692875275004882, guid: b9be915cf0822e24f99a435a510c506d,
         type: 3}
       propertyPath: m_Name
-      value: ActionObject3D_New
+      value: ActionObject3D
       objectReference: {fileID: 0}
     - target: {fileID: 4117692875275004883, guid: b9be915cf0822e24f99a435a510c506d,
         type: 3}
@@ -215,10 +220,10 @@ MonoBehaviour:
   Enabled: 1
   ActionPointsSpawn: {fileID: 4001539209738841246}
   Collider: {fileID: 0}
+  InteractionWrapper: {fileID: 2493384128762216305}
   ActionObjectName: {fileID: 7792798933366517687}
   Visual: {fileID: 7369415936797712308}
   Model: {fileID: 0}
-  InteractionWrapper: {fileID: 2493384128762216305}
   interactObject: {fileID: 4587316024745469421}
   CubePrefab: {fileID: 4648989740229487369, guid: eaf2d11af5d22ad4ab541babe0c35235,
     type: 3}

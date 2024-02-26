@@ -74,7 +74,6 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
         {
             (success, message) = await GameManagerH.Instance.CloseProject(true);
         }
-
     }
 
     private void OnSceneStateEvent(object sender, SceneStateEventArgs args)

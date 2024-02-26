@@ -9,6 +9,8 @@ using RosSharp.Urdf;
 using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR.Interaction.Toolkit;
+using RestSharp;
 
 public class ListScenes : Singleton<ListScenes>
 {
@@ -38,9 +40,7 @@ public class ListScenes : Singleton<ListScenes>
 
     public void setActiveMenu(bool active)
     {
-        //Scrollmenu.SetActive(active);
-        //SceneList.SetActive(active);
-        //Scrollmenu.GetComponentInParent<RadialView>().enabled = !active;
+        SceneList.SetActive(active);
     }
     void Start()
     {
@@ -53,7 +53,6 @@ public class ListScenes : Singleton<ListScenes>
 
     public void OnShowEditorScreen(object sender, EventArgs args)
     {
-        // SceneList.transform.parent = null;
         setActiveMenu(false);
     }
 
@@ -88,12 +87,25 @@ public class ListScenes : Singleton<ListScenes>
 
         scenes.Clear();
 
+        CreateNewSceneObject();
+
         foreach (ListScenesResponseData scene in GameManagerH.Instance.Scenes)
         {
             createMenuScene(await WebSocketManagerH.Instance.GetScene(scene.Id));
         }
 
         setActiveMenu(true);
+        SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+    }
+
+    private void CreateNewSceneObject()
+    {
+        GameObject newScene = Instantiate(scenePrefab, SceneList.transform);
+        newScene.name = "Create new";
+        newScene.GetComponentInChildren<TextMeshPro>().text = "Create new";
+
+        scenes.Add("Create new", newScene);
+        newScene.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => CreateScene());
     }
 
     internal void createMenuScene(Scene scene)
@@ -102,7 +114,7 @@ public class ListScenes : Singleton<ListScenes>
 
         GameObject newScene = Instantiate(scenePrefab, SceneList.transform);
         newScene.name = scene.Name;
-        newScene.GetComponentInChildren<TextMeshProUGUI>().text = scene.Name;
+        newScene.GetComponentInChildren<TextMeshPro>().text = scene.Name;
         GameObject ActionObjectsSpawn = new GameObject(scene.Name);
 
         Dictionary<string, GameObject> ActionObjects = new Dictionary<string, GameObject>();
@@ -188,16 +200,14 @@ public class ListScenes : Singleton<ListScenes>
             float maxV = Mathf.Max(Mathf.Max(newScene.transform.localScale.x, newScene.transform.localScale.y), newScene.transform.localScale.z);
             //newScene.transform.localScale = new Vector3(maxV, maxV, maxV);
 
-            ActionObjectsSpawn.transform.parent = newScene.transform.Find("Frontplate").transform;
+            ActionObjectsSpawn.transform.parent = newScene.transform;
             ActionObjectsSpawn.transform.localPosition = Vector3.zero;
             ActionObjectsSpawn.transform.localScale /= 10;
             //newScene.transform.localScale /= 10;
         }
 
         scenes.Add(scene.Name, newScene);
-
-        newScene.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => openScene(scene.Id));
-        bool starred = PlayerPrefsHelper.LoadBool("scene/" + scene.Id + "/starred", false);
+        newScene.GetComponent<StatefulInteractable>().RegisterOnShortClick(() => openScene(scene.Id));
     }
 
     internal void createMenuProject(Scene scene, Project project)
@@ -360,7 +370,7 @@ public class ListScenes : Singleton<ListScenes>
         scenes.Add(project.Name, newProject);
         actions_scenes.Add(project.Name, actions_ID);
 
-        newProject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => openProject(project.Id));//.onClick()
+        newProject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => openProject(project.Id));
     }
 
     public void waitOpenProject(object sender, EventArgs args)
@@ -378,7 +388,6 @@ public class ListScenes : Singleton<ListScenes>
     {
         if (GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.ProjectEditor) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
-            //HHandMenuManager.Instance.onSeletectedChanged(HHandMenuManager.AllClickedEnum.Close);
             waitingSceneProject = projectID;
             GameManagerH.Instance.OnCloseProject += waitOpenProject;
             GameManagerH.Instance.OnCloseScene += waitOpenProject;
@@ -401,15 +410,17 @@ public class ListScenes : Singleton<ListScenes>
         }
 
     }
+
     public async void openScene(String sceneID)
     {
+        Debug.Log($"Opening Scene {sceneID}");
         if (GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.ProjectEditor) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
-            //HHandMenuManager.Instance.onSeletectedChanged(HHandMenuManager.AllClickedEnum.Close);
             waitingSceneProject = sceneID;
             GameManagerH.Instance.OnCloseProject += waitOpenScene;
-
             GameManagerH.Instance.OnCloseScene += waitOpenScene;
+
+            HEditorMenuScreen.Instance.CloseScene();
 
         }
         else
@@ -418,6 +429,22 @@ public class ListScenes : Singleton<ListScenes>
         }
     }
 
+    private async void CreateScene()
+    {
+        string nameOfNewScene = "scene_" + Guid.NewGuid().ToString().Substring(0, 4);
+
+        try
+        {
+            HEditorMenuScreen.Instance.CloseScene();
+
+            await WebSocketManagerH.Instance.CreateScene(nameOfNewScene, "");
+        }
+        catch (RequestFailedException e)
+        {
+            // TODO notification
+        }
+    }
+     
 
     public void UpdateLogicItem()
     {
@@ -445,4 +472,31 @@ public class ListScenes : Singleton<ListScenes>
         }
     }
 
+}
+
+public static class StatefulInteractableShortClickExtension
+{
+    private static Dictionary<StatefulInteractable, DateTime> clickStartedDictionary = new();
+    public static void RegisterOnShortClick(this StatefulInteractable interactable, System.Action callback)
+    {
+        interactable.firstSelectEntered.AddListener( (args) =>
+        {
+            clickStartedDictionary[interactable] = DateTime.Now;
+        });
+
+        interactable.lastSelectExited.AddListener((args) =>
+        {
+            var difference = DateTime.Now - clickStartedDictionary[interactable];
+            if (difference.TotalMilliseconds < 300)
+            {
+                Debug.Log(difference);
+                callback();
+            }
+            else
+            {
+                Debug.Log("Ignored click cuz too long");
+                Debug.Log(difference);
+            }
+        });
+    }
 }

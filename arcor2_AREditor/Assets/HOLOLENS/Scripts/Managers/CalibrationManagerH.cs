@@ -1,6 +1,3 @@
-#define REMOTING
-
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +11,6 @@ public class CalibrationManagerH : Base.Singleton<CalibrationManagerH>
 {
     //public GameObject qrCodePrefab;
     public GameObject qrCodePrefab;
-    public GameObject EditorScenePrefab;
 
     private System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
     private bool clearExisting = false;
@@ -47,8 +43,6 @@ public class CalibrationManagerH : Base.Singleton<CalibrationManagerH>
     private System.Collections.Generic.Queue<ActionData> pendingActions = new Queue<ActionData>();
     void Awake()
     {
-
-#if !UNITY_EDITOR || REMOTING
         /*SETUP QR*/
         GameObject QRInfo = qrCodePrefab.transform.Find("QRInfo").gameObject;
         GameObject Axis = QRInfo.transform.Find("Axis").gameObject;
@@ -56,8 +50,6 @@ public class CalibrationManagerH : Base.Singleton<CalibrationManagerH>
 
         QRInfo.transform.localPosition = new Vector3(0f, 0.06f, 0f);
         axisY.transform.localEulerAngles = new Vector3(0f, 0f, -90f);
-#endif
-
     }
     void Start()
     {
@@ -74,28 +66,19 @@ public class CalibrationManagerH : Base.Singleton<CalibrationManagerH>
         QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
         QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
 
-        StartCalibration();
+        GameManagerH.Instance.OnConnectedToServer += StartCalibration;
     }
 
-
-    public void StartCalibration()
+    private void StartCalibration(object sender, StringEventArgs args)
     {
-#if !UNITY_EDITOR || REMOTING
         QRCodesManager.Instance.StartQRTracking();
-#else
-        //GameManagerH.Instance.SceneSetParent( helpPr.transform);
-        GameManagerH.Instance.Scene.transform.parent = EditorScenePrefab.transform;
-        GameManagerH.Instance.Scene.transform.localPosition = new Vector3(0f, 0f, 0f);
-#endif
     }
     public void SetCalibration(object sender, EventArgs e)
     {
         Calibrated = false;
-#if !UNITY_EDITOR || REMOTING
         GameManagerH.Instance.SceneSetParent(null);
         GameManagerH.Instance.SceneSetActive(false);
         QRCodesManager.Instance.StopQRTracking();
-#endif
     }
     private void Instance_QRCodesTrackingStateChanged(object sender, bool status)
     {
