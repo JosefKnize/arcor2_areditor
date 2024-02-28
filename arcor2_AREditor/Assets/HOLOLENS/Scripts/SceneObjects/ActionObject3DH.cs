@@ -286,8 +286,6 @@ public class ActionObject3DH : ActionObjectH
             }
         }
 
-        Debug.Log("3D Model created");
-
         Vector3 vec = Model.transform.localScale;
         interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         interactObject.transform.position = Model.transform.position;

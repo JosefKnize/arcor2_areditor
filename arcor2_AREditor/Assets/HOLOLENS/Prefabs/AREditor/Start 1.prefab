@@ -1,49 +1,11 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &1048811416159943666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7595134985626685999}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8be6b25b21eed8c4f8d33efd8daefa14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ChildToBind: {fileID: 0}
---- !u!114 &4747986683258773753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7595134985626685999}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1ecde3b913ecc04da7f7a3816ef3942, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SelectorItem: {fileID: 0}
-  Colliders:
-  - {fileID: 1926840183447952162}
-  Enabled: 1
-  Input: {fileID: 1910523482744608656}
-  Output: {fileID: 1991920036796891512}
-  ActionPoint: {fileID: 0}
-  NameText: {fileID: 497521023295788453}
-  ActionBeingExecuted: 0
-  Visual: {fileID: 2343942710375076911}
-  VisualRoot: {fileID: 7595134984778891171}
-  ModelPrefab: {fileID: 8135423612078418531, guid: 905afa9a0b16afb47bff7a93bf1f4205,
-    type: 3}
-  interactObject: {fileID: 7605339735056861603}
 --- !u!1001 &3488489603481638026
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1030236983171118047, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
@@ -131,6 +93,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4751117138497790563, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1ff6b2ec72cb01846b1d501eaa69e345, type: 2}
     - target: {fileID: 6417292780430755493, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
         type: 3}
       propertyPath: m_Name
@@ -139,19 +106,26 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 1273531199042291087, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
     - {fileID: 4449266193462054634, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
+    - {fileID: 6412823937764305222, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
+    - {fileID: 648372660421076563, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
+    - {fileID: 4135344392157193672, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
+    - {fileID: 9119190469125469347, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6417292780430755493, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1048811416159943666}
+    - targetCorrespondingSourceObject: {fileID: 6417292780430755493, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4747986683258773753}
+    - targetCorrespondingSourceObject: {fileID: 6476742506105068841, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8431047489562281354}
   m_SourcePrefab: {fileID: 100100000, guid: 17c4d655d1407bd45b7d145f1ea54f3e, type: 3}
---- !u!1 &7595134985626685999 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6417292780430755493, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
-    type: 3}
-  m_PrefabInstance: {fileID: 3488489603481638026}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &7595134984778891171 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6417292781798665001, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
-    type: 3}
-  m_PrefabInstance: {fileID: 3488489603481638026}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &497521023295788453 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3931104211541885231, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
@@ -164,21 +138,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!23 &2343942710375076911 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1220125537363509413, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+--- !u!114 &1910523482744608656 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3092301909502083866, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
     type: 3}
   m_PrefabInstance: {fileID: 3488489603481638026}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 695862b4c078ef64d8011398d06e0241, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!64 &1926840183447952162 stripped
 MeshCollider:
   m_CorrespondingSourceObject: {fileID: 3086118307333902248, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
-    type: 3}
-  m_PrefabInstance: {fileID: 3488489603481638026}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &7605339735056861603 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6476742506105068841, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
     type: 3}
   m_PrefabInstance: {fileID: 3488489603481638026}
   m_PrefabAsset: {fileID: 0}
@@ -194,15 +168,277 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f25e7fcbacc574498c8714cd04b825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1910523482744608656 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3092301909502083866, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+--- !u!23 &2343942710375076911 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1220125537363509413, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
     type: 3}
   m_PrefabInstance: {fileID: 3488489603481638026}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!1 &7595134984778891171 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6417292781798665001, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 3488489603481638026}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7595134985626685999 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6417292780430755493, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 3488489603481638026}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1048811416159943666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7595134985626685999}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 695862b4c078ef64d8011398d06e0241, type: 3}
+  m_Script: {fileID: 11500000, guid: 8be6b25b21eed8c4f8d33efd8daefa14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ChildToBind: {fileID: 0}
+--- !u!114 &4747986683258773753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7595134985626685999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ecde3b913ecc04da7f7a3816ef3942, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Colliders:
+  - {fileID: 1926840183447952162}
+  Enabled: 1
+  Input: {fileID: 1910523482744608656}
+  Output: {fileID: 1991920036796891512}
+  ActionPoint: {fileID: 0}
+  NameText: {fileID: 497521023295788453}
+  ActionBeingExecuted: 0
+  Visual: {fileID: 2343942710375076911}
+  VisualRoot: {fileID: 7595134984778891171}
+  ModelPrefab: {fileID: 8135423612078418531, guid: 905afa9a0b16afb47bff7a93bf1f4205,
+    type: 3}
+  interactObject: {fileID: 7605339735056861603}
+--- !u!1 &7605339735056861603 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6476742506105068841, guid: 17c4d655d1407bd45b7d145f1ea54f3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 3488489603481638026}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8431047489562281354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7605339735056861603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dd6a517ee866ae45ae8fac60a8d0547, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_InteractionManager: {fileID: 0}
+  m_Colliders: []
+  m_InteractionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 1
+  m_DistanceCalculationMode: 1
+  m_SelectMode: 0
+  m_FocusMode: 1
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstFocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastFocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
+  m_OnFirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnLastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectCanceled:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnActivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDeactivate:
+    m_PersistentCalls:
+      m_Calls: []
+  isGazePinchSelected:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isRaySelected:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isPokeSelected:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isGrabSelected:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isGazeHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isGazePinchHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isRayHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isGrabHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isPokeHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  isActiveHovered:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  disabledInteractorTypes: []
+  <ToggleMode>k__BackingField: 0
+  <SelectThreshold>k__BackingField: 0.9
+  <DeselectThreshold>k__BackingField: 0.1
+  <TriggerOnRelease>k__BackingField: 1
+  <UseGazeDwell>k__BackingField: 0
+  <GazeDwellTime>k__BackingField: 1
+  <UseFarDwell>k__BackingField: 0
+  <FarDwellTime>k__BackingField: 1
+  allowSelectByVoice: 1
+  speechRecognitionKeyword: select
+  <VoiceRequiresFocus>k__BackingField: 1
+  <SelectRequiresHover>k__BackingField: 0
+  <IsToggled>k__BackingField:
+    active: 0
+    onEntered:
+      m_PersistentCalls:
+        m_Calls: []
+    onExited:
+      m_PersistentCalls:
+        m_Calls: []
+  <OnClicked>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  <OnEnabled>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  <OnDisabled>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []

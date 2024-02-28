@@ -22,7 +22,7 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 
     public async void SaveScene()
     {
-        // SaveButton.SetInteractivity(false, "Saving scene...");
+        //SceneManagerH.Instance.UnlockAllObjects();
         IO.Swagger.Model.SaveSceneResponse saveSceneResponse = await GameManagerH.Instance.SaveScene();
         if (!saveSceneResponse.Result)
         {

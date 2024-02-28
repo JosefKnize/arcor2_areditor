@@ -22,6 +22,7 @@ public abstract class HStartEndAction : HAction
 
     public virtual void Init(IO.Swagger.Model.Action projectAction, ActionMetadataH metadata, HActionPoint ap, IActionProviderH actionProvider, string actionType) {
         base.Init(projectAction, metadata, ap, actionProvider);
+
         interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
 
 

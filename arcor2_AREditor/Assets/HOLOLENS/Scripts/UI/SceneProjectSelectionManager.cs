@@ -58,6 +58,7 @@ public class ListScenes : Singleton<ListScenes>
 
     public async void UpdateProjects(object sender, EventArgs eventArgs)
     {
+        Debug.Log("Update Projects");
         foreach (KeyValuePair<string, GameObject> kvp in scenes)
         {
             Destroy(kvp.Value);
@@ -66,6 +67,8 @@ public class ListScenes : Singleton<ListScenes>
         project_logicItems.Clear();
         scenes.Clear();
 
+        CreateNewProjectObject();
+
         foreach (IO.Swagger.Model.ListProjectsResponseData project in GameManagerH.Instance.Projects)
         {
             createMenuProject(await WebSocketManagerH.Instance.GetScene(project.SceneId), await WebSocketManagerH.Instance.GetProject(project.Id));
@@ -73,6 +76,18 @@ public class ListScenes : Singleton<ListScenes>
 
         UpdateLogicItem();
         setActiveMenu(true);
+        SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+
+    }
+
+    private void CreateNewProjectObject()
+    {
+        GameObject newScene = Instantiate(scenePrefab, SceneList.transform);
+        newScene.name = "Create new";
+        newScene.GetComponentInChildren<TextMeshPro>().text = "Create new";
+
+        scenes.Add("Create new", newScene);
+        newScene.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => CreateProject());
     }
 
     public async void UpdateScenes(object sender, EventArgs eventArgs)
@@ -110,8 +125,6 @@ public class ListScenes : Singleton<ListScenes>
 
     internal void createMenuScene(Scene scene)
     {
-        //await WebSocketManagerH.Instance.GetRobotMeta();
-
         GameObject newScene = Instantiate(scenePrefab, SceneList.transform);
         newScene.name = scene.Name;
         newScene.GetComponentInChildren<TextMeshPro>().text = scene.Name;
@@ -176,34 +189,40 @@ public class ListScenes : Singleton<ListScenes>
             }
 
         }
+        ActionObjectsSpawn.transform.parent = newScene.transform;
 
-        Renderer[] meshes = ActionObjectsSpawn.GetComponentsInChildren<Renderer>();
-        Bounds bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
-
-        foreach (Renderer mesh in meshes)
+        if (scene.Objects.Count > 0)
         {
-            bounds.Encapsulate(mesh.bounds);
-        }
+            Bounds bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
+            foreach (Renderer mesh in ActionObjectsSpawn.GetComponentsInChildren<Renderer>())
+            {
+                bounds.Encapsulate(mesh.bounds);
+            }         
 
-        if (scene.Objects.Count == 0)
-        {
-            //newScene.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            //newScene.transform.position = Vector3.zero;
-        }
-        else
-        {
-            // bounds around meshes
-            // make box just big enoug to fit in button
-            // put center of bounds in center of button
+            // Scale
+            var maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+            var scaleFactor = 0.25f / maxDimension;
+            ActionObjectsSpawn.transform.localScale *= scaleFactor;
 
-            //newScene.transform.position = bounds.center; //apply the center and size
-            float maxV = Mathf.Max(Mathf.Max(newScene.transform.localScale.x, newScene.transform.localScale.y), newScene.transform.localScale.z);
-            //newScene.transform.localScale = new Vector3(maxV, maxV, maxV);
+            // Position
+            bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
+            foreach (Renderer mesh in ActionObjectsSpawn.GetComponentsInChildren<Renderer>())
+            {
+                bounds.Encapsulate(mesh.bounds);
+            }
+            Vector3 offset = newScene.transform.position - bounds.center;
+            ActionObjectsSpawn.transform.position += offset;
 
-            ActionObjectsSpawn.transform.parent = newScene.transform;
-            ActionObjectsSpawn.transform.localPosition = Vector3.zero;
-            ActionObjectsSpawn.transform.localScale /= 10;
-            //newScene.transform.localScale /= 10;
+            // Fix model going black when making it small
+            Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
+            var renderers = ActionObjectsSpawn.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                foreach (var material in renderer.materials)
+                {
+                    material.shader = unlitColorShader;
+                }
+            }
         }
 
         scenes.Add(scene.Name, newScene);
@@ -212,8 +231,6 @@ public class ListScenes : Singleton<ListScenes>
 
     internal void createMenuProject(Scene scene, Project project)
     {
-        //await WebSocketManagerH.Instance.GetRobotMeta();
-
         GameObject newProject = Instantiate(scenePrefab, SceneList.transform);
         newProject.name = project.Name;
         newProject.GetComponentInChildren<TextMeshPro>().text = project.Name;
@@ -299,8 +316,6 @@ public class ListScenes : Singleton<ListScenes>
 
         foreach (IO.Swagger.Model.ActionPoint projectActionPoint in project.ActionPoints)
         {
-
-
             GameObject AP = Instantiate(ActionPointPrefab, ActionObjectsSpawn.transform);
             AP.transform.localScale = new Vector3(1f, 1f, 1f);
             if (projectActionPoint.Parent != null)
@@ -352,20 +367,40 @@ public class ListScenes : Singleton<ListScenes>
 
         project_logicItems.Add(project.Name, project.Logic);
 
-        Renderer[] meshes = ActionObjectsSpawn.GetComponentsInChildren<Renderer>();
-        Bounds bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
-        foreach (Renderer mesh in meshes)
-        {
-            bounds.Encapsulate(mesh.bounds);
-        }
-        newProject.transform.localScale = bounds.size;
-        Vector3 vec = newProject.transform.position;
-        newProject.transform.position = bounds.center;//apply the center and size
-        float maxV = Mathf.Max(Mathf.Max(newProject.transform.localScale.x, newProject.transform.localScale.y), newProject.transform.localScale.z);
-        newProject.transform.localScale = new Vector3(maxV, maxV, maxV);
-
         ActionObjectsSpawn.transform.parent = newProject.transform;
-        newProject.transform.localScale /= 10;
+        if (scene.Objects.Count > 0)
+        {
+            // Scale
+            Bounds bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
+            foreach (Renderer mesh in ActionObjectsSpawn.GetComponentsInChildren<Renderer>())
+            {
+                bounds.Encapsulate(mesh.bounds);
+            }
+
+            var maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+            var scaleFactor = 0.25f / maxDimension;
+            ActionObjectsSpawn.transform.localScale *= scaleFactor;
+
+            // Position
+            bounds = new Bounds(ActionObjectsSpawn.transform.position, Vector3.zero);
+            foreach (Renderer mesh in ActionObjectsSpawn.GetComponentsInChildren<Renderer>())
+            {
+                bounds.Encapsulate(mesh.bounds);
+            }
+            Vector3 offset = newProject.transform.position - bounds.center;
+            ActionObjectsSpawn.transform.position += offset;
+
+            // Fix model going black when making it small
+            Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
+            var renderers = ActionObjectsSpawn.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                foreach (var material in renderer.materials)
+                {
+                    material.shader = unlitColorShader;
+                }
+            }
+        }
 
         scenes.Add(project.Name, newProject);
         actions_scenes.Add(project.Name, actions_ID);
@@ -392,6 +427,7 @@ public class ListScenes : Singleton<ListScenes>
             GameManagerH.Instance.OnCloseProject += waitOpenProject;
             GameManagerH.Instance.OnCloseScene += waitOpenProject;
 
+            HEditorMenuScreen.Instance.CloseScene();
         }
         else
         {
@@ -413,7 +449,6 @@ public class ListScenes : Singleton<ListScenes>
 
     public async void openScene(String sceneID)
     {
-        Debug.Log($"Opening Scene {sceneID}");
         if (GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.ProjectEditor) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
             waitingSceneProject = sceneID;
@@ -421,7 +456,6 @@ public class ListScenes : Singleton<ListScenes>
             GameManagerH.Instance.OnCloseScene += waitOpenScene;
 
             HEditorMenuScreen.Instance.CloseScene();
-
         }
         else
         {
@@ -436,7 +470,6 @@ public class ListScenes : Singleton<ListScenes>
         try
         {
             HEditorMenuScreen.Instance.CloseScene();
-
             await WebSocketManagerH.Instance.CreateScene(nameOfNewScene, "");
         }
         catch (RequestFailedException e)
@@ -444,7 +477,24 @@ public class ListScenes : Singleton<ListScenes>
             // TODO notification
         }
     }
-     
+
+    private async void CreateProject()
+    {
+        string nameOfNewProject = "project_" + Guid.NewGuid().ToString().Substring(0, 4);
+        try
+        {
+            await WebSocketManagerH.Instance.CreateProject(nameOfNewProject,
+            SceneManagerH.Instance.SceneMeta.Id,
+            "",
+            true,
+            false);
+        }
+        catch (RequestFailedException ex)
+        {
+            // TODO notification
+        }
+    }
+
 
     public void UpdateLogicItem()
     {

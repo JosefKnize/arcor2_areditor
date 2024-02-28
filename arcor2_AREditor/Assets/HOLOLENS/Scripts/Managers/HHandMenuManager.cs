@@ -14,27 +14,25 @@ using MixedReality.Toolkit;
 
 public class HHandMenuManager : Singleton<HHandMenuManager>
 {
-    public StatefulInteractable ShowScenesButton;
-    public StatefulInteractable AddObjectMenu;
+    public StatefulInteractable OpenSceneButton;
+    public StatefulInteractable OpenProjectButton;
     public StatefulInteractable ExperimentToggle;
+    public GameObject HandMenu;
 
-    public GameObject models;
-    public GameObject collisionObjects;   
-
-    private bool scenesLoaded, projectsLoaded, packagesLoaded, scenesUpdating, projectsUpdating, packagesUpdating;
-    private bool wasLastUpdate = false;
-
+    private bool scenesLoaded, projectsLoaded, scenesUpdating, projectsUpdating;
 
     private void Awake()
     {
-        scenesLoaded = projectsLoaded = scenesUpdating = projectsUpdating = packagesLoaded = packagesUpdating = false;
+        scenesLoaded = projectsLoaded = scenesUpdating = projectsUpdating = false;
     }
 
     void Start()
     {
-        ShowScenesButton.OnClicked.AddListener(OpenScenesClicked);
+        GameManagerH.Instance.OnConnectedToServer += (sender, args) => HandMenu.SetActive(true); 
+        OpenSceneButton.OnClicked.AddListener(OpenScenesClicked);
+        OpenProjectButton.OnClicked.AddListener(OpenProjectsClicked);
     }
-
+      
     private void ExperimentButtonPressed()
     {
         if (ExperimentToggle.IsToggled)
@@ -64,7 +62,8 @@ public class HHandMenuManager : Singleton<HHandMenuManager>
             HNotificationManager.Instance.ShowNotification("Failed to open scenes");
         }
     }
-    public async void OpenProjects()
+
+    public async void OpenProjectsClicked()
     {
         try
         {
@@ -165,36 +164,5 @@ public class HHandMenuManager : Singleton<HHandMenuManager>
             }
         });
 
-    }
-
-    private async void CreateProject()
-    {
-        string nameOfNewProject = "project_" + Guid.NewGuid().ToString().Substring(0, 4);
-
-        try
-        {
-            await WebSocketManagerH.Instance.CreateProject(nameOfNewProject,
-            SceneManagerH.Instance.SceneMeta.Id,
-            "",
-            true,
-            false);
-        }
-        catch (RequestFailedException ex)
-        {
-            Debug.LogError("Failed to create new project" + ex.Message);
-        }
-    }
-
-    private async void CreateScene()
-    {
-        string nameOfNewScene = "scene_" + Guid.NewGuid().ToString().Substring(0, 4);
-        try
-        {
-            await WebSocketManagerH.Instance.CreateScene(nameOfNewScene, "");
-        }
-        catch (RequestFailedException e)
-        {
-            Notifications.Instance.ShowNotification("Failed to create new scene", e.Message);
-        }
     }
 }

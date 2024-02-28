@@ -7,6 +7,7 @@ using Base;
 using MixedReality.Toolkit.SpatialManipulation;
 using UnityEngine.XR.Interaction.Toolkit;
 using RequestResult = Base.RequestResult;
+using System.Threading;
 
 
 namespace Hololens {
@@ -315,19 +316,37 @@ namespace Hololens {
             return transform;
         }
 
-        internal void SetupTransformation()
+        //internal void UnRegisterTransformationEvents()
+        //{
+        //    // TODO maybe look into disabling object manipulator insted
+        //    Debug.Log("UnRegistering Transform events");
+        //    var boundsControl = InteractionWrapper.GetComponent<BoundsControl>();
+        //    var objectManipulator = InteractionWrapper.GetComponent<ObjectManipulator>();
+
+        //    boundsControl.enabled = false;
+        //    objectManipulator.enabled = false;
+
+        //    //boundsControl.ManipulationEnded.RemoveListener(EndTransform);
+        //    //objectManipulator.lastSelectExited.RemoveListener(EndTransform);
+
+        //    //objectManipulator.firstSelectEntered.RemoveListener(StartTransform);
+        //    //boundsControl.ManipulationStarted.RemoveListener(StartTransform);
+        //}
+
+        internal void RegisterTransformationEvents()
         {
+            Debug.Log("Registering Transform events");
             var boundsControl = InteractionWrapper.GetComponent<BoundsControl>();
             var objectManipulator = InteractionWrapper.GetComponent<ObjectManipulator>();
 
+            boundsControl.enabled = true;
+            objectManipulator.enabled = true;
 
-            // Send new position to server TODO: TransformMenu UpdatePosition
+            // Send new position to server after ending manipulation
             boundsControl.ManipulationEnded.AddListener(EndTransform);
             objectManipulator.lastSelectExited.AddListener(EndTransform);
 
-
             // On start lock object 
-            //objectManipulator.selectEntered.AddListener((SelectEnterEventArgs a) => Debug.Log("A"));
             objectManipulator.firstSelectEntered.AddListener(StartTransform);
             boundsControl.ManipulationStarted.AddListener(StartTransform);
         }
@@ -345,27 +364,33 @@ namespace Hololens {
 
             InteractionWrapper.GetComponent<BoundsControlHandlesOnHoverAndGrab>().UpdateHoverBox();
 
-            await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
+            if(IsLockedByMe)
+            {
+                await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
                 new IO.Swagger.Model.Pose(
                     position: DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(transform.position))),
                     orientation: DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(Quaternion.Inverse(GameManagerH.Instance.Scene.transform.rotation) * this.transform.rotation)))
                 );
 
-            await WriteUnlock();
+                await WriteUnlock();
+            }
         }
 
         private async void StartTransform(SelectEnterEventArgs arg0)
         {
+            var boundsControl = InteractionWrapper.GetComponent<BoundsControl>();
+            var objectManipulator = InteractionWrapper.GetComponent<ObjectManipulator>();
+
             if (await WriteLock(true))
             {
-                // TODO for some reason there was a list of locked objects
-                // TODO what if the locking takes for too long
+                objectManipulator.AllowedManipulations = MixedReality.Toolkit.TransformFlags.Move;
+                boundsControl.EnabledHandles = HandleType.Rotation;
                 return;
             }
             else
             {
-                // TODO probably end manipulation
-                // TODO probably lock manipulation for few second
+                objectManipulator.AllowedManipulations = MixedReality.Toolkit.TransformFlags.None;
+                boundsControl.EnabledHandles = HandleType.None;
                 // TODO probably notify user MAYBE just sound
             }
         }
