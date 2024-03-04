@@ -167,22 +167,10 @@ public class SceneManagerH : Singleton<SceneManagerH>
     // Start is called before the first frame update
     void Start()
     {
-        GameManagerH.Instance.OnOpenSceneEditor += RegisterActionObjectsFromTransform;
-
         OnLoadScene += OnSceneLoaded;
         WebSocketManagerH.Instance.OnRobotEefUpdated += RobotEefUpdated;
         WebSocketManagerH.Instance.OnRobotJointsUpdated += RobotJointsUpdated;
-
         WebSocketManagerH.Instance.OnSceneStateEvent += OnSceneState;
-        //   
-    }
-
-    private void RegisterActionObjectsFromTransform(object sender, EventArgs e)
-    {
-        foreach (var actionObject in ActionObjects.Values)
-        {
-            actionObject.RegisterTransformationEvents();
-        }
     }
 
     // Update is called once per frame

@@ -10,14 +10,14 @@ using System;
 using TriLibCore.General;
 using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class ActionObject3DH : ActionObjectH
 {
     public TextMeshPro ActionObjectName;
-    public GameObject Visual, Model;
+    public GameObject Model;
 
     private bool transparent = false;
-    public GameObject interactObject;
     public GameObject CubePrefab;
     private Shader standardShader;
     private Shader transparentShader;
@@ -32,9 +32,7 @@ public class ActionObject3DH : ActionObjectH
     {
         base.Start();
         transform.localScale = new Vector3(1f, 1f, 1f);
-
     }
-
 
     public override Vector3 GetScenePosition()
     {
@@ -95,7 +93,7 @@ public class ActionObject3DH : ActionObjectH
                 // (first is mask, second is object material, third is outline)
                 if (renderer.materials.Length == 3)
                 {
-                    renderer.materials[1].shader = standardShader;
+                    renderer.materials[0].shader = standardShader;
                 }
                 else
                 {
@@ -113,7 +111,7 @@ public class ActionObject3DH : ActionObjectH
                 {
                     if (renderer.materials.Length == 3)
                     {
-                        renderer.materials[1].shader = transparentShader;
+                        renderer.materials[0].shader = transparentShader;
                     }
                     else
                     {
@@ -128,7 +126,7 @@ public class ActionObject3DH : ActionObjectH
                 Material mat;
                 if (renderer.materials.Length == 3)
                 {
-                    mat = renderer.materials[1];
+                    mat = renderer.materials[0];
                 }
                 else
                 {
@@ -176,35 +174,6 @@ public class ActionObject3DH : ActionObjectH
         base.ActivateForGizmo(layer);
         Model.layer = LayerMask.NameToLayer(layer);
     }
-
-
-    public GameObject getInteractObject()
-    {
-        return interactObject;
-    }
-
-    public void setInteraction(GameObject interactComponents)
-    {
-
-        BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
-        collider.size = getInteractObject().transform.localScale;
-        collider.center = getInteractObject().transform.localPosition;
-
-        BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
-        ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-
-        if (ActionObjectMetadata.ObjectModel.Type.Equals(ObjectModel.TypeEnum.Mesh))
-        {
-            boundsControl.ScaleLerpTime = 1L;
-            objectManipulator.ScaleLerpTime = 1L;
-        }
-        else
-        {
-            boundsControl.ScaleLerpTime = 0.6f;
-            objectManipulator.ScaleLerpTime = 1f;
-        }
-    }
-
 
     public override void CreateModel(CollisionModels customCollisionModels = null)
     {
@@ -287,19 +256,15 @@ public class ActionObject3DH : ActionObjectH
         }
 
         Vector3 vec = Model.transform.localScale;
-        interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
-        interactObject.transform.position = Model.transform.position;
+        InteractionObjectCollider.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
+        InteractionObjectCollider.transform.position = Model.transform.position;
 
-        // When new collision object is created new boundingBox must be calculated, but if it's already in scene bounding box is calculated automatically when inserted into scene
-        if (ActionObjectMetadata.ObjectModel.Type is ObjectModel.TypeEnum.Box or ObjectModel.TypeEnum.Cylinder or ObjectModel.TypeEnum.Sphere)
+        if (ActionObjectMetadata.ObjectModel.Type != ObjectModel.TypeEnum.Mesh)
         {
-            if (InteractionWrapper.GetComponent<BoundsControl>().isActiveAndEnabled)
-            {
-                InteractionWrapper.GetComponent<BoundsControl>().RecomputeBounds();
-            }
+            SetupManipulationComponents(true);
+            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
         }
 
-        InteractionWrapper.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
         gameObject.GetComponent<BindParentToChildH>().ChildToBind = Model;
         Collider = Model.GetComponent<Collider>();
         Colliders.Add(Collider);
@@ -359,15 +324,16 @@ public class ActionObject3DH : ActionObjectH
                 totalBounds.Encapsulate(renderer.bounds);
             }
 
-            interactObject.transform.localScale = transform.InverseTransformVector(totalBounds.size);
-            interactObject.transform.position = totalBounds.center;
-            interactObject.transform.localRotation = Quaternion.identity;
-
-            InteractionWrapper.GetComponent<BoundsControl>().RecomputeBounds();
+            InteractionObjectCollider.transform.localScale = transform.InverseTransformVector(totalBounds.size);
+            InteractionObjectCollider.transform.position = totalBounds.center;
+            InteractionObjectCollider.transform.localRotation = Quaternion.identity;
         }
 
+        SetupManipulationComponents();
+        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+
         SetVisibility(visibility, forceShaderChange: true);
-        
+
         MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
     }
 
@@ -396,6 +362,7 @@ public class ActionObject3DH : ActionObjectH
     /// <param name="grey">True for setting grey, false for standard state.</param>
     public void SetGrey(bool grey, bool force = false)
     {
+        return;
         isGreyColorForced = force && grey;
         if (force)
         {
@@ -471,7 +438,7 @@ public class ActionObject3DH : ActionObjectH
     public override void EnableVisual(bool enable)
     {
         Visual.SetActive(enable);
-        interactObject.SetActive(enable);
+        InteractionObjectCollider.SetActive(enable);
     }
 
     public override void UpdateModel()
@@ -496,7 +463,19 @@ public class ActionObject3DH : ActionObjectH
             Model.transform.localScale = new Vector3(dimensions.Value.x, dimensions.Value.y, dimensions.Value.z);
 
         Vector3 vec = Model.transform.localScale;
-        interactObject.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
-        interactObject.transform.position = Model.transform.position;
+        InteractionObjectCollider.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
+        InteractionObjectCollider.transform.position = Model.transform.position;
+    }
+
+    public override void HoverEntered(HoverEnterEventArgs arg0)
+    {
+        base.HoverEntered(arg0);
+        SetVisibility(1);
+    }
+
+    public override void HoverExited(HoverExitEventArgs arg0)
+    {
+        base.HoverExited(arg0);
+        SetVisibility(1);
     }
 }

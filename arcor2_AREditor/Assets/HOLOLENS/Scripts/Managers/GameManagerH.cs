@@ -261,7 +261,6 @@ public class GameManagerH : Singleton<GameManagerH>
     /// </summary>
     void Start()
     {
-        Scene.SetActive(false);
         WebSocketManagerH.Instance.OnConnectedEvent += OnConnected;
         WebSocketManagerH.Instance.OnDisconnectEvent += OnDisconnected;
         WebSocketManagerH.Instance.OnShowMainScreen += OnShowMainScreen;
@@ -567,7 +566,6 @@ public class GameManagerH : Singleton<GameManagerH>
 
                 HProjectManager.Instance.DestroyProject();
                 SceneManagerH.Instance.DestroyScene();
-                Scene.SetActive(false);
                 break;
         }
     }
@@ -740,8 +738,6 @@ public class GameManagerH : Singleton<GameManagerH>
     /// <returns></returns>
     public async Task OpenMainScreen(ShowMainScreenData.WhatEnum what, string highlight)
     {
-
-        Scene.SetActive(false);
         SetGameState(GameStateEnum.MainScreen);
         SetEditorState(EditorStateEnum.Closed);
         HideLoadingScreen();
@@ -833,7 +829,7 @@ public class GameManagerH : Singleton<GameManagerH>
             SetEditorState(EditorStateEnum.InteractionDisabled);
             SceneManagerH.Instance.DestroyScene();
         }
-        //    SetGameState(GameStateEnum.LoadingProject);
+        SetGameState(GameStateEnum.LoadingProject);
         try
         {
 

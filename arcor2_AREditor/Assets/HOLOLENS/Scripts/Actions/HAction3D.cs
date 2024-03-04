@@ -30,13 +30,11 @@ public class HAction3D : HAction
 
     public override void Init(IO.Swagger.Model.Action projectAction, ActionMetadataH metadata,HActionPoint ap, IActionProviderH actionProvider) {
         base.Init(projectAction, metadata, ap, actionProvider);
+        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
     }
 
     protected override void Start() {
         base.Start();
-        interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
-
-        //  GameManagerH.Instance.OnStopPackage += OnProjectStop;
     }
 
     private void LateUpdate() {

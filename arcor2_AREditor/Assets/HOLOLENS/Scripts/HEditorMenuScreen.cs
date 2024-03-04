@@ -26,7 +26,7 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
         IO.Swagger.Model.SaveSceneResponse saveSceneResponse = await GameManagerH.Instance.SaveScene();
         if (!saveSceneResponse.Result)
         {
-            saveSceneResponse.Messages.ForEach(Debug.LogError);
+            //saveSceneResponse.Messages.ForEach(Debug.LogError);
             HNotificationManager.Instance.ShowNotification("Scene save failed: " + (saveSceneResponse.Messages.Count > 0 ? saveSceneResponse.Messages[0] : "Failed to save scene"));
             return;
         }

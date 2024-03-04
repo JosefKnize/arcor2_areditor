@@ -5,86 +5,43 @@ using Base;
 using System.Threading.Tasks;
 using Hololens;
 using UnityEngine.Events;
-
-
+using System;
+using LunarConsolePluginInternal;
+using System.Linq;
+using Newtonsoft.Json;
+using System.Threading;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 public class HSelectorManager : Singleton<HSelectorManager>
 {
-
     public HConfirmDialog confirmDialog;
-
     public HRenameDialog renameDialog;
-
-
     private HInteractiveObject selectedObject;
 
-    private UnityAction selectedAction;
 
-    ClickedEnum lastClicked;
     protected List<HInteractiveObject> lockedObjects = new List<HInteractiveObject>();
-
-    public HInteractiveObject getSelecetedObject()
-    {
-        return selectedObject;
-    }
 
     private HAction Output;
 
+    private string placedActionId;
+    private IActionProviderH placedActionProvider;
 
-    public enum ClickedEnum
+    public SelectorState selectorState;
+
+    public enum SelectorState
     {
-        Transform,
-        Delete,
-        Rename,
-        Copy,
-        AddInputConection,
-        AddOutputConnection,
-        AddAP,
-        AddAction,
-
-        None
+        Normal,
+        PlacingAction,
+        MakingConnection,
+        WaitingBeforeNextInteraction,
+        WaitingForReleaseAfterPlacingAP,
     }
-
 
     // Start is called before the first frame update
     void Start()
     {
-        setLastClicked(ClickedEnum.None);
     }
-
-    public void setLastClicked(ClickedEnum lastClicked)
-    {
-        this.lastClicked = lastClicked;
-
-    }
-
-
-    public void clickedAddAPButton()
-    {
-        setSelectedAction(addActionPointClicked);
-        AddActionPointHandler.Instance.registerHandlers();
-
-        /*   setLastClicked(ClickedEnum.AddAction);
-          setSelectedAction(addActionPointClicked);
-          AddActionPointHandler.Instance.registerHandlers();*/
-    }
-
-    public bool isClickedOutputConnection()
-    {
-        return lastClicked == ClickedEnum.AddOutputConnection;
-    }
-
-    public bool isClickedAddAP()
-    {
-        return lastClicked == ClickedEnum.AddAP;
-    }
-
-    public void setSelectedAction(UnityAction selectedAction)
-    {
-        AddActionPointHandler.Instance.unregisterHandlers();
-        this.selectedAction = selectedAction;
-    }
-
 
     public void renameClicked(bool removeOnCancel, UnityAction confirmCallback = null, bool keepObjectLocked = false)
     {
@@ -101,7 +58,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     public void deleteClicked()
     {
-
         HDeleteActionManager.Instance.Hide();
         if (!(selectedObject is ActionObjectH actionO) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
@@ -131,26 +87,18 @@ public class HSelectorManager : Singleton<HSelectorManager>
                 deleteObject();
             }
         }
-
     }
 
     public void deleteObject()
     {
-
-
         confirmDialog.Open($"Remove {selectedObject.GetObjectTypeName().ToLower()}",
           $"Do you want to remove {selectedObject.GetName()}",
           () => RemoveObject(selectedObject),
             null);
-
-        setLastClicked(ClickedEnum.Delete);
     }
-
 
     public async void copyObjectClicked()
     {
-
-
         if (selectedObject is ActionObjectH actionObject && GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
             List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
@@ -166,87 +114,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-
-    public void addActionPointClicked()
-    {
-
-        if (selectedObject is HAction3D action)
-        {
-            setSelectedAction(actionAddClicked);
-            HActionPickerMenu.Instance.Show((HActionPoint)action.GetParentObject(), false);
-            HProjectManager.Instance.OnActionAddedToScene += OnActionAddedToScene;
-
-
-        }
-        else if (selectedObject is IActionPointParentH parent)
-        {
-            CreateActionPoint(HProjectManager.Instance.GetFreeAPName(parent.GetName()), parent);
-        }
-        else
-        {
-            CreateActionPoint(HProjectManager.Instance.GetFreeAPName("global"), default);
-        }
-        setLastClicked(ClickedEnum.AddAP);
-    }
-
-    public void addInputConncetionClicked()
-    {
-        if (selectedObject is null)
-        {
-            HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
-            AddActionPointHandler.Instance.unregisterHandlers();
-
-        }
-        else if (selectedObject is HAction action)
-        {
-            Output.GetOtherAction(action);
-
-        }
-        else
-        {
-            return;
-        }
-        Output = null;
-        selectedAction = addOutputConnctionClicked;
-        setLastClicked(ClickedEnum.AddInputConection);
-
-    }
-
-
-    public void addOutputConnctionClicked()
-    {
-        if (selectedObject is HAction action)
-        {
-            action.AddConnection();
-            Output = action;
-            selectedAction = addInputConncetionClicked;
-            setLastClicked(ClickedEnum.AddOutputConnection);
-            AddActionPointHandler.Instance.registerHandlers(false);
-
-
-        }
-    }
-
-
-    public void transformClicked()
-    {
-
-        if (!(selectedObject is ActionObjectH actionO) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
-        {
-            transformObject();
-            setLastClicked(ClickedEnum.Transform);
-        }
-    }
-
-    public void actionAddClicked()
-    {
-        if (selectedObject is ActionObjectH actionObjectH)
-        {
-            HActionPickerMenu.Instance.actionObjectClicked(actionObjectH);
-        }
-    }
-
-
     private void RemoveObject(HInteractiveObject obj)
     {
         if (obj is HAction action)
@@ -258,63 +125,8 @@ public class HSelectorManager : Singleton<HSelectorManager>
         confirmDialog.Close();
     }
 
-
-    public async void transformObject()
-    {
-
-        ///wait 
-        if (!(getSelecetedObject() is HStartEndAction e))
-        {
-            if (!await LockObject(getSelecetedObject(), true))
-            {
-                return;
-            }
-            if (getSelecetedObject() is CollisionObjectH co)
-            {
-                if (!await co.WriteLockObjectType())
-                {
-                    Debug.Log("Failed to lock the object");
-                    await UnlockAllObjects();
-                    return;
-                }
-            }
-        }
-        HTransformMenu.Instance.activeTransform(getSelecetedObject());
-    }
-
-
-
-    public void OnActionAddedToScene(object sender, HololensActionEventArgs args)
-    {
-        setLastClicked(ClickedEnum.AddAction);
-        setSelectedAction(addActionPointClicked);
-        AddActionPointHandler.Instance.registerHandlers();
-        HProjectManager.Instance.OnActionAddedToScene -= OnActionAddedToScene;
-
-    }
-    /// <summary>
-    /// Creates new action point
-    /// </summary>
-    /// <param name="name">Name of the new action point</param>
-    /// <param name="parentId">Id of AP parent. Global if null </param>
-    private async void CreateActionPoint(string name, IActionPointParentH parentId = null)
-    {
-
-        bool result = await HProjectManager.Instance.AddActionPoint(name, parentId);
-        if (result)
-        {
-            // HActionPickerMenu.Instance.Show(selectedObject);
-            setSelectedAction(actionAddClicked);
-            //lockObject
-            HProjectManager.Instance.OnActionAddedToScene += OnActionAddedToScene;
-        }
-    }
-
-
     public async Task<bool> LockObject(HInteractiveObject interactiveObject, bool lockTree)
     {
-
-
         if (await interactiveObject.WriteLock(lockTree))
         {
             lockedObjects.Add(interactiveObject);
@@ -351,63 +163,265 @@ public class HSelectorManager : Singleton<HSelectorManager>
         return new RequestResult(true);
     }
 
-    public void removeObjectFromLocked(HInteractiveObject interactiveObject)
-    {
-        lockedObjects.Remove(interactiveObject);
 
+    #region Adding action
+
+    private void DisplayActionPickerMenu(ActionObjectH actionObject)
+    {
+        HActionPickerMenu.Instance.PopulateMenu(actionObject);
+        HActionPickerMenu.Instance.ShowMenu(actionObject);
     }
 
-    public bool isSomethingLocked()
+    internal void ActionSelected(string actionId, IActionProviderH actionProvider)
     {
-        return lockedObjects.Count > 0;
+        placedActionId = actionId;
+        placedActionProvider = actionProvider;
+
+        selectorState = SelectorState.PlacingAction;
+        AddActionPointHandler.Instance.registerHandlers();
     }
 
-    public async void updateTransformBeforeUnlock()
+    internal async Task CreateActionPointAndPlaceActionAsync(Vector3 position, IActionPointParentH parent = null)
     {
-        await HTransformMenu.Instance.updatePosition();
-        HTransformMenu.Instance.deactiveTransform();
-    }
-    public async void unlockObject()
-    {
+        string name = parent is null ? HProjectManager.Instance.GetFreeAPName("global") : HProjectManager.Instance.GetFreeAPName(parent.GetName());
 
-
-        if (lastClicked == ClickedEnum.Transform)
+        bool result = await HProjectManager.Instance.AddActionPoint(name, parent);
+        if (result)
         {
-            updateTransformBeforeUnlock();
+            HActionPoint actionPoint = null;
+            HProjectManager.Instance.OnActionPointOrientation += async (sender, args) =>
+            {
+                CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
+
+                await args.ActionPoint.WriteUnlock();
+            };
+        }
+        else
+        {
+            // TODO Notify
         }
 
-        if (isSomethingLocked())
-        {
+        selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
+    }
 
-            await UnlockAllObjects();
+
+    internal void OnRelease()
+    {
+        if (selectorState == SelectorState.WaitingForReleaseAfterPlacingAP)
+        {
+            selectorState = SelectorState.Normal;
+            AddActionPointHandler.Instance.unregisterHandlers();
         }
     }
 
-    /// <summary>
-    /// Waits until websocket is null and calls callback method (because after application pause disconnecting isn't finished completely)
-    /// </summary>
-    /// <param name="callback"></param>
-    /// <returns></returns>
-    private IEnumerator WaitUntilLastTransformDestroyed(UnityAction callback)
+    public async void CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)
     {
-        yield return new WaitWhile(() => !HTransformMenu.Instance.isDeactivated());
-        callback();
+        ActionMetadataH actionMetadata = actionProvider.GetActionMetadata(action_id);
+        List<IO.Swagger.Model.ActionParameter> parameters = new List<IO.Swagger.Model.ActionParameter>();
+
+        foreach (ParameterMetadataH parameterMetadata in actionMetadata.ParametersMetadata.Values.ToList())
+        {
+            string value = InitActionValue(actionPoint, parameterMetadata);
+            IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: parameterMetadata.Name, value: value, type: parameterMetadata.Type);
+            parameters.Add(ap);
+        }
+        string newActionName;
+
+        if (string.IsNullOrEmpty(newName))
+            newActionName = HProjectManager.Instance.GetFreeActionName(actionMetadata.Name);
+        else
+            newActionName = HProjectManager.Instance.GetFreeActionName(newName);
+
+        try
+        {
+
+            await WebSocketManagerH.Instance.AddAction(actionPoint.GetId(), parameters, Base.Action.BuildActionType(
+                    actionProvider.GetProviderId(), actionMetadata.Name), newActionName, actionMetadata.GetFlows(newActionName));
+
+        }
+        catch (Base.RequestFailedException e)
+        {
+            // Base.Notifications.Instance.ShowNotification("Failed to add action", e.Message);
+        }
+    }
+
+    private string InitActionValue(HActionPoint actionPoint, ParameterMetadataH actionParameterMetadata)
+    {
+        object value = null;
+        switch (actionParameterMetadata.Type)
+        {
+            case "string":
+                value = actionParameterMetadata.GetDefaultValue<string>();
+                break;
+            case "integer":
+                value = actionParameterMetadata.GetDefaultValue<int>();
+                break;
+            case "double":
+                value = actionParameterMetadata.GetDefaultValue<double>();
+                break;
+            case "boolean":
+                value = actionParameterMetadata.GetDefaultValue<bool>();
+                break;
+            case "pose":
+                try
+                {
+                    value = actionPoint.GetFirstOrientation().Id;
+                }
+                catch (ItemNotFoundException)
+                {
+                    // there is no orientation on this action point
+                    try
+                    {
+                        value = actionPoint.GetFirstOrientationFromDescendants().Id;
+                    }
+                    catch (ItemNotFoundException)
+                    {
+                        try
+                        {
+                            value = HProjectManager.Instance.GetAnyNamedOrientation().Id;
+                        }
+                        catch (ItemNotFoundException)
+                        {
+
+                        }
+                    }
+                }
+                break;
+            case "joints":
+                try
+                {
+                    value = actionPoint.GetFirstJoints().Id;
+                }
+                catch (ItemNotFoundException)
+                {
+                    // there are no valid joints on this action point
+                    try
+                    {
+                        value = actionPoint.GetFirstJointsFromDescendants().Id;
+                    }
+                    catch (ItemNotFoundException)
+                    {
+                        try
+                        {
+                            value = HProjectManager.Instance.GetAnyJoints().Id;
+                        }
+                        catch (ItemNotFoundException)
+                        {
+                            // there are no valid joints in the scene
+                        }
+                    }
+
+                }
+                break;
+            case "string_enum":
+                value = ((ARServer.Models.StringEnumParameterExtra)actionParameterMetadata.ParameterExtra).AllowedValues.First();
+                break;
+            case "integer_enum":
+                value = ((ARServer.Models.IntegerEnumParameterExtra)actionParameterMetadata.ParameterExtra).AllowedValues.First().ToString();
+                break;
+        }
+        if (value != null)
+        {
+            value = JsonConvert.SerializeObject(value);
+        }
+
+        return (string)value;
+    }
+
+    #endregion
+
+
+    private void StartMakingConnection(HAction action)
+    {
+        if (action is HEndAction)
+        {
+            // Maybe Notify
+            return;
+        }
+
+        selectorState = SelectorState.MakingConnection;
+        action.AddConnection();
+        Output = action;
+        AddActionPointHandler.Instance.registerHandlers(false);
+    }
+
+    private void FinishMakingConnection(HAction action)
+    {
+        if (action is HStartAction)
+        {
+            // Maybe Notify
+            return;
+        }
+
+        selectorState = SelectorState.Normal; // TODO maybe start making connection from this
+        Output.GetOtherAction(action);
+        AddActionPointHandler.Instance.unregisterHandlers();
+    }
+
+    private void CancelMakingConnection()
+    {
+        selectorState = SelectorState.Normal;
+        HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
+        AddActionPointHandler.Instance.unregisterHandlers();
     }
 
     public void OnSelectObject(HInteractiveObject selectedObject)
     {
         Debug.Log("Interaction");
-        // lastClicked = null;
-        //this.selectedObject = selectedObject;
-        //if (lastClicked == ClickedEnum.Transform && HHandMenuManager.Instance.getActualClicked().Equals(HHandMenuManager.AllClickedEnum.Transform)) {
-        //    unlockObject();
-        //    if (!HTransformMenu.Instance.isDeactivated()) {
-        //        StartCoroutine(WaitUntilLastTransformDestroyed(() => selectedAction?.Invoke()));
-        //    } else {
-        //        selectedAction?.Invoke();
-        //    }
-        //} else {
-        //    selectedAction?.Invoke();
-        //}
+
+        if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
+        {
+            if (selectorState == SelectorState.Normal)
+            {
+                switch (selectedObject)
+                {
+                    case ActionObjectH actionObjectH:
+                        DisplayActionPickerMenu(actionObjectH);
+                        break;
+                    case HAction action3D:
+                        StartMakingConnection(action3D);
+                        break;
+                }
+            }
+            else if (selectorState == SelectorState.MakingConnection && selectedObject is HAction action)
+            {
+                FinishMakingConnection(action);
+            }
+        }
+    }
+
+    internal void OnEmptyClick(Vector3 position)
+    {
+        switch (selectorState)
+        {
+            case SelectorState.Normal:
+                break;
+            case SelectorState.MakingConnection:
+                CancelMakingConnection();
+                break;
+            case SelectorState.PlacingAction:
+                CreateActionPointAndPlaceActionAsync(position);
+                break;
+        }
+    }
+
+    internal void OnSelectObjectFromActionPointsHandler(Vector3 position, HInteractiveObject interactive)
+    {
+        if (selectorState == SelectorState.PlacingAction)
+        {
+            // If target is parent button remember parent and don't finish making AP
+            // If target is AP remember parent and don't finish making AP
+            // If target is action place new action on same AP
+            if (interactive is HAction3D action)
+            {
+                CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
+                selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
+            }
+            else
+            {
+                // Otherwise create AP
+                CreateActionPointAndPlaceActionAsync(position);
+            }
+        }
     }
 }

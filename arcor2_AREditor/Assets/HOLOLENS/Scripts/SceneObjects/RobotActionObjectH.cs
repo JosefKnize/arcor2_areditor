@@ -9,6 +9,10 @@ using UnityEngine;
 using Base;
 using MixedReality.Toolkit;
 using MixedReality.Toolkit.SpatialManipulation;
+using UnityEditor.SceneManagement;
+using Microsoft.MixedReality.GraphicsTools;
+using UnityEngine.XR.Interaction.Toolkit;
+using RequestResult = Base.RequestResult;
 
 namespace Hololens
 {
@@ -246,13 +250,14 @@ namespace Hololens
                 // if robot is loaded, unsubscribe from UrdfManagerH event
                 UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
                 modelLoading = false;
+
             }
         }
 
         private async void RobotModelLoaded()
         {
             RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            RobotModel.RobotModelGameObject.transform.parent = InteractionWrapper.transform;
+            RobotModel.RobotModelGameObject.transform.parent = Visual.transform;
             RobotModel.RobotModelGameObject.transform.localPosition = Vector3.zero;
             RobotModel.RobotModelGameObject.transform.localRotation = Quaternion.identity;
 
@@ -265,7 +270,7 @@ namespace Hololens
             robotRenderers.Clear();
             robotRenderers.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>(true));
             robotColliders.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Collider>(true));
-            InteractionWrapper.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+
 
 
             if (robotRenderers.Count > 0)
@@ -279,15 +284,13 @@ namespace Hololens
                     totalBounds.Encapsulate(renderer.bounds);
                 }
 
-                InteractObject.transform.localScale = transform.InverseTransformVector(totalBounds.size);
-                InteractObject.transform.position = totalBounds.center;
-                InteractObject.transform.localRotation = Quaternion.identity;
-
-                if (InteractionWrapper.GetComponent<BoundsControl>() is { isActiveAndEnabled: true } boundsControl)
-                {
-                    boundsControl.RecomputeBounds();
-                }
+                InteractionObjectCollider.transform.localScale = transform.InverseTransformVector(totalBounds.size);
+                InteractionObjectCollider.transform.position = totalBounds.center;
+                InteractionObjectCollider.transform.localRotation = Quaternion.identity;
             }
+
+            SetupManipulationComponents();
+            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
             SetOutlineSizeBasedOnScale();
 
@@ -580,7 +583,7 @@ namespace Hololens
 
         public override void CreateModel(CollisionModels customCollisionModels = null)
         {
-            var modelParent = InteractionWrapper.transform;
+            var modelParent = Visual.transform;
 
             RobotPlaceholder = Instantiate(RobotPlaceholderPrefab, modelParent);
             RobotPlaceholder.transform.localPosition = Vector3.zero;
@@ -913,36 +916,5 @@ namespace Hololens
         {
             return this;
         }
-
-        public void OnManipulationStarted()
-        {
-
-            model = GetModelCopy();
-
-            /*       model.transform.SetParent(GizmoTransform);
-                   model.transform.rotation = interactiveObject.transform.rotation;
-                   model.transform.position = interactiveObject.transform.position;*/
-
-
-        }
-
-
-
-        public void SetInteraction(GameObject interactComponents)
-        {
-            BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
-            BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
-            ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
-
-            boundsControl.ScaleLerpTime = 1L;
-            objectManipulator.ScaleLerpTime = 1L;
-
-            //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-            //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-            ////boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-            //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-            //boundsControl.UpdateBounds();
-        }
-
     }
 }

@@ -26,29 +26,6 @@ public class HTransformMenu : Singleton<HTransformMenu>
 
     private bool axisManipulationActive = false;
 
-
-    void Start()
-    {
-        //GizmoTransform.gameObject.GetComponent<ObjectManipulator>().OnManipulationEnded.AddListener((s) => updatePosition());
-        //GizmoTransform.gameObject.GetComponent<BoundsControl>().ScaleStopped.AddListener(() => updateScale());
-        //GizmoTransform.gameObject.GetComponent<BoundsControl>().RotateStopped.AddListener(() => updatePosition());
-    }
-
-    void Update()
-    {
-        if (/*axisManipulationActive && */manipulationStarted)
-        {
-            //Vector3 vec = GizmoTransform.position - InteractiveObject.transform.position;
-            ///*     GizmoPrefab.GetComponent<HGizmo>().SetXDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).y));
-            //      GizmoPrefab.GetComponent<HGizmo>().SetYDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).x));
-            //      GizmoPrefab.GetComponent<HGizmo>().SetZDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).z));*/
-            //gizmo.SetXDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).y));
-            //gizmo.SetYDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).x));
-            //gizmo.SetZDelta(Mathf.Abs(TransformConvertor.UnityToROS(vec).z));
-        }
-    }
-
-
     public async Task updateScale()
     {
         try
@@ -77,40 +54,7 @@ public class HTransformMenu : Singleton<HTransformMenu>
         {
             Debug.Log("Failed to update size of collision object   " + e.Message);
         }
-        //   GizmoPrefab.transform.localPosition = GizmoPrefab.GetComponent<BoxCollider>().center;
-        /*     ObjectManipulator[] o =   GizmoPrefab.GetComponentsInChildren<ObjectManipulator>();
-
-            Vector3 boundsObject = model.GetComponent<MeshRenderer>().bounds.max;
-             //Debug.Log(boundsObject);
-             foreach(ObjectManipulator objectManipulator in o){
-           //      objectManipulator.gameObject.transform.localScale = new Vector3(100f,100f,100f) ;
-
-                 //Debug.Log(objectManipulator.gameObject.GetComponentInChildren<MeshRenderer>().bounds.max);
-                 if(objectManipulator.gameObject.name  == "x_axis"){
-                     while(objectManipulator.gameObject.GetComponentInChildren<MeshRenderer>().bounds.max.x - boundsObject.x < 0.2f ){
-                         Vector3 vecX =  objectManipulator.gameObject.transform.localScale;
-                         objectManipulator.gameObject.transform.localScale = new Vector3(vecX.x, vecX.y, vecX.z + 0.1f) ;
-                     }
-                 }
-                 else if(objectManipulator.gameObject.name  == "y_axis"){
-                     while(objectManipulator.gameObject.GetComponentInChildren<MeshRenderer>().bounds.max.z - boundsObject.z < 0.2f ){
-                         Vector3 vecX =  objectManipulator.gameObject.transform.localScale;
-                         objectManipulator.gameObject.transform.localScale = new Vector3(vecX.x, vecX.y + 0.1f, vecX.z) ;
-                     }
-
-                 }else if(objectManipulator.gameObject.name  == "z_axis"){
-                     while(objectManipulator.gameObject.GetComponentInChildren<MeshRenderer>().bounds.max.y - boundsObject.y < 0.2f ){
-                         Vector3 vecX =  objectManipulator.gameObject.transform.localScale;
-                         objectManipulator.gameObject.transform.localScale = new Vector3(vecX.x, vecX.y + 0.1f, vecX.z) ;
-                     }
-                 }
-            //    
-             }*/
-        //                     
-
     }
-
-    public async Task updatePosition(SelectExitEventArgs args) => updatePosition();
 
     public async Task updatePosition()
     {

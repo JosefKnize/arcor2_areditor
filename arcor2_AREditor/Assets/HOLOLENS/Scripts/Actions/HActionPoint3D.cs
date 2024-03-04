@@ -8,38 +8,43 @@ using System.Threading.Tasks;
 using Base;
 using MixedReality.Toolkit;
 using MixedReality.Toolkit.SpatialManipulation;
+using UnityEngine.XR.Interaction.Toolkit;
+using RequestResult = Base.RequestResult;
 
 //[RequireComponent(typeof(OutlineOnClick))]
 //[RequireComponent(typeof(Target))]
 public class HActionPoint3D : HActionPoint
 {
-   public GameObject Sphere, Visual, CollapsedPucksVisual, Lock;
+    public GameObject Sphere, Visual, CollapsedPucksVisual, Lock;
     public TextMeshPro ActionPointName;
     public Material BreakPointMaterial, SphereMaterial;
-   /* [SerializeField]
-    private OutlineOnClick outlineOnClick;*/
+    /* [SerializeField]
+     private OutlineOnClick outlineOnClick;*/
     public GameObject ActionsVisuals;
 
-    public GameObject interactObject;
+    public GameObject InteractionObject;
 
-
-    private void Awake() {
-        interactObject.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this) );
-
+    private void Start()
+    {
+        base.Start();
+        RegisterTransformationEvents();
     }
 
-
-
-    private async void UpdatePose() {
-        try {
+    private async void UpdatePose()
+    {
+        try
+        {
             await WebSocketManagerH.Instance.UpdateActionPointPosition(Data.Id, Data.Position);
-        } catch (RequestFailedException e) {
-           // Notifications.Instance.ShowNotification("Failed to update action point position", e.Message);
+        }
+        catch (RequestFailedException e)
+        {
+            // Notifications.Instance.ShowNotification("Failed to update action point position", e.Message);
             ResetPosition();
         }
     }
 
-    private void LateUpdate() {
+    private void LateUpdate()
+    {
         // Fix of AP rotations - works on both PC and tablet
         transform.rotation = SceneManagerH.Instance.SceneOrigin.transform.rotation;
         ActionsVisuals.transform.rotation = SceneManagerH.Instance.SceneOrigin.transform.rotation;
@@ -50,28 +55,36 @@ public class HActionPoint3D : HActionPoint
             orientations.transform.rotation = SceneManagerH.Instance.SceneOrigin.transform.rotation;
     }
 
-    public override bool BreakPoint {
+    public override bool BreakPoint
+    {
         get => base.BreakPoint;
-        set {
+        set
+        {
             base.BreakPoint = value;
             Renderer r = Sphere.GetComponent<Renderer>();
-            if (r.materials.Length == 3) {
-                List<Material> materials = new List<Material>(r.materials) {
+            if (r.materials.Length == 3)
+            {
+                List<Material> materials = new List<Material>(r.materials)
+                {
                     [1] = BreakPoint ? BreakPointMaterial : SphereMaterial
                 };
                 r.materials = materials.ToArray();
-            } else {
+            }
+            else
+            {
                 r.material = BreakPoint ? BreakPointMaterial : SphereMaterial;
             }
         }
     }
 
-    public async void ShowMenu(bool enableBackButton = false) {
+    public async void ShowMenu(bool enableBackButton = false)
+    {
         throw new NotImplementedException();
     }
 
 
-    public override Vector3 GetScenePosition() {
+    public override Vector3 GetScenePosition()
+    {
         return TransformConvertor.ROSToUnity(DataHelper.PositionToVector3(Data.Position));
     }
 
@@ -79,42 +92,53 @@ public class HActionPoint3D : HActionPoint
     /// 
     /// </summary>
     /// <param name="position">Global position of AP</param>
-    public override void SetScenePosition(Vector3 position) {
+    public override void SetScenePosition(Vector3 position)
+    {
         Data.Position = DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(position));
     }
 
-    public override Quaternion GetSceneOrientation() {
+    public override Quaternion GetSceneOrientation()
+    {
         //return TransformConvertor.ROSToUnity(DataHelper.OrientationToQuaternion(Data.Orientations[0].Orientation));
         return Quaternion.identity;
     }
 
-    public override void SetSceneOrientation(Quaternion orientation) {
+    public override void SetSceneOrientation(Quaternion orientation)
+    {
         //Data.Orientations.Add(new IO.Swagger.Model.NamedOrientation(id: "default", orientation:DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(orientation))));
     }
 
-    public override void UpdatePositionsOfPucks() {
+    public override void UpdatePositionsOfPucks()
+    {
         CollapsedPucksVisual.SetActive(HProjectManager.Instance.AllowEdit && ActionsCollapsed);
-        if (HProjectManager.Instance.AllowEdit && ActionsCollapsed) {
-            foreach (HAction3D action in Actions.Values) {
+        if (HProjectManager.Instance.AllowEdit && ActionsCollapsed)
+        {
+            foreach (HAction3D action in Actions.Values)
+            {
                 action.transform.localPosition = new Vector3(0, 0, 0);
                 action.transform.localScale = new Vector3(0, 0, 0);
             }
-            
-        } else {
+
+        }
+        else
+        {
             int i = 1;
-            foreach (HAction3D action in Actions.Values) {
-                action.transform.localPosition = new Vector3(0, i * 0.025f + 0.025f, 0);
+            foreach (HAction3D action in Actions.Values)
+            {
+                action.transform.localPosition = new Vector3(0, i * 0.05f + 0.025f, 0);
                 ++i;
                 action.transform.localScale = new Vector3(1, 1, 1);
             }
-        }        
+        }
     }
-    
-    public override bool ProjectInteractable() {
+
+    public override bool ProjectInteractable()
+    {
         return base.ProjectInteractable();
     }
 
-    public override void ActivateForGizmo(string layer) {
+    public override void ActivateForGizmo(string layer)
+    {
         base.ActivateForGizmo(layer);
         Sphere.layer = LayerMask.NameToLayer(layer);
     }
@@ -123,58 +147,71 @@ public class HActionPoint3D : HActionPoint
     /// Changes size of shpere representing action point
     /// </summary>
     /// <param name="size"><0; 1> - 0 means invisble, 1 means 10cm in diameter</param>
-    public override void SetSize(float size) {
+    public override void SetSize(float size)
+    {
         Visual.transform.localScale = new Vector3(size / 10, size / 10, size / 10);
     }
 
-    public override (List<string>, Dictionary<string, string>) UpdateActionPoint(IO.Swagger.Model.ActionPoint projectActionPoint) {
+    public override (List<string>, Dictionary<string, string>) UpdateActionPoint(IO.Swagger.Model.ActionPoint projectActionPoint)
+    {
         (List<string>, Dictionary<string, string>) result = base.UpdateActionPoint(projectActionPoint);
         ActionPointName.text = projectActionPoint.Name;
         return result;
     }
 
-    public override void UpdateOrientation(NamedOrientation orientation) {
+    public override void UpdateOrientation(NamedOrientation orientation)
+    {
         base.UpdateOrientation(orientation);
     }
 
-    public override void AddOrientation(NamedOrientation orientation) {
+    public override void AddOrientation(NamedOrientation orientation)
+    {
         base.AddOrientation(orientation);
     }
 
-    public override void HighlightAP(bool highlight) {
-      /*  if (highlight) {
-            outlineOnClick.Highlight();
-        } else {
-            outlineOnClick.UnHighlight();
-        }*/
+    public override void HighlightAP(bool highlight)
+    {
+        /*  if (highlight) {
+              outlineOnClick.Highlight();
+          } else {
+              outlineOnClick.UnHighlight();
+          }*/
     }
 
 
-    public override void ActionPointBaseUpdate(IO.Swagger.Model.BareActionPoint apData) {
+    public override void ActionPointBaseUpdate(IO.Swagger.Model.BareActionPoint apData)
+    {
         base.ActionPointBaseUpdate(apData);
         ActionPointName.text = apData.Name;
     }
 
-    public override void InitAP(IO.Swagger.Model.ActionPoint apData, float size, IActionPointParentH parent = null) {
+    public override void InitAP(IO.Swagger.Model.ActionPoint apData, float size, IActionPointParentH parent = null)
+    {
         base.InitAP(apData, size, parent);
         ActionPointName.text = apData.Name;
     }
 
-    public override void UpdateColor() {
-        if (Enabled && !(IsLocked && !IsLockedByMe)) {
+    public override void UpdateColor()
+    {
+        if (Enabled && !(IsLocked && !IsLockedByMe))
+        {
             SphereMaterial.color = new Color(0.51f, 0.51f, 0.89f);
             BreakPointMaterial.color = new Color(0.93f, 0.07f, 0.09f);
-        } else {
+        }
+        else
+        {
             SphereMaterial.color = Color.gray;
             BreakPointMaterial.color = Color.gray;
         }
     }
 
-    public async override void StartManipulation() {
+    public async override void StartManipulation()
+    {
         throw new NotImplementedException();
     }
 
-    internal GameObject GetModelCopy() {
+    internal GameObject GetModelCopy()
+    {
         GameObject sphere = Instantiate(Sphere);
         Destroy(sphere.GetComponent<SphereCollider>());
         sphere.transform.localScale = Visual.transform.localScale;
@@ -183,80 +220,118 @@ public class HActionPoint3D : HActionPoint
         return sphere;
     }
 
-    public async override Task<RequestResult> Removable() {
-        if (GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.ProjectEditor) {
+    public async override Task<RequestResult> Removable()
+    {
+        if (GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.ProjectEditor)
+        {
             return new RequestResult(false, "AP could only be removed in project editor");
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 await WebSocketManagerH.Instance.RemoveActionPoint(GetId(), true);
                 return new RequestResult(true);
-            } catch (RequestFailedException ex) {
+            }
+            catch (RequestFailedException ex)
+            {
                 return new RequestResult(false, ex.Message);
             }
         }
     }
 
-    public async override void Remove() {
-        try {
+    public async override void Remove()
+    {
+        try
+        {
             await WebSocketManagerH.Instance.RemoveActionPoint(GetId(), false);
-        } catch (RequestFailedException ex) {
+        }
+        catch (RequestFailedException ex)
+        {
             //Notifications.Instance.ShowNotification("Failed to remove AP " + GetName(), ex.Message);
         }
     }
 
-    public async override Task Rename(string name) {
-        try {
+    public async override Task Rename(string name)
+    {
+        try
+        {
             await WebSocketManagerH.Instance.RenameActionPoint(GetId(), name);
-       //     Notifications.Instance.ShowToastMessage("Action point renamed");
-        } catch (RequestFailedException e) {
-        //    Notifications.Instance.ShowNotification("Failed to rename action point", e.Message);
+            //     Notifications.Instance.ShowToastMessage("Action point renamed");
+        }
+        catch (RequestFailedException e)
+        {
+            //    Notifications.Instance.ShowNotification("Failed to rename action point", e.Message);
         }
     }
 
-    public override string GetObjectTypeName() {
+    public override string GetObjectTypeName()
+    {
         return "Action point";
     }
 
-    public override void OnObjectLocked(string owner) {
+    public override void OnObjectLocked(string owner)
+    {
         base.OnObjectLocked(owner);
-   //     if (owner != LandingScreen.Instance.GetUsername())
-     //       ActionPointName.text = GetLockedText();
+        //     if (owner != LandingScreen.Instance.GetUsername())
+        //       ActionPointName.text = GetLockedText();
     }
 
-    public override void OnObjectUnlocked() {
+    public override void OnObjectUnlocked()
+    {
         base.OnObjectUnlocked();
         ActionPointName.text = GetName();
     }
 
-    public override void EnableVisual(bool enable) {
+    public override void EnableVisual(bool enable)
+    {
         Visual.SetActive(enable);
-        interactObject.SetActive(enable);
+        InteractionObject.SetActive(enable);
     }
 
-    public GameObject getInteractObject(){
-            return interactObject;
+    internal void RegisterTransformationEvents()
+    {
+        var objectManipulator = transform.GetComponent<ObjectManipulator>();
+
+        // Send new position to server after ending manipulation
+        objectManipulator.lastSelectExited.AddListener(EndTransform);
+
+        // On start lock object 
+        objectManipulator.firstSelectEntered.AddListener(StartTransform);
     }
-    public void setInteraction(GameObject interactComponents){
 
-        BoxCollider collider = interactComponents.GetComponent<BoxCollider>();
-        collider.size = Visual.transform.localScale;
-        collider.center = Visual.transform.localPosition;
+    private async void EndTransform(SelectExitEventArgs arg0)
+    {
+        if (IsLockedByMe)
+        {
+            Debug.Log("Sending Move to server");
+            await WebSocketManagerH.Instance.UpdateActionPointPosition(
+                GetId(),
+                DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.parent.InverseTransformPoint(transform.position))));
+            //await WebSocketManagerH.Instance.UpdateActionPointPosition(GetId(), DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.position)));
 
-        BoundsControl boundsControl = interactComponents.GetComponent<BoundsControl>();
-        ObjectManipulator objectManipulator = interactComponents.GetComponent<ObjectManipulator>();
+            await WriteUnlock();
+            var objectManipulator = transform.GetComponent<ObjectManipulator>();
+            objectManipulator.AllowedManipulations = TransformFlags.None;
 
-        //boundsControl.BoundsOverride = collider;
-
-             
-        boundsControl.ScaleLerpTime = 1L;
-        boundsControl.RotateLerpTime = 1L;
-        objectManipulator.ScaleLerpTime = 1L;
-        objectManipulator.RotateLerpTime = 1L;
-
-        //boundsControl.ScaleHandlesConfig.ShowScaleHandles = false;
-        //boundsControl.RotationHandlesConfig.ShowHandleForX = false;
-        //boundsControl.RotationHandlesConfig.ShowHandleForY = false;
-        //boundsControl.RotationHandlesConfig.ShowHandleForZ = false;
-        //boundsControl.UpdateBounds();
+        }
     }
+
+    private async void StartTransform(SelectEnterEventArgs arg0)
+    {
+        var objectManipulator = transform.GetComponent<ObjectManipulator>();
+
+        if (await WriteLock(true))
+        {
+            objectManipulator.AllowedManipulations = TransformFlags.Move;
+            return;
+        }
+        else
+        {
+            Debug.Log("Cant move object because it's locked");
+            objectManipulator.AllowedManipulations = TransformFlags.None;
+            // TODO probably notify user MAYBE just sound
+        }
+    }
+
 }

@@ -129,40 +129,21 @@ public class HProjectManager : Base.Singleton<HProjectManager>
     [HideInInspector]
     public bool AnyAvailableAction;
 
-    public event AREditorEventArgs.ActionPointEventHandler OnActionPointAddedToScene;
+    //public event AREditorEventArgs.ActionPointEventHandler OnActionPointAddedToScene;
     public event AREditorEventArgs.HololensActionEventHandler OnActionAddedToScene;
+    public event AREditorEventArgs.HololensActionPointOrientationEventHandler OnActionPointOrientation;
+    //public event AREditorEventArgs.StringEventHandler OnActionPointOrientationRemoved;
 
-    public event AREditorEventArgs.ActionPointOrientationEventHandler OnActionPointOrientationAdded;
-    public event AREditorEventArgs.ActionPointOrientationEventHandler OnActionPointOrientationUpdated;
-    public event AREditorEventArgs.ActionPointOrientationEventHandler OnActionPointOrientationBaseUpdated;
-    public event AREditorEventArgs.StringEventHandler OnActionPointOrientationRemoved;
     // Start is called before the first frame update
     void Start()
     {
         WebSocketManagerH.Instance.OnLogicItemAdded += OnLogicItemAdded;
         WebSocketManagerH.Instance.OnLogicItemRemoved += OnLogicItemRemoved;
-        /*     WebSocketManagerH.Instance.OnLogicItemUpdated += OnLogicItemUpdated;
-             WebSocketManagerH.Instance.OnProjectBaseUpdated += OnProjectBaseUpdated;
- */
         WebSocketManagerH.Instance.OnActionPointAdded += OnActionPointAdded;
         WebSocketManagerH.Instance.OnActionPointRemoved += OnActionPointRemoved;
         WebSocketManagerH.Instance.OnActionPointUpdated += OnActionPointUpdated;
         WebSocketManagerH.Instance.OnActionPointBaseUpdated += OnActionPointBaseUpdated;
-
         WebSocketManagerH.Instance.OnActionPointOrientationAdded += OnActionPointOrientationAddedCallback;
-        /*   WebSocketManagerH.Instance.OnActionPointOrientationUpdated += OnActionPointOrientationUpdatedCallback;
-           WebSocketManagerH.Instance.OnActionPointOrientationBaseUpdated += OnActionPointOrientationBaseUpdatedCallback;
-           WebSocketManagerH.Instance.OnActionPointOrientationRemoved += OnActionPointOrientationRemovedCallback;
-
-           WebSocketManagerH.Instance.OnActionPointJointsAdded += OnActionPointJointsAdded;
-           WebSocketManagerH.Instance.OnActionPointJointsUpdated += OnActionPointJointsUpdated;
-           WebSocketManagerH.Instance.OnActionPointJointsBaseUpdated += OnActionPointJointsBaseUpdated;
-           WebSocketManagerH.Instance.OnActionPointJointsRemoved += OnActionPointJointsRemoved;
-
-           WebSocketManagerH.Instance.OnProjectParameterAdded += OnProjectParameterAdded;
-           WebSocketManagerH.Instance.OnProjectParameterUpdated += OnProjectParameterUpdated;
-           WebSocketManagerH.Instance.OnProjectParameterRemoved += OnProjectParameterRemoved;*/
-
     }
 
     // Update is called once per frame
@@ -773,7 +754,7 @@ public class HProjectManager : Base.Singleton<HProjectManager>
             action.ActionUpdate(projectAction);
             //action.EnableInputOutput(MainSettingsMenu.Instance.ConnectionsSwitch.IsOn());
             updateProject = true;
-            OnActionAddedToScene.Invoke(this, new HololensActionEventArgs(action));
+            OnActionAddedToScene?.Invoke(this, new HololensActionEventArgs(action));
         }
         catch (RequestFailedException ex)
         {
@@ -980,7 +961,7 @@ public class HProjectManager : Base.Singleton<HProjectManager>
             HActionPoint actionPoint = GetActionPoint(args.ActionPointId);
             actionPoint.AddOrientation(args.Data);
             updateProject = true;
-            HActionPickerMenu.Instance.Show(actionPoint, true);
+            OnActionPointOrientation?.Invoke(this, new HololensActionPointOrientationEventArgs() { ActionPoint = actionPoint });
 
         }
         catch (KeyNotFoundException ex)
