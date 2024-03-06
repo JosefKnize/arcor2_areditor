@@ -21,6 +21,7 @@ TagManager:
   - gizmo_y
   - gizmo_z
   - HoverOnly
+  - MakeParentButton
   layers:
   - Default
   - TransparentFX

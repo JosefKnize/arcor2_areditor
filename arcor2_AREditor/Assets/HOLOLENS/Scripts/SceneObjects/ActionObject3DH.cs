@@ -262,7 +262,6 @@ public class ActionObject3DH : ActionObjectH
         if (ActionObjectMetadata.ObjectModel.Type != ObjectModel.TypeEnum.Mesh)
         {
             SetupManipulationComponents(true);
-            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
         }
 
         gameObject.GetComponent<BindParentToChildH>().ChildToBind = Model;
@@ -330,7 +329,6 @@ public class ActionObject3DH : ActionObjectH
         }
 
         SetupManipulationComponents();
-        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
         SetVisibility(visibility, forceShaderChange: true);
 

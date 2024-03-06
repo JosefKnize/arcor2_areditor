@@ -570,7 +570,7 @@ MonoBehaviour:
   BreakPointMaterial: {fileID: 2100000, guid: d2efd014cac5b1a48a466e981dd5b46d, type: 2}
   SphereMaterial: {fileID: 2100000, guid: bfcf70772abfa0a429d14a477808fa5c, type: 2}
   ActionsVisuals: {fileID: 1416551817558692293}
-  interactObject: {fileID: 6440875141513513772}
+  InteractionObject: {fileID: 0}
 --- !u!114 &8838668010999332210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -934,7 +934,7 @@ GameObject:
   - component: {fileID: 3271634532608564864}
   - component: {fileID: 7996781353450103102}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: CollidCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -293,6 +293,8 @@ public class HActionPoint3D : HActionPoint
     {
         var objectManipulator = transform.GetComponent<ObjectManipulator>();
 
+        objectManipulator.OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+
         // Send new position to server after ending manipulation
         objectManipulator.lastSelectExited.AddListener(EndTransform);
 

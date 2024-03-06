@@ -7,6 +7,7 @@ using MixedReality.Toolkit.Subsystems;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections.Generic;
 using MixedReality.Toolkit.Input;
+using System;
 
 public class AddActionPointHandler : Singleton<AddActionPointHandler>
 {
@@ -24,8 +25,6 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
     public MRTKRayInteractor LeftRayInteractor;
     public MRTKRayInteractor RightRayInteractor;
     private bool fingersPressed;
-
-    
 
     void Update()
     {
@@ -80,7 +79,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
             HSelectorManager.Instance.OnRelease();
         }
 
-        if (obj.ReadValue<float>() < 0.99f)
+        if (obj.ReadValue<float>() < 0.95f)
         {
             return;
         }
@@ -94,6 +93,10 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         if (validTargets.Count > 0 && validTargets[0].transform.GetComponent<HInteractiveObject>() is HInteractiveObject interactive)
         {
             HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
+        }
+        else if(validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
+        {
+            // Ignore the button which will register as parent by itself
         }
         else
         {

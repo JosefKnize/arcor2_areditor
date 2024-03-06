@@ -25,14 +25,15 @@ public class HorizontalObjectScrollMenu : MonoBehaviour
         if (manipulatedCube is not null)
         {
             var difference = manipulatedCube.localPosition - initialPosition;
-            var newPosition = transform.position + difference;
+            var newPosition = transform.localPosition + difference;
             if (newPosition.x < maxOffset)
             {
-                transform.position = new Vector3(maxOffset, 0, 0);
+                //transform.localPosition = new Vector3(maxOffset, 0, 0);
+                transform.localPosition = newPosition;
             }
             else
             {
-                transform.position = newPosition;
+                transform.localPosition = newPosition;
             }
         }
     }

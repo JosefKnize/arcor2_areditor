@@ -77,6 +77,6 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu>
     public void ActionSelected(string action_id, IActionProviderH actionProvider)
     {
         CloseMenu();
-        HSelectorManager.Instance.ActionSelected(action_id, actionProvider);
+        HSelectorManager.Instance.PlacedActionPicked(action_id, actionProvider);
     }
 }

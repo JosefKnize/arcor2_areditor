@@ -77,6 +77,8 @@ public class ListScenes : Singleton<ListScenes>
         UpdateLogicItem();
         setActiveMenu(true);
         SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+        SceneList.transform.localPosition = Vector3.zero;
+        SceneList.transform.localRotation = Quaternion.identity;
 
     }
 
@@ -111,6 +113,8 @@ public class ListScenes : Singleton<ListScenes>
 
         setActiveMenu(true);
         SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+        SceneList.transform.localPosition = Vector3.zero;
+        SceneList.transform.localRotation = Quaternion.identity;
     }
 
     private void CreateNewSceneObject()

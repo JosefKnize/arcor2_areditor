@@ -726,7 +726,7 @@ GameObject:
   - component: {fileID: 4751117138497790563}
   - component: {fileID: 7520556797179771354}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: CollidCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

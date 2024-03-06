@@ -290,7 +290,6 @@ namespace Hololens
             }
 
             SetupManipulationComponents();
-            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
             SetOutlineSizeBasedOnScale();
 

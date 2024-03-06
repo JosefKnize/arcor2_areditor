@@ -12,22 +12,43 @@ using Newtonsoft.Json;
 using System.Threading;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using MixedReality.Toolkit.UX;
+using MixedReality.Toolkit.UX.Deprecated;
 
 public class HSelectorManager : Singleton<HSelectorManager>
 {
-    public HConfirmDialog confirmDialog;
-    public HRenameDialog renameDialog;
-    private HInteractiveObject selectedObject;
+    public GameObject ConfirmDialog;
+    public GameObject RenameDialog;
 
-
-    protected List<HInteractiveObject> lockedObjects = new List<HInteractiveObject>();
 
     private HAction Output;
-
     private string placedActionId;
     private IActionProviderH placedActionProvider;
 
+
+    public event StartedPlacingActionPointEvent StartedPlacingActionPoint;
+    public delegate void StartedPlacingActionPointEvent(object sender, EventArgs e);
+
+    public event EndedPlacingActionPointEvent EndedPlacingActionPoint;
+    public delegate void EndedPlacingActionPointEvent(object sender, EventArgs e);
+
+
+    private HInteractiveObject selectedObject;
+    public HInteractiveObject SelectedObject
+    {
+        get { return selectedObject; }
+        set
+        {
+            selectedObject = value;
+            if (selectedObject != null)
+            {
+                NearObjectMenuManager.Instance.Display(selectedObject);
+            }
+        }
+    }
+
     public SelectorState selectorState;
+    private IActionPointParentH parentOfPlacedActionPoint;
 
     public enum SelectorState
     {
@@ -38,68 +59,21 @@ public class HSelectorManager : Singleton<HSelectorManager>
         WaitingForReleaseAfterPlacingAP,
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
     public void renameClicked(bool removeOnCancel, UnityAction confirmCallback = null, bool keepObjectLocked = false)
     {
+        //if (selectedObject is null)
+        //    return;
 
-        if (selectedObject is null)
-            return;
-
-        if (removeOnCancel)
-            renameDialog.Open(selectedObject, true, keepObjectLocked, () => selectedObject.Remove(), confirmCallback);
-        else
-            renameDialog.Open(selectedObject, false, keepObjectLocked, null, confirmCallback);
-        // RenameDialog.Open();
+        //if (removeOnCancel)
+        //    RenameDialog.Open(selectedObject, true, keepObjectLocked, () => selectedObject.Remove(), confirmCallback);
+        //else
+        //    RenameDialog.Open(selectedObject, false, keepObjectLocked, null, confirmCallback);
+        //// RenameDialog.Open();
     }
 
-    public void deleteClicked()
+    public async void DuplicateObjectClicked()
     {
-        HDeleteActionManager.Instance.Hide();
-        if (!(selectedObject is ActionObjectH actionO) || GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
-        {
-
-            if (selectedObject is HAction action)
-            {
-                if (!action.Output.AnyConnection())
-                {
-                    if (action is HAction3D action3D)
-                    {
-                        deleteObject();
-                    }
-
-                }
-                else
-                {
-                    HDeleteActionManager.Instance.Show(action);
-                    if (action is HStartAction start)
-                    {
-                        HDeleteActionManager.Instance.setActiveActionButton(false);
-                    }
-                }
-
-            }
-            else
-            {
-                deleteObject();
-            }
-        }
-    }
-
-    public void deleteObject()
-    {
-        confirmDialog.Open($"Remove {selectedObject.GetObjectTypeName().ToLower()}",
-          $"Do you want to remove {selectedObject.GetName()}",
-          () => RemoveObject(selectedObject),
-            null);
-    }
-
-    public async void copyObjectClicked()
-    {
-        if (selectedObject is ActionObjectH actionObject && GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
+        if (SelectedObject is ActionObjectH actionObject && GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
         {
             List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
             foreach (Base.Parameter p in actionObject.ObjectParameters.Values)
@@ -114,55 +88,22 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-    private void RemoveObject(HInteractiveObject obj)
+    public void OpenRemoveObjectDialog()
     {
-        if (obj is HAction action)
-        {
-            HDeleteActionManager.Instance.Hide();
-
-        }
-        obj.Remove();
-        confirmDialog.Close();
+        var dialog = ConfirmDialog.GetComponent<MixedReality.Toolkit.UX.Dialog>();
+        dialog.SetHeader($"Remove {SelectedObject.GetObjectTypeName().ToLower()}");
+        dialog.SetBody($"Do you want to remove {SelectedObject.GetName()}");
+        dialog.SetPositive("Confirm", (arg) => RemoveSelectedObject());
+        dialog.SetNegative("Cancel", (arg) => { });
+        dialog.ShowAsync();
     }
 
-    public async Task<bool> LockObject(HInteractiveObject interactiveObject, bool lockTree)
+    private void RemoveSelectedObject()
     {
-        if (await interactiveObject.WriteLock(lockTree))
-        {
-            lockedObjects.Add(interactiveObject);
-            return true;
-        }
-
-        return false;
+        SelectedObject.Remove();
+        SelectedObject = null;
+        NearObjectMenuManager.Instance.Hide();
     }
-
-    public async Task<RequestResult> UnlockAllObjects()
-    {
-
-        if (GameManagerH.Instance.ConnectionStatus == GameManagerH.ConnectionStatusEnum.Disconnected)
-        {
-            lockedObjects.Clear();
-            return new RequestResult(true);
-        }
-        for (int i = lockedObjects.Count - 1; i >= 0; --i)
-        {
-            if (lockedObjects[i].IsLockedByMe)
-            {
-                if (!await lockedObjects[i].WriteUnlock())
-                {
-                    return new RequestResult(false, $"Failed to unlock {lockedObjects[i].GetName()}");
-                }
-                if (lockedObjects[i] is CollisionObjectH co)
-                {
-                    await co.WriteUnlockObjectType();
-                }
-
-                lockedObjects.RemoveAt(i);
-            }
-        }
-        return new RequestResult(true);
-    }
-
 
     #region Adding action
 
@@ -172,17 +113,21 @@ public class HSelectorManager : Singleton<HSelectorManager>
         HActionPickerMenu.Instance.ShowMenu(actionObject);
     }
 
-    internal void ActionSelected(string actionId, IActionProviderH actionProvider)
+    internal void PlacedActionPicked(string actionId, IActionProviderH actionProvider)
     {
         placedActionId = actionId;
         placedActionProvider = actionProvider;
 
         selectorState = SelectorState.PlacingAction;
+        StartedPlacingActionPoint?.Invoke(this, new EventArgs());
         AddActionPointHandler.Instance.registerHandlers();
+
     }
 
-    internal async Task CreateActionPointAndPlaceActionAsync(Vector3 position, IActionPointParentH parent = null)
+    internal async Task CreateActionPointAndPlaceAction(Vector3 position)
     {
+        selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
+        var parent = parentOfPlacedActionPoint;
         string name = parent is null ? HProjectManager.Instance.GetFreeAPName("global") : HProjectManager.Instance.GetFreeAPName(parent.GetName());
 
         bool result = await HProjectManager.Instance.AddActionPoint(name, parent);
@@ -193,7 +138,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
             {
                 CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
 
-                await args.ActionPoint.WriteUnlock();
+                //await args.ActionPoint.WriteUnlock();
             };
         }
         else
@@ -201,17 +146,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
             // TODO Notify
         }
 
-        selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
-    }
-
-
-    internal void OnRelease()
-    {
-        if (selectorState == SelectorState.WaitingForReleaseAfterPlacingAP)
-        {
-            selectorState = SelectorState.Normal;
-            AddActionPointHandler.Instance.unregisterHandlers();
-        }
+        parentOfPlacedActionPoint = null;
     }
 
     public async void CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)
@@ -328,9 +263,14 @@ public class HSelectorManager : Singleton<HSelectorManager>
         return (string)value;
     }
 
+    internal void RegisterParentOfActionPoint(IActionPointParentH actionObjectH)
+    {
+        parentOfPlacedActionPoint = actionObjectH;
+    }
+
     #endregion
 
-
+    #region Connection
     private void StartMakingConnection(HAction action)
     {
         if (action is HEndAction)
@@ -364,8 +304,11 @@ public class HSelectorManager : Singleton<HSelectorManager>
         HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
         AddActionPointHandler.Instance.unregisterHandlers();
     }
+    #endregion
 
-    public void OnSelectObject(HInteractiveObject selectedObject)
+    #region Selection inputs
+
+    public void OnSelectObject(HInteractiveObject newSelectedObject)
     {
         Debug.Log("Interaction");
 
@@ -373,7 +316,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         {
             if (selectorState == SelectorState.Normal)
             {
-                switch (selectedObject)
+                switch (newSelectedObject)
                 {
                     case ActionObjectH actionObjectH:
                         DisplayActionPickerMenu(actionObjectH);
@@ -382,8 +325,9 @@ public class HSelectorManager : Singleton<HSelectorManager>
                         StartMakingConnection(action3D);
                         break;
                 }
+                SelectedObject = newSelectedObject;
             }
-            else if (selectorState == SelectorState.MakingConnection && selectedObject is HAction action)
+            else if (selectorState == SelectorState.MakingConnection && newSelectedObject is HAction action)
             {
                 FinishMakingConnection(action);
             }
@@ -400,7 +344,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
                 CancelMakingConnection();
                 break;
             case SelectorState.PlacingAction:
-                CreateActionPointAndPlaceActionAsync(position);
+                CreateActionPointAndPlaceAction(position);
                 break;
         }
     }
@@ -417,11 +361,70 @@ public class HSelectorManager : Singleton<HSelectorManager>
                 CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
                 selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
             }
+            else if (interactive is HActionPoint3D actionPoint)
+            {
+                RegisterParentOfActionPoint(actionPoint);
+            }
             else
             {
                 // Otherwise create AP
-                CreateActionPointAndPlaceActionAsync(position);
+                CreateActionPointAndPlaceAction(position);
             }
         }
+    }
+
+    internal void OnRelease()
+    {
+        if (selectorState == SelectorState.WaitingForReleaseAfterPlacingAP)
+        {
+            selectorState = SelectorState.Normal;
+            AddActionPointHandler.Instance.unregisterHandlers();
+            EndedPlacingActionPoint?.Invoke(this, new EventArgs());
+        }
+    }
+
+    #endregion
+}
+
+public static class UI3DHelper
+{
+    public static void PlaceOnClosestCollisionPoint(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
+    {
+        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
+        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
+        var wasColliderActive = collider.transform.gameObject.activeSelf;
+        collider.transform.gameObject.SetActive(true);
+        var closestPoint = collider.ClosestPoint(source);
+        collider.transform.gameObject.SetActive(wasColliderActive);
+        movedObject.position = closestPoint;
+    }
+
+    public static void PlaceOnClosestCollisionPointInMiddle(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
+    {
+        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
+        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
+        var wasColliderActive = collider.transform.gameObject.activeSelf;
+        collider.transform.gameObject.SetActive(true);
+
+        source.y = collider.bounds.center.y;
+
+        var closestPoint = collider.ClosestPoint(source);
+        collider.transform.gameObject.SetActive(wasColliderActive);
+        movedObject.position = closestPoint;
+    }
+
+    public static void PlaceOnClosestCollisionPointAtBottom(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
+    {
+        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
+        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
+        var wasColliderActive = collider.transform.gameObject.activeSelf;
+        collider.transform.gameObject.SetActive(true);
+
+        //source.y = collider.bounds.center.y;
+        source.y = collider.bounds.min.y;
+
+        var closestPoint = collider.ClosestPoint(source);
+        collider.transform.gameObject.SetActive(wasColliderActive);
+        movedObject.position = closestPoint;
     }
 }

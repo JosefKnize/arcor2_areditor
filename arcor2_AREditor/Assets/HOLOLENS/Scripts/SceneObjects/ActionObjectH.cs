@@ -58,12 +58,44 @@ namespace Hololens
             {
                 Enable(false, true, false);
             }
+
+            HSelectorManager.Instance.StartedPlacingActionPoint += DisplayAndPositionMakeParentButton;
+            HSelectorManager.Instance.EndedPlacingActionPoint += HideMakeParentButton;
+
+            RegisterMakeParentButtonEvent();
+        }
+
+        private void RegisterMakeParentButtonEvent()
+        {
+            var button = transform.Find("MakeParentButton");
+            button?.GetComponentInChildren<StatefulInteractable>()?.OnClicked.AddListener(() => HSelectorManager.Instance.RegisterParentOfActionPoint(this));
+        }
+
+        private void HideMakeParentButton(object sender, EventArgs e)
+        {
+            var button = transform.Find("MakeParentButton");
+            if (button is null)
+            {
+                return;
+            }
+            button.gameObject.SetActive(false);
+        }
+
+        private void DisplayAndPositionMakeParentButton(object sender, EventArgs e)
+        {
+            var button = transform.Find("MakeParentButton");
+            if (button is null)
+            {
+                return;
+            }
+            button.gameObject.SetActive(true);
+
+            UI3DHelper.PlaceOnClosestCollisionPointInMiddle(this, Camera.main.transform.position, button.transform);
         }
 
         public virtual void UpdateObjectName(string newUserId)
         {
             Data.Name = newUserId;
-            //    SelectorItem.SetText(newUserId);
         }
 
         protected virtual void Update()
@@ -215,6 +247,9 @@ namespace Hololens
 
             // Remove this ActionObject reference from the scene ActionObject list
             SceneManagerH.Instance.ActionObjects.Remove(this.Data.Id);
+
+            HSelectorManager.Instance.StartedPlacingActionPoint -= DisplayAndPositionMakeParentButton;
+            HSelectorManager.Instance.EndedPlacingActionPoint -= HideMakeParentButton;
 
             DestroyObject();
             Destroy(gameObject);
@@ -403,6 +438,7 @@ namespace Hololens
 
             var bc = gameObject.AddComponent(typeof(BoundsControl)) as BoundsControl;
             bc.EnabledHandles = allowScale ? (HandleType.Scale | HandleType.Rotation) : HandleType.Rotation;
+            bc.RotateAnchor = RotateAnchorType.ObjectOrigin;
             bc.BoundsVisualsPrefab = BoundsControlBoxPrefab;
             bc.HandlesActive = true;
             bc.ToggleHandlesOnClick = false;
@@ -430,6 +466,8 @@ namespace Hololens
                 GameManagerH.Instance.OnOpenSceneEditor += RegisterTransformationEvents;
             }
 
+            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+
         }
 
         public virtual void HoverExited(HoverExitEventArgs arg0)
@@ -445,6 +483,7 @@ namespace Hololens
         }
 
         private void RegisterTransformationEvents(object sender, EventArgs e) => RegisterTransformationEvents();
+
         internal void RegisterTransformationEvents()
         {
             Debug.Log("Registered for transform events");
