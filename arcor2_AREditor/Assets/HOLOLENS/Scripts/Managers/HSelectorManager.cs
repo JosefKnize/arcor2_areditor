@@ -138,7 +138,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
             {
                 CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
 
-                //await args.ActionPoint.WriteUnlock();
+                await args.ActionPoint.WriteUnlock();
             };
         }
         else

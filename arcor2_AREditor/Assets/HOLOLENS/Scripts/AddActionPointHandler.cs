@@ -11,11 +11,11 @@ using System;
 
 public class AddActionPointHandler : Singleton<AddActionPointHandler>
 {
-    public float ReleaseLimit = 0.0053f;
-    public float test = 0;
+    public bool WaitingForReleaseLeft;
+    public bool WaitingForReleaseRight;
 
-    private bool isFocused = false;
     private bool previewActionPoint = false;
+    private bool processPinch = true;
 
     public GameObject GhostActionPoint;
 
@@ -35,6 +35,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
     void ProcessHand(XRNode hand)
     {
         var aggregator = XRSubsystemHelpers.GetFirstRunningSubsystem<HandsAggregatorSubsystem>();
+        
         if (aggregator.TryGetJoint(TrackedHandJoint.IndexTip, hand, out HandJointPose pose))
         {
             GhostActionPoint.GetComponent<Renderer>().enabled = previewActionPoint;
@@ -44,42 +45,40 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         {
             GhostActionPoint.GetComponent<Renderer>().enabled = false;
         }
-    }
 
-    public void registerHandlers(bool previewActionPoint = true)
-    {
-        this.previewActionPoint = previewActionPoint;
-        LeftHandReference.action.performed += LeftHandActionPerformed;
-        RightHandReference.action.performed += RightHandActionPerformed;
-    }
-
-    public void unregisterHandlers()
-    {
-        if (previewActionPoint)
+        if (processPinch && aggregator.TryGetPinchProgress(hand, out bool isReadyToPinch, out bool isPinching, out float pinchAmount))
         {
-            GhostActionPoint.GetComponent<Renderer>().enabled = false;
+            var interactor = hand.IsLeftHand() ? LeftRayInteractor : RightRayInteractor;
+            ProcessPinch(isPinching, interactor, hand);
         }
-        previewActionPoint = false;
-
-        LeftHandReference.action.performed -= LeftHandActionPerformed;
-        RightHandReference.action.performed -= RightHandActionPerformed;
     }
 
-    private void LeftHandActionPerformed(InputAction.CallbackContext obj) => HandActionPerformed(obj, LeftRayInteractor);
-
-    private void RightHandActionPerformed(InputAction.CallbackContext obj) => HandActionPerformed(obj, RightRayInteractor);
-
-    private void HandActionPerformed(InputAction.CallbackContext obj, MRTKRayInteractor interactor)
+    private void ProcessPinch(bool isPinching, MRTKRayInteractor interactor, XRNode hand)
     {
-        test = obj.ReadValue<float>();
+        if ((hand == XRNode.LeftHand && isPinching && WaitingForReleaseLeft) || (hand == XRNode.RightHand && isPinching && WaitingForReleaseRight))
+        {
+            return;
+        }
 
-        if (obj.ReadValue<float>() < ReleaseLimit && fingersPressed)
+        if (!isPinching)
+        {
+            if (hand == XRNode.LeftHand)
+            {
+                WaitingForReleaseLeft = false;
+            }
+            else
+            {
+                WaitingForReleaseRight = false;
+            }
+        }
+
+        if (!isPinching && fingersPressed)
         {
             fingersPressed = false;
             HSelectorManager.Instance.OnRelease();
         }
 
-        if (obj.ReadValue<float>() < 0.95f)
+        if (!isPinching)
         {
             return;
         }
@@ -94,7 +93,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         {
             HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
         }
-        else if(validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
+        else if (validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
         {
             // Ignore the button which will register as parent by itself
         }
@@ -102,9 +101,23 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         {
             HSelectorManager.Instance.OnEmptyClick(GhostActionPoint.transform.position);
         }
+    }
 
-        // Pøidání akèního bodu (not ActionPointParentingButton) - Tady potøebuju zamezit normální interakci
-        // Pøidání akèního bodu (ActionPointParentingButton)
-        // zrušení spoje (empty)
+    public void registerHandlers(bool previewActionPoint = true)
+    {
+        this.previewActionPoint = previewActionPoint;
+        processPinch = true;
+        WaitingForReleaseLeft = true;
+        WaitingForReleaseRight = true;
+    }
+
+    public void unregisterHandlers()
+    {
+        if (previewActionPoint)
+        {
+            GhostActionPoint.GetComponent<Renderer>().enabled = false;
+        }
+        previewActionPoint = false;
+        processPinch = false;
     }
 }

@@ -88,9 +88,7 @@ namespace Hololens
         // ONDESTROY CANNOT BE USED BECAUSE OF ITS DELAYED CALL - it causes mess when directly creating project from scene
         private void OnDestroy()
         {
-            //    base.OnDestroy();
             SceneManagerH.Instance.OnSceneStateEvent -= OnSceneStateEvent;
-            //    DeleteActionObject();
         }
 
         private void OnSceneStateEvent(object sender, SceneStateEventArgs args)

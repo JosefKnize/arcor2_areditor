@@ -668,7 +668,6 @@ public abstract class HActionPoint : HInteractiveObject, IActionPointParentH
         }
 
         public async override Task<RequestResult> Movable() {
-
             if (IsLocked && LockOwner != LandingScreen.Instance.GetUsername())
                 return new RequestResult(false, "Action point is locked");
             else {
@@ -678,7 +677,6 @@ public abstract class HActionPoint : HInteractiveObject, IActionPointParentH
                 } catch (RequestFailedException e) {
                     return new RequestResult(false, e.Message);
                 }
-
             }
         }
 

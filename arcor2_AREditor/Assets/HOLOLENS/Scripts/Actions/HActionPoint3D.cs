@@ -30,19 +30,6 @@ public class HActionPoint3D : HActionPoint
         RegisterTransformationEvents();
     }
 
-    private async void UpdatePose()
-    {
-        try
-        {
-            await WebSocketManagerH.Instance.UpdateActionPointPosition(Data.Id, Data.Position);
-        }
-        catch (RequestFailedException e)
-        {
-            // Notifications.Instance.ShowNotification("Failed to update action point position", e.Message);
-            ResetPosition();
-        }
-    }
-
     private void LateUpdate()
     {
         // Fix of AP rotations - works on both PC and tablet
@@ -310,12 +297,10 @@ public class HActionPoint3D : HActionPoint
             await WebSocketManagerH.Instance.UpdateActionPointPosition(
                 GetId(),
                 DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.parent.InverseTransformPoint(transform.position))));
-            //await WebSocketManagerH.Instance.UpdateActionPointPosition(GetId(), DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.position)));
 
             await WriteUnlock();
             var objectManipulator = transform.GetComponent<ObjectManipulator>();
             objectManipulator.AllowedManipulations = TransformFlags.None;
-
         }
     }
 
