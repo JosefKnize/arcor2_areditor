@@ -35,7 +35,9 @@ namespace Hololens
 
         public Dictionary<string, Base.Parameter> ObjectParameters = new Dictionary<string, Base.Parameter>();
         public Dictionary<string, Base.Parameter> Overrides = new Dictionary<string, Base.Parameter>();
-
+        private bool allowScale;
+        private Vector3 initialPosition;
+        private Quaternion initialRotation;
 
         public virtual void InitActionObject(IO.Swagger.Model.SceneObject sceneObject, Vector3 position, Quaternion orientation, ActionObjectMetadataH actionObjectMetadata, IO.Swagger.Model.CollisionModels customCollisionModels = null, bool loadResuources = true)
         {
@@ -430,6 +432,8 @@ namespace Hololens
 
         protected void SetupManipulationComponents(bool allowScale = false)
         {
+            this.allowScale = allowScale;
+
             var om = gameObject.AddComponent(typeof(ObjectManipulator)) as ObjectManipulator;
             om.AllowedManipulations = TransformFlags.None;
 
@@ -495,6 +499,7 @@ namespace Hololens
 
             // Send new position to server after ending manipulation
             boundsControl.ManipulationEnded.AddListener(EndTransform);
+           
             objectManipulator.lastSelectExited.AddListener(EndTransform);
 
             // On start lock object 
@@ -506,14 +511,68 @@ namespace Hololens
         {
             if (IsLockedByMe && GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
             {
-                await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
+                if (arg0.interactable is BoundsHandleInteractable boundsHandleInteractable && boundsHandleInteractable.HandleType == HandleType.Scale)
+                {
+                    await UploadNewScaleAsync();
+                }
+                else
+                {
+                    UndoManager.Instance.AddUndoRecord(new ActionObjectUpdateUndoRecord()
+                    {
+                        ActionObject = this,
+                        NewPosition = transform.localPosition,
+                        NewRotation = transform.localRotation,
+                        InitialPosition = initialPosition,
+                        InitialRotation = initialRotation
+                    });
+
+                    await UploadNewPositionAsync();
+                }
+
+                await WriteUnlock();
+            }
+        }
+
+        private async Task UploadNewScaleAsync()
+        {
+            if (this is ActionObject3DH && ActionObjectMetadata.ObjectModel.Type != ObjectModel.TypeEnum.Mesh)
+            {
+                try
+                {
+                    ObjectModel objectModel = ActionObjectMetadata.ObjectModel;
+                    Vector3 transformedScale = TransformConvertor.UnityToROSScale(transform.lossyScale);
+
+                    switch (objectModel.Type)
+                    {
+                        case IO.Swagger.Model.ObjectModel.TypeEnum.Box:
+                            objectModel.Box.SizeX = (decimal)transformedScale.x;
+                            objectModel.Box.SizeY = (decimal)transformedScale.y;
+                            objectModel.Box.SizeZ = (decimal)transformedScale.z;
+                            break;
+                        case IO.Swagger.Model.ObjectModel.TypeEnum.Cylinder:
+                            objectModel.Cylinder.Radius = (decimal)transformedScale.x;
+                            objectModel.Cylinder.Height = (decimal)transformedScale.z;
+                            break;
+                        case IO.Swagger.Model.ObjectModel.TypeEnum.Sphere:
+                            objectModel.Sphere.Radius = (decimal)transformedScale.x;
+                            break;
+                    }
+                    await WebSocketManagerH.Instance.UpdateObjectModel(ActionObjectMetadata.Type, objectModel);
+                }
+                catch (RequestFailedException e)
+                {
+                    Debug.Log("Failed to update size of collision object   " + e.Message);
+                }
+            }
+        }
+
+        public virtual async Task UploadNewPositionAsync()
+        {
+            await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
                 new IO.Swagger.Model.Pose(
                     position: DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(transform.position))),
                     orientation: DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(Quaternion.Inverse(GameManagerH.Instance.Scene.transform.rotation) * this.transform.rotation)))
                 );
-
-                await WriteUnlock();
-            }
         }
 
         private async void StartTransform(SelectEnterEventArgs arg0)
@@ -521,10 +580,13 @@ namespace Hololens
             var boundsControl = transform.GetComponent<BoundsControl>();
             var objectManipulator = transform.GetComponent<ObjectManipulator>();
 
+            initialPosition = transform.localPosition;
+            initialRotation = transform.localRotation;
+
             if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor && await WriteLock(true))
             {
                 objectManipulator.AllowedManipulations = MixedReality.Toolkit.TransformFlags.Move;
-                boundsControl.EnabledHandles = HandleType.Rotation;
+                boundsControl.EnabledHandles = allowScale ? (HandleType.Scale | HandleType.Rotation) : HandleType.Rotation;
                 return;
             }
             else

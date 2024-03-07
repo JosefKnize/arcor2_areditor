@@ -3,7 +3,11 @@ guid: 678780c3c6272834594fffe371f6bf2c
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - TrackedCamera: {fileID: 8799162189956945219, guid: f028ae187f59f8845b667dfe92259dee,
+      type: 3}
+  - SceneOrigin: {instanceID: 0}
+  - RobotPrefab: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

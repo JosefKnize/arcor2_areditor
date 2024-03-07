@@ -11,6 +11,7 @@ using TriLibCore.General;
 using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit;
+using System.Threading.Tasks;
 
 public class ActionObject3DH : ActionObjectH
 {
@@ -361,35 +362,6 @@ public class ActionObject3DH : ActionObjectH
     public void SetGrey(bool grey, bool force = false)
     {
         return;
-        isGreyColorForced = force && grey;
-        if (force)
-        {
-            UpdateColor();
-            return;
-        }
-
-        if (grey)
-        {
-            foreach (Renderer renderer in aoRenderers)
-            {
-                foreach (Material mat in renderer.materials)
-                {
-                    mat.SetTexture("_EmissionMap", null);
-                    mat.SetColor("_EmissionColor", new Color(0.2f, 0.05f, 0.05f));
-                    mat.EnableKeyword("_EMISSION");
-                }
-            }
-        }
-        else
-        {
-            foreach (Renderer renderer in aoRenderers)
-            {
-                foreach (Material mat in renderer.materials)
-                {
-                    mat.DisableKeyword("_EMISSION");
-                }
-            }
-        }
     }
 
     public override void Enable(bool enable, bool putOnBlocklist = false, bool removeFromBlocklist = false)
