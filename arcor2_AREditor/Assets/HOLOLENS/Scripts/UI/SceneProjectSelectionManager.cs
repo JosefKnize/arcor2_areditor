@@ -77,6 +77,8 @@ public class ListScenes : Singleton<ListScenes>
         UpdateLogicItem();
         setActiveMenu(true);
         SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+        SceneList.transform.parent.localPosition = new Vector3(0, 0.25f, 0);
+        SceneList.transform.parent.localRotation = Quaternion.Euler(0, -90, 0);
         SceneList.transform.localPosition = Vector3.zero;
         SceneList.transform.localRotation = Quaternion.identity;
 
@@ -89,7 +91,7 @@ public class ListScenes : Singleton<ListScenes>
         newScene.GetComponentInChildren<TextMeshPro>().text = "Create new";
 
         scenes.Add("Create new", newScene);
-        newScene.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => CreateProject());
+        newScene.GetComponent<StatefulInteractable>().RegisterOnShortClick(CreateProject);
     }
 
     public async void UpdateScenes(object sender, EventArgs eventArgs)
@@ -113,6 +115,8 @@ public class ListScenes : Singleton<ListScenes>
 
         setActiveMenu(true);
         SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
+        SceneList.transform.parent.localPosition = new Vector3(0, 0.25f, 0);
+        SceneList.transform.parent.localRotation = Quaternion.Euler(0,-90,0);
         SceneList.transform.localPosition = Vector3.zero;
         SceneList.transform.localRotation = Quaternion.identity;
     }
@@ -124,7 +128,7 @@ public class ListScenes : Singleton<ListScenes>
         newScene.GetComponentInChildren<TextMeshPro>().text = "Create new";
 
         scenes.Add("Create new", newScene);
-        newScene.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => CreateScene());
+        newScene.GetComponent<StatefulInteractable>().RegisterOnShortClick(CreateScene);
     }
 
     internal void createMenuScene(Scene scene)
@@ -409,7 +413,7 @@ public class ListScenes : Singleton<ListScenes>
         scenes.Add(project.Name, newProject);
         actions_scenes.Add(project.Name, actions_ID);
 
-        newProject.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => openProject(project.Id));
+        newProject.GetComponent<StatefulInteractable>().RegisterOnShortClick(() => openProject(project.Id));
     }
 
     public void waitOpenProject(object sender, EventArgs args)
@@ -543,13 +547,11 @@ public static class StatefulInteractableShortClickExtension
             var difference = DateTime.Now - clickStartedDictionary[interactable];
             if (difference.TotalMilliseconds < 300)
             {
-                Debug.Log(difference);
                 callback();
             }
             else
             {
-                Debug.Log("Ignored click cuz too long");
-                Debug.Log(difference);
+                Debug.Log("Ignored long click");
             }
         });
     }
