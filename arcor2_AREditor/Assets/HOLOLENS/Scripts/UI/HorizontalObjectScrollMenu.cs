@@ -15,28 +15,7 @@ public class HorizontalObjectScrollMenu : MonoBehaviour
         UpdateCollection();
     }
 
-    private Vector3 initialPosition;
-    private Transform manipulatedCube;
     private float maxOffset = 0;
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (manipulatedCube is not null)
-        {
-            var difference = manipulatedCube.localPosition - initialPosition;
-            var newPosition = transform.localPosition + difference;
-            if (newPosition.x < maxOffset)
-            {
-                //transform.localPosition = new Vector3(maxOffset, 0, 0);
-                transform.localPosition = newPosition;
-            }
-            else
-            {
-                transform.localPosition = newPosition;
-            }
-        }
-    }
 
     public void UpdateCollection()
     {
@@ -47,25 +26,9 @@ public class HorizontalObjectScrollMenu : MonoBehaviour
             i++;
 
             var source = child.GetComponent<ObjectManipulator>();
-            source.firstSelectEntered.AddListener(RegisterForManipulationUpdatesPropagation);
-            source.lastSelectExited.AddListener(UnregisterForManipulationUpdatesPropagation);
+            source.HostTransform = transform;
         }
 
         maxOffset = transform.childCount * -0.25f;
-    }
-
-    private void UnregisterForManipulationUpdatesPropagation(SelectExitEventArgs arg0)
-    {
-        if (manipulatedCube is not null)
-        {
-            manipulatedCube.localPosition = initialPosition;
-            manipulatedCube = null;
-        }
-    }
-
-    private void RegisterForManipulationUpdatesPropagation(SelectEnterEventArgs arg0)
-    {
-        manipulatedCube = arg0.interactableObject.transform;
-        initialPosition = manipulatedCube.transform.localPosition;
     }
 }

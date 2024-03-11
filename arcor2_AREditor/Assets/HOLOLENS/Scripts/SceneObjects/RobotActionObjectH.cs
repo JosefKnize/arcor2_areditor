@@ -7,11 +7,6 @@ using IO.Swagger.Model;
 using TMPro;
 using UnityEngine;
 using Base;
-using MixedReality.Toolkit;
-using MixedReality.Toolkit.SpatialManipulation;
-using UnityEditor.SceneManagement;
-using Microsoft.MixedReality.GraphicsTools;
-using UnityEngine.XR.Interaction.Toolkit;
 using RequestResult = Base.RequestResult;
 
 namespace Hololens

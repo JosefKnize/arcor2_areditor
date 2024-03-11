@@ -1,5 +1,6 @@
 using Base;
 using Hololens;
+using IO.Swagger.Model;
 using MixedReality.Toolkit;
 using MixedReality.Toolkit.UX;
 using System;
@@ -85,5 +86,24 @@ public class ActionObjectUpdateUndoRecord : UndoRecord
         ActionObject.transform.localPosition = NewPosition;
         ActionObject.transform.localRotation = NewRotation;
         ActionObject.UploadNewPositionAsync();
+    }
+}
+
+public class ActionPointUpdateUndoRecord : UndoRecord
+{
+    public HActionPoint3D ActionPoint { get; internal set; }
+    public Vector3 NewPosition { get; internal set; }
+    public Vector3 InitialPosition { get; internal set; }
+
+    public override void Undo()
+    {
+        ActionPoint.transform.localPosition = InitialPosition;
+        ActionPoint.UploadNewPositionAsync();
+    }
+
+    public override void Redo()
+    {
+        ActionPoint.transform.localPosition = NewPosition;
+        ActionPoint.UploadNewPositionAsync();
     }
 }

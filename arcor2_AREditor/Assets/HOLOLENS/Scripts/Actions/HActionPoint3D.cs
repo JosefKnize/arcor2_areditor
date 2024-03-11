@@ -23,6 +23,7 @@ public class HActionPoint3D : HActionPoint
     public GameObject ActionsVisuals;
 
     public GameObject InteractionObject;
+    private Vector3 initialPosition;
 
     private void Start()
     {
@@ -289,14 +290,18 @@ public class HActionPoint3D : HActionPoint
         objectManipulator.firstSelectEntered.AddListener(StartTransform);
     }
 
-    private async void EndTransform(SelectExitEventArgs arg0)
+    public async void EndTransform(SelectExitEventArgs arg0)
     {
         if (IsLockedByMe)
         {
-            Debug.Log("Sending Move to server");
-            await WebSocketManagerH.Instance.UpdateActionPointPosition(
-                GetId(),
-                DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.parent.InverseTransformPoint(transform.position))));
+            await UploadNewPositionAsync();
+
+            UndoManager.Instance.AddUndoRecord(new ActionPointUpdateUndoRecord()
+            {
+                ActionPoint = this,
+                NewPosition = transform.localPosition,
+                InitialPosition = initialPosition,
+            });
 
             await WriteUnlock();
             var objectManipulator = transform.GetComponent<ObjectManipulator>();
@@ -304,11 +309,19 @@ public class HActionPoint3D : HActionPoint
         }
     }
 
-    private async void StartTransform(SelectEnterEventArgs arg0)
+    public async Task UploadNewPositionAsync()
+    {
+        await WebSocketManagerH.Instance.UpdateActionPointPosition(
+                GetId(),
+                DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(transform.parent.InverseTransformPoint(transform.position))));
+    }
+
+    public async void StartTransform(SelectEnterEventArgs arg0)
     {
         var objectManipulator = transform.GetComponent<ObjectManipulator>();
+        initialPosition = transform.localPosition;
 
-        if (await WriteLock(true))
+        if (HSelectorManager.Instance.selectorState != HSelectorManager.SelectorState.WaitingForReleaseAfterPlacingAP && await WriteLock(true))
         {
             objectManipulator.AllowedManipulations = TransformFlags.Move;
             return;

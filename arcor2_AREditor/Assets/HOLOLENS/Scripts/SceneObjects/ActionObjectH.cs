@@ -441,7 +441,7 @@ namespace Hololens
             om.lastHoverExited.AddListener(HoverExited);
 
             var bc = gameObject.AddComponent(typeof(BoundsControl)) as BoundsControl;
-            bc.EnabledHandles = allowScale ? (HandleType.Scale | HandleType.Rotation) : HandleType.Rotation;
+            bc.EnabledHandles = HandleType.None;
             bc.RotateAnchor = RotateAnchorType.ObjectOrigin;
             bc.BoundsVisualsPrefab = BoundsControlBoxPrefab;
             bc.HandlesActive = true;
@@ -455,8 +455,8 @@ namespace Hololens
 
             var outline = Visual.AddComponent(typeof(MeshOutlineHierarchy)) as MeshOutlineHierarchy;
             outline.OutlineMaterial = OutlineMaterial;
-            outline.StencilWriteMaterial = OutlineStencilMaterial;
-            outline.UseStencilOutline = true;
+            //outline.StencilWriteMaterial = OutlineStencilMaterial;
+            //outline.UseStencilOutline = true;
             outline.enabled = false;
 
             InteractionObjectCollider.SetActive(false);
@@ -497,20 +497,27 @@ namespace Hololens
 
             boundsControlAdditionalHandler.EnableBoundsControlAfterInteraction = true;
 
-            // Send new position to server after ending manipulation
-            boundsControl.ManipulationEnded.AddListener(EndTransform);
-           
-            objectManipulator.lastSelectExited.AddListener(EndTransform);
+            // Handle axis gizmo
+            objectManipulator.lastSelectExited.AddListener((_) => transform.GetComponent<TransformGizmoHandler>()?.ShowGizmo());
+            objectManipulator.firstSelectEntered.AddListener((_) => transform.GetComponent<TransformGizmoHandler>()?.HideLastGizmo());
 
-            // On start lock object 
-            objectManipulator.firstSelectEntered.AddListener(StartTransform);
-            boundsControl.ManipulationStarted.AddListener(StartTransform);
+            // Register start and stop transforms which will handle locks and calls to servers
+            //boundsControl.ManipulationStarted.AddListener(StartTransform);
+            //boundsControl.ManipulationEnded.AddListener(EndTransform);
+            foreach (var gizmoInteractable in transform.GetComponentsInChildren<StatefulInteractable>(true))
+            {
+                gizmoInteractable.firstSelectEntered.AddListener(StartTransform);
+                gizmoInteractable.lastSelectExited.AddListener(EndTransform);
+            }
         }
 
-        private async void EndTransform(SelectExitEventArgs arg0)
+        public async void EndTransform(SelectExitEventArgs arg0)
         {
+            Debug.Log("EndTransform");
             if (IsLockedByMe && GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
             {
+                Debug.Log("I still have it");
+
                 if (arg0.interactable is BoundsHandleInteractable boundsHandleInteractable && boundsHandleInteractable.HandleType == HandleType.Scale)
                 {
                     await UploadNewScaleAsync();
@@ -533,7 +540,7 @@ namespace Hololens
             }
         }
 
-        private async Task UploadNewScaleAsync()
+        public async Task UploadNewScaleAsync()
         {
             if (this is ActionObject3DH && ActionObjectMetadata.ObjectModel.Type != ObjectModel.TypeEnum.Mesh)
             {
@@ -566,7 +573,7 @@ namespace Hololens
             }
         }
 
-        public virtual async Task UploadNewPositionAsync()
+        public async Task UploadNewPositionAsync()
         {
             await WebSocketManagerH.Instance.UpdateActionObjectPose(this.GetId(),
                 new IO.Swagger.Model.Pose(
@@ -575,26 +582,46 @@ namespace Hololens
                 );
         }
 
-        private async void StartTransform(SelectEnterEventArgs arg0)
+        public async void StartTransform(SelectEnterEventArgs arg0)
         {
-            var boundsControl = transform.GetComponent<BoundsControl>();
-            var objectManipulator = transform.GetComponent<ObjectManipulator>();
-
-            initialPosition = transform.localPosition;
-            initialRotation = transform.localRotation;
+            Debug.Log("StartTransform");
 
             if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor && await WriteLock(true))
             {
-                objectManipulator.AllowedManipulations = MixedReality.Toolkit.TransformFlags.Move;
-                boundsControl.EnabledHandles = allowScale ? (HandleType.Scale | HandleType.Rotation) : HandleType.Rotation;
-                return;
+                Debug.Log("Lock Passed");
+
+                initialPosition = transform.localPosition;
+                initialRotation = transform.localRotation;
+
+                EnableManipulation();
             }
             else
             {
                 Debug.Log("Cant move object because it's locked");
-                objectManipulator.AllowedManipulations = MixedReality.Toolkit.TransformFlags.None;
-                boundsControl.EnabledHandles = HandleType.None;
+                DisableManipulation();
                 // TODO probably notify user MAYBE just sound
+            }
+        }
+
+        private void DisableManipulation()
+        {
+            var boundsControl = transform.GetComponent<BoundsControl>();
+            boundsControl.EnabledHandles = HandleType.None;
+
+            foreach (var objectManipulator in transform.GetComponentsInChildren<ObjectManipulator>())
+            {
+                objectManipulator.AllowedManipulations = TransformFlags.None;
+            }
+        }
+
+        private void EnableManipulation()
+        {
+            var boundsControl = transform.GetComponent<BoundsControl>();
+            boundsControl.EnabledHandles = allowScale ? (HandleType.Scale | HandleType.Rotation) : HandleType.Rotation;
+
+            foreach (var objectManipulator in transform.GetComponentsInChildren<ObjectManipulator>())
+            {
+                objectManipulator.AllowedManipulations = TransformFlags.Move;
             }
         }
     }

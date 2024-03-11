@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Threading.Tasks;
 using Base;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public abstract class HInteractiveObject : MonoBehaviour
 {
@@ -51,10 +52,10 @@ public abstract class HInteractiveObject : MonoBehaviour
 
     public abstract string GetObjectTypeName();
 
-    public abstract Task<RequestResult> Movable();
+    public abstract Task<Base.RequestResult> Movable();
     public abstract void StartManipulation();
 
-    public abstract Task<RequestResult> Removable();
+    public abstract Task<Base.RequestResult> Removable();
     public abstract void Remove();
 
     public virtual float GetDistance(Vector3 origin) {
@@ -110,6 +111,7 @@ public abstract class HInteractiveObject : MonoBehaviour
     /// <param name="lockTree">Lock also tree? (all levels of parents and children)</param>
     /// <returns></returns>
     public virtual async Task<bool> WriteLock(bool lockTree) {
+        Debug.Log("WriteLock");
         if (IsLockedByMe) { //object is already locked by this user
             if (lockedTree != lockTree) {
                 /*if (await UpdateLock(lockTree ? IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.TREE : IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.OBJECT)) {
@@ -124,11 +126,18 @@ public abstract class HInteractiveObject : MonoBehaviour
         try {
             await WebSocketManagerH.Instance.WriteLock(GetId(), lockTree);
             lockedTree = lockTree;
+            LockByMe();
             return true;
         } catch (RequestFailedException ex) {
         //    Notifications.Instance.ShowNotification("Failed to lock " + GetName(), ex.Message);
             return false;
         }
+    }
+
+    private void LockByMe()
+    {
+        IsLocked = true;
+        LockOwner = HLandingManager.Instance.GetUsername();
     }
 
     /// <summary>
@@ -137,7 +146,9 @@ public abstract class HInteractiveObject : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public virtual async Task<bool> WriteUnlock() {
-        if (!IsLocked) {
+        Debug.Log("WriteUnlock");
+        if (!IsLocked)
+        {
             return true;
         }
 
@@ -151,16 +162,6 @@ public abstract class HInteractiveObject : MonoBehaviour
         }
     }
 
-  /* public virtual async Task<bool> UpdateLock(IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum newType) {
-        try {
-            await WebSocketManagerH.Instance.UpdateLock(GetId(), newType);
-            return true;
-        } catch (RequestFailedException ex) {
-            Debug.LogError("failed to update lock");
-            return false;
-        }
-    }*/
-
     protected virtual void OnObjectLockingEvent(object sender, ObjectLockingEventArgs args) {
         if (!args.ObjectIds.Contains(GetId()))
             return;
@@ -170,8 +171,6 @@ public abstract class HInteractiveObject : MonoBehaviour
         } else {
             OnObjectUnlocked();
         }
-
-        //SelectorMenu.Instance.ForceUpdateMenus();
     }
 
     public virtual void OnObjectUnlocked() {
@@ -190,4 +189,5 @@ public abstract class HInteractiveObject : MonoBehaviour
     }
 
     public abstract void EnableVisual(bool enable);
+
 }

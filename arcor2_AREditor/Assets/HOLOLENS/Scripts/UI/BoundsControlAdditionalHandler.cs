@@ -16,6 +16,7 @@ public class BoundsControlAdditionalHandler : MonoBehaviour
     private BoundsControl boundsControl;
 
     public bool EnableBoundsControlAfterInteraction = false;
+    public bool EnableTransformGizmoAfterInteraction = false;
 
     // Start is called before the first frame update
     void Start()

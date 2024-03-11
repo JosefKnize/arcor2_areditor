@@ -455,7 +455,6 @@ public class HProjectManager : Base.Singleton<HProjectManager>
             await ap.WriteLock(false);
             Orientation orientation = new Orientation(1, 0, 180, 0);
             await WebSocketManagerH.Instance.AddActionPointOrientation(ap.Data.Id, orientation, ap.GetFreeOrientationName());
-            await ap.WriteUnlock();
         }
         else
         {
@@ -467,7 +466,6 @@ public class HProjectManager : Base.Singleton<HProjectManager>
                 await ap.WriteLock(false);
                 Orientation orientation = new Orientation(1, 0, 180, 0);
                 await WebSocketManagerH.Instance.AddActionPointOrientation(ap.Data.Id, orientation, ap.GetFreeOrientationName());
-                await ap.WriteUnlock();
             }
             catch (KeyNotFoundException ex)
             {
