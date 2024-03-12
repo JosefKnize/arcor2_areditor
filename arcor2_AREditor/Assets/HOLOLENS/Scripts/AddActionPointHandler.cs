@@ -53,7 +53,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         }
     }
 
-    private void ProcessPinch(bool isPinching, MRTKRayInteractor interactor, XRNode hand)
+    private async void ProcessPinch(bool isPinching, MRTKRayInteractor interactor, XRNode hand)
     {
         if ((hand == XRNode.LeftHand && isPinching && WaitingForReleaseLeft) || (hand == XRNode.RightHand && isPinching && WaitingForReleaseRight))
         {
@@ -91,7 +91,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
 
         if (validTargets.Count > 0 && validTargets[0].transform.GetComponent<HInteractiveObject>() is HInteractiveObject interactive)
         {
-            HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
+            await HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
         }
         else if (validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
         {
@@ -99,7 +99,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         }
         else
         {
-            HSelectorManager.Instance.OnEmptyClick(GhostActionPoint.transform.position);
+            await HSelectorManager.Instance.OnEmptyClick(GhostActionPoint.transform.position);
         }
     }
 

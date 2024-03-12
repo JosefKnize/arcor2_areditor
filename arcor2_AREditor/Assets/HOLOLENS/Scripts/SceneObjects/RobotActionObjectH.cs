@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using Base;
 using RequestResult = Base.RequestResult;
+using Unity.XR.CoreUtils;
 
 namespace Hololens
 {
@@ -277,7 +278,11 @@ namespace Hololens
                     totalBounds.Encapsulate(renderer.bounds);
                 }
 
-                InteractionObjectCollider.transform.localScale = transform.InverseTransformVector(totalBounds.size);
+                //Vector3 rotatedSize = InteractionObjectCollider.transform.rotation * totalBounds.size;
+                var rotatedSize = transform.InverseTransformVector(totalBounds.size);
+                rotatedSize = rotatedSize.Abs();
+
+                InteractionObjectCollider.transform.localScale = rotatedSize;
                 InteractionObjectCollider.transform.position = totalBounds.center;
                 InteractionObjectCollider.transform.localRotation = Quaternion.identity;
             }

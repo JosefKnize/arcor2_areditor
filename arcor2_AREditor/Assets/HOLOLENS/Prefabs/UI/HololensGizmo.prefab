@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3253151258679372401}
   - component: {fileID: 2119500999449615991}
   m_Layer: 0
-  m_Name: X_axis
+  m_Name: Z_axis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -326,7 +326,7 @@ MonoBehaviour:
   handType: -1
   proximityType: -1
   executionOrder: 0
-  constraintOnMovement: 6
+  constraintOnMovement: 3
   useLocalSpaceForConstraint: 1
 --- !u!1 &186361551378894735
 GameObject:
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 724162429094448207}
   - component: {fileID: 7596330731662452055}
   m_Layer: 0
-  m_Name: Z
+  m_Name: X
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -505,7 +505,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 442535900650120311}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
@@ -517,7 +517,7 @@ Transform:
   - {fileID: 7181962868006894900}
   - {fileID: 8284014794452972413}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6948539202081867715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1751,7 +1751,7 @@ GameObject:
   - component: {fileID: 834692073162534490}
   - component: {fileID: 8146856633387607145}
   m_Layer: 0
-  m_Name: Z_axis
+  m_Name: X_axis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2063,7 +2063,7 @@ MonoBehaviour:
   handType: -1
   proximityType: -1
   executionOrder: 0
-  constraintOnMovement: 3
+  constraintOnMovement: 6
   useLocalSpaceForConstraint: 1
 --- !u!1 &6100531078275009072
 GameObject:
@@ -2510,7 +2510,7 @@ GameObject:
   - component: {fileID: 3242353509223743114}
   - component: {fileID: 3256326241743172753}
   m_Layer: 0
-  m_Name: X
+  m_Name: Z
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

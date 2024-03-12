@@ -277,9 +277,7 @@ namespace Hololens
 
         public virtual void SetVisibility(float value, bool forceShaderChange = false)
         {
-            //Debug.Assert(value >= 0 && value <= 1, "Action object: " + Data.Id + " SetVisibility(" + value.ToString() + ")");
             visibility = value;
-            //PlayerPrefsHelper.SaveFloat(SceneManager.Instance.SceneMeta.Id + "/ActionObject/" + Data.Id + "/visibility", value);
         }
 
         public float GetVisibility()
@@ -513,11 +511,8 @@ namespace Hololens
 
         public async void EndTransform(SelectExitEventArgs arg0)
         {
-            Debug.Log("EndTransform");
             if (IsLockedByMe && GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
             {
-                Debug.Log("I still have it");
-
                 if (arg0.interactable is BoundsHandleInteractable boundsHandleInteractable && boundsHandleInteractable.HandleType == HandleType.Scale)
                 {
                     await UploadNewScaleAsync();
@@ -542,12 +537,12 @@ namespace Hololens
 
         public async Task UploadNewScaleAsync()
         {
-            if (this is ActionObject3DH && ActionObjectMetadata.ObjectModel.Type != ObjectModel.TypeEnum.Mesh)
+            if (this is CollisionObjectH collisionObject)
             {
                 try
                 {
                     ObjectModel objectModel = ActionObjectMetadata.ObjectModel;
-                    Vector3 transformedScale = TransformConvertor.UnityToROSScale(transform.lossyScale);
+                    Vector3 transformedScale = TransformConvertor.UnityToROSScale(collisionObject.Model.transform.lossyScale);
 
                     switch (objectModel.Type)
                     {
@@ -565,6 +560,7 @@ namespace Hololens
                             break;
                     }
                     await WebSocketManagerH.Instance.UpdateObjectModel(ActionObjectMetadata.Type, objectModel);
+
                 }
                 catch (RequestFailedException e)
                 {
@@ -584,12 +580,9 @@ namespace Hololens
 
         public async void StartTransform(SelectEnterEventArgs arg0)
         {
-            Debug.Log("StartTransform");
 
             if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor && await WriteLock(true))
             {
-                Debug.Log("Lock Passed");
-
                 initialPosition = transform.localPosition;
                 initialRotation = transform.localRotation;
 
@@ -597,7 +590,6 @@ namespace Hololens
             }
             else
             {
-                Debug.Log("Cant move object because it's locked");
                 DisableManipulation();
                 // TODO probably notify user MAYBE just sound
             }

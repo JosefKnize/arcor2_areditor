@@ -111,7 +111,6 @@ public abstract class HInteractiveObject : MonoBehaviour
     /// <param name="lockTree">Lock also tree? (all levels of parents and children)</param>
     /// <returns></returns>
     public virtual async Task<bool> WriteLock(bool lockTree) {
-        Debug.Log("WriteLock");
         if (IsLockedByMe) { //object is already locked by this user
             if (lockedTree != lockTree) {
                 /*if (await UpdateLock(lockTree ? IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.TREE : IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.OBJECT)) {
@@ -134,7 +133,7 @@ public abstract class HInteractiveObject : MonoBehaviour
         }
     }
 
-    private void LockByMe()
+    public void LockByMe()
     {
         IsLocked = true;
         LockOwner = HLandingManager.Instance.GetUsername();
@@ -146,7 +145,6 @@ public abstract class HInteractiveObject : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public virtual async Task<bool> WriteUnlock() {
-        Debug.Log("WriteUnlock");
         if (!IsLocked)
         {
             return true;

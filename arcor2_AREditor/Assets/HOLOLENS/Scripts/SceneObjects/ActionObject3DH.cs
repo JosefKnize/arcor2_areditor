@@ -12,6 +12,7 @@ using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Threading.Tasks;
+using Unity.XR.CoreUtils;
 
 public class ActionObject3DH : ActionObjectH
 {
@@ -324,7 +325,10 @@ public class ActionObject3DH : ActionObjectH
                 totalBounds.Encapsulate(renderer.bounds);
             }
 
-            InteractionObjectCollider.transform.localScale = transform.InverseTransformVector(totalBounds.size);
+            var rotatedSize = transform.InverseTransformVector(totalBounds.size);
+            rotatedSize = rotatedSize.Abs();
+
+            InteractionObjectCollider.transform.localScale = rotatedSize;
             InteractionObjectCollider.transform.position = totalBounds.center;
             InteractionObjectCollider.transform.localRotation = Quaternion.identity;
         }
@@ -429,8 +433,12 @@ public class ActionObject3DH : ActionObjectH
                 break;
 
         }
+
         if (dimensions != null)
+        {
+            transform.localScale = Vector3.one;
             Model.transform.localScale = new Vector3(dimensions.Value.x, dimensions.Value.y, dimensions.Value.z);
+        }
 
         Vector3 vec = Model.transform.localScale;
         InteractionObjectCollider.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);

@@ -10,25 +10,11 @@ public class TransformGizmoHandler : MonoBehaviour
     public BoxCollider CollidCube;
     public static GameObject LastActivatedGizmo;
 
-    void Start()
-    {
-        //foreach (var manipulator in transform.GetComponentsInChildren<ObjectManipulator>())
-        //{
-        //    manipulator.firstHoverEntered.AddListener((arg) =>
-        //    {
-        //        foreach (var renderer in manipulator.transform.GetComponentsInChildren<Renderer>())
-        //        {
-        //        }
-        //    });
-        //}
-    }
-
     void Update()
     {
-        var camera = Camera.main;
         TransformGizmo.transform.position = CollidCube.bounds.center;
         TransformGizmo.transform.localPosition += CollidCube.transform.localScale / 2;
-        TransformGizmo.transform.localPosition += new Vector3(-0.01f, -0.005f, 0.01f);
+        TransformGizmo.transform.localPosition += new Vector3(0.01f, -0.005f, 0.01f);
         TransformGizmo.transform.localPosition -= new Vector3(0, CollidCube.transform.localScale.y, 0);
     }
 

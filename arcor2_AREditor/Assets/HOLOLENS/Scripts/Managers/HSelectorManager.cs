@@ -42,6 +42,10 @@ public class HSelectorManager : Singleton<HSelectorManager>
             selectedObject = value;
             if (selectedObject != null)
             {
+                if (selectedObject is ActionObjectH actionObject && GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
+                {
+                    return; // Don't show near object menu on robots in project editor
+                }
                 NearObjectMenuManager.Instance.Display(selectedObject);
             }
         }
@@ -310,8 +314,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     public void OnSelectObject(HInteractiveObject newSelectedObject)
     {
-        Debug.Log("Interaction");
-
+        SelectedObject = newSelectedObject;
         if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
         {
             if (selectorState == SelectorState.Normal)
@@ -325,7 +328,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
                         StartMakingConnection(action3D);
                         break;
                 }
-                SelectedObject = newSelectedObject;
             }
             else if (selectorState == SelectorState.MakingConnection && newSelectedObject is HAction action)
             {
@@ -334,7 +336,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-    internal void OnEmptyClick(Vector3 position)
+    internal async Task OnEmptyClick(Vector3 position)
     {
         switch (selectorState)
         {
@@ -344,18 +346,15 @@ public class HSelectorManager : Singleton<HSelectorManager>
                 CancelMakingConnection();
                 break;
             case SelectorState.PlacingAction:
-                CreateActionPointAndPlaceAction(position);
+                await CreateActionPointAndPlaceAction(position);
                 break;
         }
     }
 
-    internal void OnSelectObjectFromActionPointsHandler(Vector3 position, HInteractiveObject interactive)
+    internal async Task OnSelectObjectFromActionPointsHandler(Vector3 position, HInteractiveObject interactive)
     {
         if (selectorState == SelectorState.PlacingAction)
         {
-            // If target is parent button remember parent and don't finish making AP
-            // If target is AP remember parent and don't finish making AP
-            // If target is action place new action on same AP
             if (interactive is HAction3D action)
             {
                 CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
@@ -367,8 +366,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
             }
             else
             {
-                // Otherwise create AP
-                CreateActionPointAndPlaceAction(position);
+                await CreateActionPointAndPlaceAction(position);
             }
         }
     }
