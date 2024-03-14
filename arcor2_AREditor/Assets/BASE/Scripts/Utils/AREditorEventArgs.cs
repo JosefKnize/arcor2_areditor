@@ -151,6 +151,11 @@ namespace Base {
         public HActionPoint ActionPoint { get; set; }
     }
 
+    public class HololensActionPointEventArgs : EventArgs
+    {
+        public HActionPoint ActionPoint { get; set; }
+    }
+
     public class BareActionPointEventArgs : EventArgs {
         
         public IO.Swagger.Model.BareActionPoint ActionPoint {
@@ -488,6 +493,7 @@ namespace Base {
         public delegate void ActionEventHandler(object sender, ActionEventArgs args);
         public delegate void HololensActionEventHandler(object sender, HololensActionEventArgs args);
         public delegate void HololensActionPointOrientationEventHandler(object sender, HololensActionPointOrientationEventArgs args);
+        public delegate void HololensActionPointEventHandler(object sender, HololensActionPointEventArgs args);
         public delegate void ProjectActionPointEventHandler(object sender, ProjectActionPointEventArgs args);
         public delegate void ActionPointEventHandler(object sender, ActionPointEventArgs args);
         public delegate void ActionPointOrientationEventHandler(object sender, ActionPointOrientationEventArgs args);

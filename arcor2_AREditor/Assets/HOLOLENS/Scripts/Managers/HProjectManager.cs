@@ -129,9 +129,9 @@ public class HProjectManager : Base.Singleton<HProjectManager>
     [HideInInspector]
     public bool AnyAvailableAction;
 
-    //public event AREditorEventArgs.ActionPointEventHandler OnActionPointAddedToScene;
     public event AREditorEventArgs.HololensActionEventHandler OnActionAddedToScene;
     public event AREditorEventArgs.HololensActionPointOrientationEventHandler OnActionPointOrientation;
+    public event AREditorEventArgs.HololensActionPointEventHandler OnActionPointAddedToScene;
     //public event AREditorEventArgs.StringEventHandler OnActionPointOrientationRemoved;
 
     // Start is called before the first frame update
@@ -452,28 +452,21 @@ public class HProjectManager : Base.Singleton<HProjectManager>
         if (data.ActionPoint.Parent == null || data.ActionPoint.Parent == "")
         {
             ap = SpawnActionPoint(data.ActionPoint, null);
-            await ap.WriteLock(false);
-            Orientation orientation = new Orientation(1, 0, 180, 0);
-            await WebSocketManagerH.Instance.AddActionPointOrientation(ap.Data.Id, orientation, ap.GetFreeOrientationName());
         }
         else
         {
             try
             {
                 IActionPointParentH actionPointParent = GetActionPointParent(data.ActionPoint.Parent);
-
                 ap = SpawnActionPoint(data.ActionPoint, actionPointParent);
-                await ap.WriteLock(false);
-                Orientation orientation = new Orientation(1, 0, 180, 0);
-                await WebSocketManagerH.Instance.AddActionPointOrientation(ap.Data.Id, orientation, ap.GetFreeOrientationName());
             }
             catch (KeyNotFoundException ex)
             {
                 Debug.LogError(ex);
             }
-
         }
 
+        OnActionPointAddedToScene?.Invoke(this, new HololensActionPointEventArgs() { ActionPoint = ap });
         updateProject = true;
     }
 

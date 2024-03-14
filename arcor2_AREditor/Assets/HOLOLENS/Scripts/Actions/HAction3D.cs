@@ -123,6 +123,8 @@ public class HAction3D : HAction
 
     public async override void Remove() {
         try {
+            await this.Input.RemoveAllLogicItemsAsync();
+            await this.Output.RemoveAllLogicItemsAsync();
             await WebSocketManagerH.Instance.RemoveAction(GetId(), false);
         } catch (RequestFailedException ex) {
            // Notifications.Instance.ShowNotification("Failed to remove action " + GetName(), ex.Message);

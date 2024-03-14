@@ -36,10 +36,17 @@ public class ListScenes : Singleton<ListScenes>
 
     private Dictionary<string, List<IO.Swagger.Model.LogicItem>> project_logicItems = new Dictionary<string, List<IO.Swagger.Model.LogicItem>>();
     private string waitingSceneProject = null;
-
+    private List<GameObject> previewConnections = new();
 
     public void setActiveMenu(bool active)
     {
+        if (!active)
+        {
+            foreach (var item in previewConnections)
+            {
+                Destroy(item); 
+            }
+        }
         SceneList.SetActive(active);
     }
     void Start()
@@ -269,7 +276,6 @@ public class ListScenes : Singleton<ListScenes>
             }
             else if (actionObject.CollisionObject)
             {
-
                 switch (actionObject.ObjectModel.Type)
                 {
                     case IO.Swagger.Model.ObjectModel.TypeEnum.Box:
@@ -354,12 +360,9 @@ public class ListScenes : Singleton<ListScenes>
                 nAction.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                 actions_ID.Add(action.Id, nAction);
             }
-
-
         }
         foreach (IO.Swagger.Model.ActionPoint projectActionPoint in project.ActionPoints)
         {
-
             if (projectActionPoint.Parent != null)
             {
                 if (ActionPoints.TryGetValue(projectActionPoint.Parent, out GameObject parent))
@@ -517,14 +520,13 @@ public class ListScenes : Singleton<ListScenes>
                         if (action_project.TryGetValue(items.End, out GameObject end))
                         {
                             GameObject lineG = Instantiate(connectionPrefab, scenes[kvp.Key].transform.GetChild(0));
+                            previewConnections.Add(lineG);
                             Connection c = lineG.GetComponent<Connection>();
 
                             c.target[0] = start.transform.Find("Output").GetComponent<RectTransform>();
                             c.target[1] = end.transform.Find("Input").GetComponent<RectTransform>();
-
                         }
                     }
-
                 }
             }
         }

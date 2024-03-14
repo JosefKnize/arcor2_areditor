@@ -118,6 +118,8 @@ MonoBehaviour:
   OutlineStencilMaterial: {fileID: 2100000, guid: bb14e24b8be1e284f8a9ee470edf9733,
     type: 2}
   OutlineMaterial: {fileID: 2100000, guid: 88e335678925b224a92a1d4c22ccd6bd, type: 2}
+  AddActionReticle: {fileID: 2609503649983193152, guid: 09638e4ef9e81a94ca642a132cfaf587,
+    type: 3}
   ActionObjectName: {fileID: 7792798933366517687}
   Model: {fileID: 0}
   CubePrefab: {fileID: 4648989740229487369, guid: eaf2d11af5d22ad4ab541babe0c35235,

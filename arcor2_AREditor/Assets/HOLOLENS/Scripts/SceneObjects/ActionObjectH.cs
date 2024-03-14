@@ -29,6 +29,7 @@ namespace Hololens
         public GameObject BoundsControlBoxPrefab;
         public Material OutlineStencilMaterial;
         public Material OutlineMaterial;
+        public GameObject AddActionReticle;
 
         public IO.Swagger.Model.SceneObject Data = new IO.Swagger.Model.SceneObject(id: "", name: "", pose: DataHelper.CreatePose(new Vector3(), new Quaternion()), type: "");
         public ActionObjectMetadataH ActionObjectMetadata;
@@ -38,6 +39,7 @@ namespace Hololens
         private bool allowScale;
         private Vector3 initialPosition;
         private Quaternion initialRotation;
+        
 
         public virtual void InitActionObject(IO.Swagger.Model.SceneObject sceneObject, Vector3 position, Quaternion orientation, ActionObjectMetadataH actionObjectMetadata, IO.Swagger.Model.CollisionModels customCollisionModels = null, bool loadResuources = true)
         {
@@ -54,8 +56,7 @@ namespace Hololens
 
             CreateModel(customCollisionModels);
             enabled = true;
-            SetVisibility(PlayerPrefsHelper.LoadFloat("AOVisibilityVR", 1f));
-
+            
             if (PlayerPrefsHelper.LoadBool($"ActionObject/{GetId()}/blocklisted", false))
             {
                 Enable(false, true, false);
@@ -453,8 +454,6 @@ namespace Hololens
 
             var outline = Visual.AddComponent(typeof(MeshOutlineHierarchy)) as MeshOutlineHierarchy;
             outline.OutlineMaterial = OutlineMaterial;
-            //outline.StencilWriteMaterial = OutlineStencilMaterial;
-            //outline.UseStencilOutline = true;
             outline.enabled = false;
 
             InteractionObjectCollider.SetActive(false);
@@ -468,6 +467,15 @@ namespace Hololens
                 GameManagerH.Instance.OnOpenSceneEditor += RegisterTransformationEvents;
             }
 
+            if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
+            {
+                transform.GetComponent<StatefulInteractable>().customReticle = AddActionReticle;
+            }
+            else
+            {
+                GameManagerH.Instance.OnOpenProjectEditor += (_,_) => { transform.GetComponent<StatefulInteractable>().customReticle = AddActionReticle; };
+            }
+
             transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
 
         }
@@ -475,13 +483,13 @@ namespace Hololens
         public virtual void HoverExited(HoverExitEventArgs arg0)
         {
             transform.GetComponentInChildren<MeshOutlineHierarchy>().enabled = false;
-            transform.Find("Name")?.gameObject.SetActive(false);
+            SetVisibility(0.7f);
         }
 
         public virtual void HoverEntered(HoverEnterEventArgs arg0)
         {
             transform.GetComponentInChildren<MeshOutlineHierarchy>().enabled = true;
-            transform.Find("Name")?.gameObject.SetActive(true);
+            SetVisibility(0.7f);
         }
 
         private void RegisterTransformationEvents(object sender, EventArgs e) => RegisterTransformationEvents();

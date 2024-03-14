@@ -14,6 +14,10 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit.UX.Deprecated;
+using RosSharp.Urdf;
+using IO.Swagger.Model;
+using RosSharp.RosBridgeClient;
+using static System.Collections.Specialized.BitVector32;
 
 public class HSelectorManager : Singleton<HSelectorManager>
 {
@@ -46,6 +50,11 @@ public class HSelectorManager : Singleton<HSelectorManager>
                 {
                     return; // Don't show near object menu on robots in project editor
                 }
+                else if (selectedObject is HStartEndAction)
+                {
+                    return;
+                }
+
                 NearObjectMenuManager.Instance.Display(selectedObject);
             }
         }
@@ -59,7 +68,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
         Normal,
         PlacingAction,
         MakingConnection,
-        WaitingBeforeNextInteraction,
         WaitingForReleaseAfterPlacingAP,
     }
 
@@ -77,29 +85,43 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     public async void DuplicateObjectClicked()
     {
-        if (SelectedObject is ActionObjectH actionObject && GameManagerH.Instance.GetGameState().Equals(GameManagerH.GameStateEnum.SceneEditor))
+        switch (SelectedObject)
         {
-            List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
-            foreach (Base.Parameter p in actionObject.ObjectParameters.Values)
-            {
-                parameters.Add(DataHelper.ActionParameterToParameter(p));
-            }
-            string newName = SceneManagerH.Instance.GetFreeAOName(actionObject.GetName());
-            await WebSocketManagerH.Instance.AddObjectToScene(newName,
-                actionObject.ActionObjectMetadata.Type, new IO.Swagger.Model.Pose(
-                    orientation: DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(actionObject.transform.localRotation)),
-                    position: DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(actionObject.transform.localPosition))), parameters);
+            case ActionObjectH actionObject:
+                if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
+                {
+                    List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
+                    foreach (Base.Parameter p in actionObject.ObjectParameters.Values)
+                    {
+                        parameters.Add(DataHelper.ActionParameterToParameter(p));
+                    }
+                    string newName = SceneManagerH.Instance.GetFreeAOName(actionObject.GetName());
+                    await WebSocketManagerH.Instance.AddObjectToScene(newName,
+                        actionObject.ActionObjectMetadata.Type, new IO.Swagger.Model.Pose(
+                            orientation: DataHelper.QuaternionToOrientation(TransformConvertor.UnityToROS(actionObject.transform.localRotation)),
+                            position: DataHelper.Vector3ToPosition(TransformConvertor.UnityToROS(actionObject.transform.localPosition))), parameters);
+                }
+                break;
+            case HAction action:
+                string newActionName = HProjectManager.Instance.GetFreeActionName(action.GetName() + "_copy");
+                await WebSocketManagerH.Instance.AddAction(action.ActionPoint.GetId(), action.Parameters.Values.Cast<ActionParameter>().ToList(), Base.Action.BuildActionType(
+                action.ActionProvider.GetProviderId(), action.Metadata.Name), newActionName, action.Metadata.GetFlows(newActionName));
+                break;
+            case HActionPoint actionPoint:
+                string newActionPointName = HProjectManager.Instance.GetFreeAPName(actionPoint.GetName() + "_copy");
+                WebSocketManagerH.Instance.CopyActionPoint(selectedObject.GetId(), null, selectedObject.GetName(), (_, _) => { });
+                break;
         }
+
     }
 
     public void OpenRemoveObjectDialog()
     {
-        var dialog = ConfirmDialog.GetComponent<MixedReality.Toolkit.UX.Dialog>();
-        dialog.SetHeader($"Remove {SelectedObject.GetObjectTypeName().ToLower()}");
-        dialog.SetBody($"Do you want to remove {SelectedObject.GetName()}");
-        dialog.SetPositive("Confirm", (arg) => RemoveSelectedObject());
-        dialog.SetNegative("Cancel", (arg) => { });
-        dialog.ShowAsync();
+        var dialog = ConfirmDialog.GetComponent<HConfirmDialog>();
+        dialog.Open($"Remove {SelectedObject.GetObjectTypeName().ToLower()}",
+                    $"Do you want to remove {SelectedObject.GetName()}",
+                    () => RemoveSelectedObject(),
+                    () => { });
     }
 
     private void RemoveSelectedObject()
@@ -134,23 +156,41 @@ public class HSelectorManager : Singleton<HSelectorManager>
         var parent = parentOfPlacedActionPoint;
         string name = parent is null ? HProjectManager.Instance.GetFreeAPName("global") : HProjectManager.Instance.GetFreeAPName(parent.GetName());
 
-        bool result = await HProjectManager.Instance.AddActionPoint(name, parent);
-        if (result)
-        {
-            HActionPoint actionPoint = null;
-            HProjectManager.Instance.OnActionPointOrientation += async (sender, args) =>
-            {
-                CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
+        HProjectManager.Instance.OnActionPointAddedToScene += AddDefaultOrientation;
+        HProjectManager.Instance.OnActionPointOrientation += FinishPlacingActionPoint;
 
-                await args.ActionPoint.WriteUnlock();
-            };
-        }
-        else
+        bool result = await HProjectManager.Instance.AddActionPoint(name, parent);
+
+        if (!result)
         {
-            // TODO Notify
+            // TODO notify
+            return;
         }
+
+
 
         parentOfPlacedActionPoint = null;
+    }
+
+    private void FinishPlacingActionPoint(object sender, HololensActionPointOrientationEventArgs args)
+    {
+        CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
+        args.ActionPoint.WriteUnlock();
+        HProjectManager.Instance.OnActionPointOrientation -= FinishPlacingActionPoint;
+    }
+
+    private void AddDefaultOrientation(object sender, HololensActionPointEventArgs args)
+    {
+        args.ActionPoint.WriteLock(true);
+        Orientation orientation = new Orientation(1, 0, 180, 0);
+        WebSocketManagerH.Instance.AddActionPointOrientation(args.ActionPoint.Data.Id, orientation, args.ActionPoint.GetFreeOrientationName());
+        HProjectManager.Instance.OnActionPointAddedToScene -= AddDefaultOrientation;
+    }
+
+    private void CreateActionPointAndPlaceActionUsingRobot(HRobotEE ee)
+    {
+        HProjectManager.Instance.OnActionPointOrientation += FinishPlacingActionPoint;
+        WebSocketManagerH.Instance.AddActionPointUsingRobot(HProjectManager.Instance.GetFreeAPName("global"), ee.GetId(), ee.Robot.GetId(), false, (_, _) => { }, null);
     }
 
     public async void CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)
@@ -161,22 +201,17 @@ public class HSelectorManager : Singleton<HSelectorManager>
         foreach (ParameterMetadataH parameterMetadata in actionMetadata.ParametersMetadata.Values.ToList())
         {
             string value = InitActionValue(actionPoint, parameterMetadata);
-            IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: parameterMetadata.Name, value: value, type: parameterMetadata.Type);
-            parameters.Add(ap);
+            parameters.Add(new ActionParameter(name: parameterMetadata.Name, value: value, type: parameterMetadata.Type));
         }
-        string newActionName;
 
-        if (string.IsNullOrEmpty(newName))
-            newActionName = HProjectManager.Instance.GetFreeActionName(actionMetadata.Name);
-        else
-            newActionName = HProjectManager.Instance.GetFreeActionName(newName);
+        string newActionName = string.IsNullOrEmpty(newName)
+            ? HProjectManager.Instance.GetFreeActionName(actionMetadata.Name)
+            : HProjectManager.Instance.GetFreeActionName(newName);
 
         try
         {
-
             await WebSocketManagerH.Instance.AddAction(actionPoint.GetId(), parameters, Base.Action.BuildActionType(
                     actionProvider.GetProviderId(), actionMetadata.Name), newActionName, actionMetadata.GetFlows(newActionName));
-
         }
         catch (Base.RequestFailedException e)
         {
@@ -363,6 +398,10 @@ public class HSelectorManager : Singleton<HSelectorManager>
             else if (interactive is HActionPoint3D actionPoint)
             {
                 RegisterParentOfActionPoint(actionPoint);
+            }
+            else if (interactive is HRobotEE ee)
+            {
+                CreateActionPointAndPlaceActionUsingRobot(ee);
             }
             else
             {

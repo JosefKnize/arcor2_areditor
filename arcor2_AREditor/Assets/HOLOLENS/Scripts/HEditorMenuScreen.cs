@@ -7,17 +7,40 @@ using IO.Swagger.Model;
 using Newtonsoft.Json;
 using System.Linq;
 using MixedReality.Toolkit;
+using TMPro;
 
 public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 {
     // public StatefulInteractable closeSceneButton;
     // public StatefulInteractable notificationButton;
     public StatefulInteractable switchSceneState;
+    public TextMeshProUGUI AppStateText;
 
     // Start is called before the first frame update
     void Start()
     {
         SceneManagerH.Instance.OnSceneStateEvent += OnSceneStateEvent;
+        GameManagerH.Instance.OnGameStateChanged += GameStateChanged;
+    }
+
+    private void GameStateChanged(object sender, HololensGameStateEventArgs args)
+    {
+        Debug.Log("Game state changed");
+        switch (args.Data)
+        {
+            case GameManagerH.GameStateEnum.SceneEditor:
+                AppStateText.text = "Scene";
+                break;
+            case GameManagerH.GameStateEnum.ProjectEditor:
+                AppStateText.text = "Project";
+                break;
+            case GameManagerH.GameStateEnum.Disconnected:
+                AppStateText.text = "Disconnected";
+                break;
+            default:
+                AppStateText.text = "";
+                break;
+        }
     }
 
     public async void SaveScene()
@@ -26,7 +49,6 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
         IO.Swagger.Model.SaveSceneResponse saveSceneResponse = await GameManagerH.Instance.SaveScene();
         if (!saveSceneResponse.Result)
         {
-            //saveSceneResponse.Messages.ForEach(Debug.LogError);
             HNotificationManager.Instance.ShowNotification("Scene save failed: " + (saveSceneResponse.Messages.Count > 0 ? saveSceneResponse.Messages[0] : "Failed to save scene"));
             return;
         }
@@ -47,10 +69,8 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
         }
     }
 
-
     public async void CloseScene()
     {
-
         if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor)
         {
             SaveScene();
@@ -82,12 +102,11 @@ public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
         {
             switchSceneState.ForceSetToggled(true);
         }
-        else
+        else if (args.Event.State == IO.Swagger.Model.SceneStateData.StateEnum.Stopped)
         {
             switchSceneState.ForceSetToggled(false);
         }
     }
-
 
     public void SwitchSceneState()
     {

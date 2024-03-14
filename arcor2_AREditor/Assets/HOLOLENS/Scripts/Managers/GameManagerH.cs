@@ -460,9 +460,8 @@ public class GameManagerH : Singleton<GameManagerH>
     /// </summary>
     public void HideLoadingScreen(bool force = false)
     {
-
         LoadingScreen.SetActive(false);
-
+        GameObject.Find("MRTK XR Rig").transform.position = new Vector3(0,0,0);
     }
 
 

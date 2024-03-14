@@ -1007,6 +1007,22 @@ public class WebSocketManagerH : Singleton<WebSocketManagerH> {
             throw new RequestFailedException(response == null ? "Request timed out" : response.Messages[0]);
     }
 
+            /// <summary>
+        /// Creates global action point with orientation and joints, using robot
+        /// </summary>
+        /// <param name="name">Human readable name of action point</param>
+        /// <param name="endEffectorId">ID of end effector of robot</param>
+        /// <param name="robotId">ID of robot</param>
+        /// <param name="dryRun"></param>
+        /// <param name="callback"></param>
+        public void AddActionPointUsingRobot(string name, string endEffectorId, string robotId, bool dryRun, UnityAction<string, string> callback, string armId = null) {
+            int r_id = Interlocked.Increment(ref requestID);
+            responsesCallback.Add(r_id, Tuple.Create("", callback));
+            AddApUsingRobotRequestArgs args = new AddApUsingRobotRequestArgs(endEffectorId: endEffectorId, name: name, robotId: robotId, armId: armId);
+            IO.Swagger.Model.AddApUsingRobotRequest request = new IO.Swagger.Model.AddApUsingRobotRequest(r_id, "AddApUsingRobot", args, dryRun);
+            SendDataToServer(request.ToJson(), r_id, false);
+        }
+
 
     /// <summary>
     /// Decodes changes on object types and invoke proper callback
@@ -1345,6 +1361,17 @@ public class WebSocketManagerH : Singleton<WebSocketManagerH> {
 
         if (response == null || !response.Result)
             throw new RequestFailedException(response == null ? "Request timed out" : response.Messages[0]);
+    }
+
+
+    public void CopyActionPoint(string actionPointId, Position position, string originalActionPointName, UnityAction<string, string> callback, bool dryRun = false)
+    {
+        int r_id = Interlocked.Increment(ref requestID);
+        IO.Swagger.Model.CopyActionPointRequestArgs args = new CopyActionPointRequestArgs(id: actionPointId, position: position);
+        IO.Swagger.Model.CopyActionPointRequest request = new IO.Swagger.Model.CopyActionPointRequest(r_id, "CopyActionPoint", args: args, dryRun: dryRun);
+
+        responsesCallback.Add(r_id, Tuple.Create(originalActionPointName, callback));
+        SendDataToServer(request.ToJson(), r_id, false);
     }
 
     /*      /// <summary>

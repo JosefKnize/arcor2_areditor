@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Linq;
 using Base;
 using static Base.Clickable;
+using IO.Swagger.Model;
+using System.Threading.Tasks;
 public abstract class HInputOutput : MonoBehaviour
 {
         public HAction Action;
@@ -13,6 +15,15 @@ public abstract class HInputOutput : MonoBehaviour
 
         public object ifValue;
 
+
+        public async Task RemoveAllLogicItemsAsync()
+        {
+            var logicItems = GetLogicItems();
+            foreach (var logicItem in logicItems)
+            {
+                await WebSocketManagerH.Instance.RemoveLogicItem(logicItem.Data.Id);
+            }
+        }
 
         public void AddLogicItem(string logicItemId) {
             Debug.Assert(logicItemId != null);

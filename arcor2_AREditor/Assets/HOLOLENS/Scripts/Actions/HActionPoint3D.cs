@@ -292,6 +292,7 @@ public class HActionPoint3D : HActionPoint
 
     public async void EndTransform(SelectExitEventArgs arg0)
     {
+        Debug.Log("End AP transform");
         if (IsLockedByMe)
         {
             await UploadNewPositionAsync();
@@ -318,10 +319,11 @@ public class HActionPoint3D : HActionPoint
 
     public async void StartTransform(SelectEnterEventArgs arg0)
     {
+        Debug.Log("Start AP transform");
         var objectManipulator = transform.GetComponent<ObjectManipulator>();
         initialPosition = transform.localPosition;
 
-        if (HSelectorManager.Instance.selectorState != HSelectorManager.SelectorState.WaitingForReleaseAfterPlacingAP && await WriteLock(true))
+        if (HSelectorManager.Instance.selectorState == HSelectorManager.SelectorState.Normal && await WriteLock(true))
         {
             objectManipulator.AllowedManipulations = TransformFlags.Move;
             return;

@@ -71,74 +71,80 @@ public class ActionObject3DH : ActionObjectH
 
     public override void SetVisibility(float value, bool forceShaderChange = false)
     {
-        float normalizedValue = value;
-        if (Blocklisted)
-            normalizedValue = 0;
-        base.SetVisibility(normalizedValue);
-        if (standardShader == null)
+        foreach (Renderer renderer in aoRenderers)
         {
-            standardShader = Shader.Find("Standard");
+            var color = renderer.material.color * 0.8f;
+            renderer.material.color = color;
         }
 
-        if (transparentShader == null)
-        {
-            transparentShader = Shader.Find("Transparent/Diffuse");
-        }
+        //float normalizedValue = value;
+        //if (Blocklisted)
+        //    normalizedValue = 0;
+        //base.SetVisibility(normalizedValue);
+        //if (standardShader == null)
+        //{
+        //    standardShader = Shader.Find("Standard");
+        //}
 
-        // Set opaque shader
-        if (value >= 1)
-        {
-            transparent = false;
-            foreach (Renderer renderer in aoRenderers)
-            {
-                // Object has its outline active, we need to select second material,
-                // (first is mask, second is object material, third is outline)
-                if (renderer.materials.Length == 3)
-                {
-                    renderer.materials[0].shader = standardShader;
-                }
-                else
-                {
-                    renderer.material.shader = standardShader;
-                }
-            }
-        }
-        // Set transparent shader
-        else
-        {
-            transparent = false;
-            if (forceShaderChange || !transparent)
-            {
-                foreach (Renderer renderer in aoRenderers)
-                {
-                    if (renderer.materials.Length == 3)
-                    {
-                        renderer.materials[0].shader = transparentShader;
-                    }
-                    else
-                    {
-                        renderer.material.shader = transparentShader;
-                    }
-                }
-                transparent = true;
-            }
-            // set alpha of the material
-            foreach (Renderer renderer in aoRenderers)
-            {
-                Material mat;
-                if (renderer.materials.Length == 3)
-                {
-                    mat = renderer.materials[0];
-                }
-                else
-                {
-                    mat = renderer.material;
-                }
-                Color color = mat.color;
-                color.a = value;
-                mat.color = color;
-            }
-        }
+        //if (transparentShader == null)
+        //{
+        //    transparentShader = Shader.Find("Transparent/Diffuse");
+        //}
+
+        //// Set opaque shader
+        //if (value >= 1)
+        //{
+        //    transparent = false;
+        //    foreach (Renderer renderer in aoRenderers)
+        //    {
+        //        // Object has its outline active, we need to select second material,
+        //        // (first is mask, second is object material, third is outline)
+        //        if (renderer.materials.Length == 3)
+        //        {
+        //            renderer.materials[0].shader = standardShader;
+        //        }
+        //        else
+        //        {
+        //            renderer.material.shader = standardShader;
+        //        }
+        //    }
+        //}
+        //// Set transparent shader
+        //else
+        //{
+        //    transparent = false;
+        //    if (forceShaderChange || !transparent)
+        //    {
+        //        foreach (Renderer renderer in aoRenderers)
+        //        {
+        //            if (renderer.materials.Length == 3)
+        //            {
+        //                renderer.materials[0].shader = transparentShader;
+        //            }
+        //            else
+        //            {
+        //                renderer.material.shader = transparentShader;
+        //            }
+        //        }
+        //        transparent = true;
+        //    }
+        //    // set alpha of the material
+        //    foreach (Renderer renderer in aoRenderers)
+        //    {
+        //        Material mat;
+        //        if (renderer.materials.Length == 3)
+        //        {
+        //            mat = renderer.materials[0];
+        //        }
+        //        else
+        //        {
+        //            mat = renderer.material;
+        //        }
+        //        Color color = mat.color;
+        //        color.a = value;
+        //        mat.color = color;
+        //    }
+        //}
     }
 
     public override void Show()
@@ -443,17 +449,5 @@ public class ActionObject3DH : ActionObjectH
         Vector3 vec = Model.transform.localScale;
         InteractionObjectCollider.transform.localScale = new Vector3(vec.x + 0.01f, vec.y + 0.01f, vec.z + 0.01f);
         InteractionObjectCollider.transform.position = Model.transform.position;
-    }
-
-    public override void HoverEntered(HoverEnterEventArgs arg0)
-    {
-        base.HoverEntered(arg0);
-        SetVisibility(1);
-    }
-
-    public override void HoverExited(HoverExitEventArgs arg0)
-    {
-        base.HoverExited(arg0);
-        SetVisibility(1);
     }
 }

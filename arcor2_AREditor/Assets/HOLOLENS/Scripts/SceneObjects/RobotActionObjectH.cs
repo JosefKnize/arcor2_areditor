@@ -344,7 +344,7 @@ namespace Hololens
         public override void Show()
         {
             robotVisible = true;
-            SetVisibility(1);
+            //SetVisibility(1);
             UpdateColor();
         }
 
@@ -364,84 +364,117 @@ namespace Hololens
 
         public override void SetVisibility(float value, bool forceShaderChange = false)
         {
-            /*   base.SetVisibility(value);
+            foreach (Renderer renderer in robotRenderers)
+            {
+                var color = renderer.material.color * 0.8f;
+                renderer.material.color = color;
+            }
 
-               if (standardShader == null) {
-                   standardShader = Shader.Find("Standard");
-               }
+            //Debug.Log($"Set visibility: {value}");
+            //base.SetVisibility(value);
 
-               if (ghostShader == null) {
-                   ghostShader = Shader.Find("Custom/Ghost");
-               }
+            //if (standardShader == null)
+            //{
+            //    standardShader = Shader.Find("Standard");
+            //}
 
-               if (transparentShader == null) {
-                   transparentShader = Shader.Find("Transparent/Diffuse");
-               }
+            //if (ghostShader == null)
+            //{
+            //    ghostShader = Shader.Find("Custom/Ghost");
+            //}
 
-               // Set opaque shader
-               if (value >= 1) {
-                   transparent = false;
-                   ghost = false;
-                   foreach (Renderer renderer in robotRenderers) {
-                       // Robot has its outline active, we need to select second material,
-                       // (first is mask, second is object material, third is outline)
-                       if (renderer.materials.Length == 3) {
-                           renderer.materials[1].shader = standardShader;
-                       } else {
-                           renderer.material.shader = standardShader;
-                       }
-                   }
-               }
-               // Set transparent shader
-               else if (value <= 0.1) {
-                   ghost = false;
-                   if (forceShaderChange || !transparent) {
-                       foreach (Renderer renderer in robotRenderers) {
-                           // Robot has its outline active, we need to select second material,
-                           // (first is mask, second is object material, third is outline)
-                           if (renderer.materials.Length == 3) {
-                               renderer.materials[1].shader = transparentShader;
-                           } else {
-                               renderer.material.shader = transparentShader;
-                           }
+            //if (transparentShader == null)
+            //{
+            //    transparentShader = Shader.Find("Transparent/Diffuse");
+            //}
 
-                           Material mat;
-                           if (renderer.materials.Length == 3) {
-                               mat = renderer.materials[1];
-                           } else {
-                               mat = renderer.material;
-                           }
-                           Color color = mat.color;
-                           color.a = 0f;
-                           mat.color = color;
-                       }
-                       transparent = true;
-                   }
-               } else {
-                   transparent = false;
-                   if (forceShaderChange || !ghost) {
-                       foreach (Renderer renderer in robotRenderers) {
-                           if (renderer.materials.Length == 3) {
-                               renderer.materials[1].shader = ghostShader;
-                           } else {
-                               renderer.material.shader = ghostShader;
-                           }
-                       }
-                       ghost = true;
-                   }
-                   // set alpha of the material
-                   foreach (Renderer renderer in robotRenderers) {
-                       Material mat;
-                       if (renderer.materials.Length == 3) {
-                           mat = renderer.materials[1];
-                       } else {
-                           mat = renderer.material;
-                       }
-                       Color color = mat.color;
-                       color.a = value;
-                       mat.color = color;
-                   }
-               }*/
+            //// Set opaque shader
+            //if (value >= 1)
+            //{
+            //    transparent = false;
+            //    ghost = false;
+            //    foreach (Renderer renderer in robotRenderers)
+            //    {
+            //        // Robot has its outline active, we need to select second material,
+            //        // (first is mask, second is object material, third is outline)
+            //        if (renderer.materials.Length == 3)
+            //        {
+            //            renderer.materials[1].shader = standardShader;
+            //        }
+            //        else
+            //        {
+            //            renderer.material.shader = standardShader;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    ghost = false;
+            //    if (forceShaderChange || !transparent)
+            //    {
+            //        foreach (Renderer renderer in robotRenderers)
+            //        {
+            //            // Robot has its outline active, we need to select second material,
+            //            // (first is mask, second is object material, third is outline)
+            //            if (renderer.materials.Length == 3)
+            //            {
+            //                renderer.materials[1].shader = transparentShader;
+            //            }
+            //            else
+            //            {
+            //                renderer.material.shader = transparentShader;
+            //            }
+
+            //            Material mat;
+            //            if (renderer.materials.Length == 3)
+            //            {
+            //                mat = renderer.materials[1];
+            //            }
+            //            else
+            //            {
+            //                mat = renderer.material;
+            //            }
+            //            Color color = mat.color;
+            //            color.a = value;
+            //            mat.color = color;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    transparent = false;
+            //    if (forceShaderChange || !ghost)
+            //    {
+            //        foreach (Renderer renderer in robotRenderers)
+            //        {
+            //            if (renderer.materials.Length == 3)
+            //            {
+            //                renderer.materials[1].shader = ghostShader;
+            //            }
+            //            else
+            //            {
+            //                renderer.material.shader = ghostShader;
+            //            }
+            //        }
+            //        ghost = true;
+            //    }
+            //    // set alpha of the material
+            //    foreach (Renderer renderer in robotRenderers)
+            //    {
+            //        Material mat;
+            //        if (renderer.materials.Length == 3)
+            //        {
+            //            mat = renderer.materials[1];
+            //        }
+            //        else
+            //        {
+            //            mat = renderer.material;
+            //        }
+            //        Color color = mat.color;
+            //        color.a = value;
+            //        mat.color = color;
+            //    }
+            //}
         }
 
         public async Task<List<string>> GetEndEffectorIds(string arm_id = null)
@@ -913,5 +946,39 @@ namespace Hololens
         {
             return this;
         }
+
+        //public override void OnActionPlacementStarted(object sender, EventArgs e)
+        //{
+        //    base.OnActionPlacementStarted(sender, e);
+        //    DisplayAndPositionPlaceActionPointOnEEButton(sender, e);
+        //}
+
+        //public override void OnActionPlacementEnded(object sender, EventArgs e)
+        //{
+        //    base.OnActionPlacementEnded(sender, e);
+        //    HidePlaceActionPointOnEEButton(sender, e);
+        //}
+
+        //private void HidePlaceActionPointOnEEButton(object sender, EventArgs e)
+        //{
+        //    var button = transform.Find("PlaceActionOnEEButton");
+        //    if (button is null)
+        //    {
+        //        return;
+        //    }
+        //    button.gameObject.SetActive(false);
+        //}
+
+        //private void DisplayAndPositionPlaceActionPointOnEEButton(object sender, EventArgs e)
+        //{
+        //    var button = transform.Find("PlaceActionOnEEButton");
+        //    if (button is null)
+        //    {
+        //        return;
+        //    }
+        //    button.gameObject.SetActive(true);
+
+        //    var ee = EndEffectors.FirstOrDefault();
+        //}
     }
 }

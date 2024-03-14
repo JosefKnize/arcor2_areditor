@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Base;
+using MixedReality.Toolkit;
 using RosSharp.Urdf;
 using UnityEngine;
 
@@ -34,9 +35,9 @@ public class HRobotEE : HInteractiveObject, HISubItem
         ARMId = armId;
         EEId = eeId;
         UpdateLabel();
-     //   SelectorItem = SelectorMenu.Instance.CreateSelectorItem(this);
+        //   SelectorItem = SelectorMenu.Instance.CreateSelectorItem(this);
 
-        
+        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
     }
 
     public void UpdateLabel() {
