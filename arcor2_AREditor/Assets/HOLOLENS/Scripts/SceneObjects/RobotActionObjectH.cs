@@ -291,7 +291,7 @@ namespace Hololens
 
             SetOutlineSizeBasedOnScale();
 
-            SetVisibility(visibility, forceShaderChange: true);
+            //SetVisibility(0.7f, forceShaderChange: true);
             UpdateColor();
 
             SetDefaultJoints();
@@ -344,14 +344,12 @@ namespace Hololens
         public override void Show()
         {
             robotVisible = true;
-            //SetVisibility(1);
             UpdateColor();
         }
 
         public override void Hide()
         {
             robotVisible = false;
-            SetVisibility(0);
         }
 
         public override void SetInteractivity(bool interactive)
@@ -362,11 +360,27 @@ namespace Hololens
             }
         }
 
+
+        public static Dictionary<string, Color> GlobalOriginalColors = new Dictionary<string, Color>();
         public override void SetVisibility(float value, bool forceShaderChange = false)
         {
             foreach (Renderer renderer in robotRenderers)
             {
-                var color = renderer.material.color * 0.8f;
+                string materialName = renderer.material.name;
+                if (!GlobalOriginalColors.TryGetValue(materialName, out Color color))
+                {
+                    GlobalOriginalColors[materialName] = renderer.material.color;
+                    color = renderer.material.color;
+                    Debug.Log($"Remembering color {color} from material {renderer.material.name}");
+                }
+                else
+                {
+                    Debug.Log($"Color {color} already remembered from {renderer.material}");
+                }
+
+                float h, s, v;
+                Color.RGBToHSV(color, out h, out s, out v);
+                color = Color.HSVToRGB(h, s, v * 0.65f);
                 renderer.material.color = color;
             }
         }

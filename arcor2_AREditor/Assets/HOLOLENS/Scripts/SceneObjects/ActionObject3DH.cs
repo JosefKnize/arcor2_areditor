@@ -69,94 +69,40 @@ public class ActionObject3DH : ActionObjectH
         ResetPosition();
     }
 
+    public static Dictionary<string, Color> GlobalOriginalColors = new Dictionary<string, Color>();
     public override void SetVisibility(float value, bool forceShaderChange = false)
     {
         foreach (Renderer renderer in aoRenderers)
         {
-            var color = renderer.material.color * 0.8f;
+            string materialName = renderer.material.name;
+            if (!GlobalOriginalColors.TryGetValue(materialName, out Color color))
+            {
+                GlobalOriginalColors[materialName] = renderer.material.color;
+                color = renderer.material.color;
+                Debug.Log($"Remembering color {color} from material {renderer.material.name}");
+            }
+            else
+            {
+                Debug.Log($"Color {color} already remembered from {renderer.material}");
+            }
+
+            float h, s, v;
+            Color.RGBToHSV(color, out h, out s, out v);
+            color = Color.HSVToRGB(h, s, v * 0.65f);
             renderer.material.color = color;
         }
-
-        //float normalizedValue = value;
-        //if (Blocklisted)
-        //    normalizedValue = 0;
-        //base.SetVisibility(normalizedValue);
-        //if (standardShader == null)
-        //{
-        //    standardShader = Shader.Find("Standard");
-        //}
-
-        //if (transparentShader == null)
-        //{
-        //    transparentShader = Shader.Find("Transparent/Diffuse");
-        //}
-
-        //// Set opaque shader
-        //if (value >= 1)
-        //{
-        //    transparent = false;
-        //    foreach (Renderer renderer in aoRenderers)
-        //    {
-        //        // Object has its outline active, we need to select second material,
-        //        // (first is mask, second is object material, third is outline)
-        //        if (renderer.materials.Length == 3)
-        //        {
-        //            renderer.materials[0].shader = standardShader;
-        //        }
-        //        else
-        //        {
-        //            renderer.material.shader = standardShader;
-        //        }
-        //    }
-        //}
-        //// Set transparent shader
-        //else
-        //{
-        //    transparent = false;
-        //    if (forceShaderChange || !transparent)
-        //    {
-        //        foreach (Renderer renderer in aoRenderers)
-        //        {
-        //            if (renderer.materials.Length == 3)
-        //            {
-        //                renderer.materials[0].shader = transparentShader;
-        //            }
-        //            else
-        //            {
-        //                renderer.material.shader = transparentShader;
-        //            }
-        //        }
-        //        transparent = true;
-        //    }
-        //    // set alpha of the material
-        //    foreach (Renderer renderer in aoRenderers)
-        //    {
-        //        Material mat;
-        //        if (renderer.materials.Length == 3)
-        //        {
-        //            mat = renderer.materials[0];
-        //        }
-        //        else
-        //        {
-        //            mat = renderer.material;
-        //        }
-        //        Color color = mat.color;
-        //        color.a = value;
-        //        mat.color = color;
-        //    }
-        //}
     }
 
     public override void Show()
     {
         Debug.Assert(Model != null);
-        SetVisibility(1);
+        //SetVisibility(1);
     }
 
     public override void Hide()
     {
         Debug.Assert(Model != null);
-        SetVisibility(0);
+        //SetVisibility(0);
     }
 
     public override void SetInteractivity(bool interactivity)

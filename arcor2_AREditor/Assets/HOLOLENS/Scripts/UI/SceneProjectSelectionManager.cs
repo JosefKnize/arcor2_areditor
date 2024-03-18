@@ -44,7 +44,7 @@ public class ListScenes : Singleton<ListScenes>
         {
             foreach (var item in previewConnections)
             {
-                Destroy(item); 
+                Destroy(item);
             }
         }
         SceneList.SetActive(active);
@@ -123,7 +123,7 @@ public class ListScenes : Singleton<ListScenes>
         setActiveMenu(true);
         SceneList.GetComponent<HorizontalObjectScrollMenu>().UpdateCollection();
         SceneList.transform.parent.localPosition = new Vector3(0, 0.25f, 0);
-        SceneList.transform.parent.localRotation = Quaternion.Euler(0,-90,0);
+        SceneList.transform.parent.localRotation = Quaternion.Euler(0, -90, 0);
         SceneList.transform.localPosition = Vector3.zero;
         SceneList.transform.localRotation = Quaternion.identity;
     }
@@ -212,7 +212,7 @@ public class ListScenes : Singleton<ListScenes>
             foreach (Renderer mesh in ActionObjectsSpawn.GetComponentsInChildren<Renderer>())
             {
                 bounds.Encapsulate(mesh.bounds);
-            }         
+            }
 
             // Scale
             var maxDimension = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
@@ -539,7 +539,7 @@ public static class StatefulInteractableShortClickExtension
     private static Dictionary<StatefulInteractable, DateTime> clickStartedDictionary = new();
     public static void RegisterOnShortClick(this StatefulInteractable interactable, System.Action callback)
     {
-        interactable.firstSelectEntered.AddListener( (args) =>
+        interactable.firstSelectEntered.AddListener((args) =>
         {
             clickStartedDictionary[interactable] = DateTime.Now;
         });

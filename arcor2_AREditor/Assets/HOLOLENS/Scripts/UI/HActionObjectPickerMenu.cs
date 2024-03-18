@@ -272,7 +272,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             try
             {
                 Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
-                Vector3 point = TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(ray.GetPoint(0.5f)));
+                Vector3 point = TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(ray.GetPoint(1f)));
                 IO.Swagger.Model.Pose pose = null;
                 if (actionObjectMetadata.HasPose)
                     pose = new IO.Swagger.Model.Pose(position: DataHelper.Vector3ToPosition(point), orientation: DataHelper.QuaternionToOrientation(Quaternion.identity));

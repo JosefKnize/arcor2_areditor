@@ -39,7 +39,7 @@ namespace Hololens
         private bool allowScale;
         private Vector3 initialPosition;
         private Quaternion initialRotation;
-        
+
 
         public virtual void InitActionObject(IO.Swagger.Model.SceneObject sceneObject, Vector3 position, Quaternion orientation, ActionObjectMetadataH actionObjectMetadata, IO.Swagger.Model.CollisionModels customCollisionModels = null, bool loadResuources = true)
         {
@@ -56,7 +56,7 @@ namespace Hololens
 
             CreateModel(customCollisionModels);
             enabled = true;
-            
+
             if (PlayerPrefsHelper.LoadBool($"ActionObject/{GetId()}/blocklisted", false))
             {
                 Enable(false, true, false);
@@ -65,7 +65,17 @@ namespace Hololens
             HSelectorManager.Instance.StartedPlacingActionPoint += DisplayAndPositionMakeParentButton;
             HSelectorManager.Instance.EndedPlacingActionPoint += HideMakeParentButton;
 
+            GameManagerH.Instance.OnGameStateChanged += OnGameStateChanged;
+
             RegisterMakeParentButtonEvent();
+        }
+
+        private void OnGameStateChanged(object sender, HololensGameStateEventArgs args)
+        {
+            if (args.Data == GameManagerH.GameStateEnum.ProjectEditor && transform.GetComponent<StatefulInteractable>() is StatefulInteractable interactable)
+            {
+                interactable.customReticle = AddActionReticle;
+            }
         }
 
         private void RegisterMakeParentButtonEvent()
@@ -253,6 +263,7 @@ namespace Hololens
 
             HSelectorManager.Instance.StartedPlacingActionPoint -= DisplayAndPositionMakeParentButton;
             HSelectorManager.Instance.EndedPlacingActionPoint -= HideMakeParentButton;
+            GameManagerH.Instance.OnGameStateChanged -= OnGameStateChanged;
 
             DestroyObject();
             Destroy(gameObject);
@@ -470,10 +481,6 @@ namespace Hololens
             if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
             {
                 transform.GetComponent<StatefulInteractable>().customReticle = AddActionReticle;
-            }
-            else
-            {
-                GameManagerH.Instance.OnOpenProjectEditor += (_,_) => { transform.GetComponent<StatefulInteractable>().customReticle = AddActionReticle; };
             }
 
             transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));

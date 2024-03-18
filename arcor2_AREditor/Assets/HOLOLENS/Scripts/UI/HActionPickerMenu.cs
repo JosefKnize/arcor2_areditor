@@ -35,7 +35,6 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu>
     public void ShowMenu(ActionObjectH parent)
     {
         // Adjust position
-        ActionPickerMenu.transform.parent = parent.transform;
         var collider = parent.InteractionObjectCollider.GetComponent<Collider>();
         parent.InteractionObjectCollider.SetActive(true);
         var closestPoint = collider.ClosestPoint(Camera.main.transform.position);
@@ -48,7 +47,6 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu>
     public void CloseMenu()
     {
         ClearMenu();
-        ActionPickerMenu.transform.parent = null;
         ActionPickerMenu.SetActive(false);
     }
 
