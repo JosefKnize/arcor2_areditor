@@ -54,15 +54,10 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         if (!ghostRobotsCreated)
         {
             // Add invisible robots in scene Vector3(Dopøedu/Dozadu, Nahoru/Dolu, Doleva/Doprava)
-            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.56f, 0, 0.56f), new Vector3(0, 135f, 0));
-            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.28f, 0.141f, -0.44f), new Vector3(0, 0, 0));
-            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.295f, 0, 0.145f), new Vector3(0, -90, 0));
-            //refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5553f, 0, 0.5556f), new Vector3(0, 135f, 0));             
-            //refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.3285f, 0.141f, -0.4535f), new Vector3(0, 0, 0)); 
-            //refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.3475f, 0, 0.1150f), new Vector3(0, -90, 0));
-            //refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.571f, 0, 0.569f), new Vector3(0, 134.81f, 0));
-            //refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.279f, 0.141f, -0.443f), new Vector3(0, 0, 0));
-            //refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.273f, 0, 0.140f), new Vector3(0, -90, 0));
+            refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5445f, 0, 0.6665f), new Vector3(0, 90f, 0));
+            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.375f, 0.141f, 0.03f), new Vector3(0, 90, 0));
+            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.375f, 0, 0.47f), new Vector3(0, 90, 0));
+ 
             ghostRobotsCreated = true;
         }
     }

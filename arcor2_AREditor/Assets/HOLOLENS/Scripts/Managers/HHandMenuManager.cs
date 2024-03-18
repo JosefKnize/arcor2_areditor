@@ -32,18 +32,6 @@ public class HHandMenuManager : Singleton<HHandMenuManager>
         OpenSceneButton.OnClicked.AddListener(OpenScenesClicked);
         OpenProjectButton.OnClicked.AddListener(OpenProjectsClicked);
     }
-      
-    private void ExperimentButtonPressed()
-    {
-        if (ExperimentToggle.IsToggled)
-        {
-            ExperimentManager.Instance.StartExperiment();
-        }
-        else
-        {
-            ExperimentManager.Instance.StopExperiment();
-        }
-    }
 
     public async void OpenScenesClicked()
     {
