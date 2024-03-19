@@ -296,6 +296,8 @@ public class SceneManagerH : Singleton<SceneManagerH>
         if (RobotsEEVisible)
             OnShowRobotsEE?.Invoke(this, EventArgs.Empty);
         RegisterRobotsForEvent(true, RegisterForRobotEventRequestArgs.WhatEnum.Joints);
+        RegisterRobotsForEvent(true, RegisterForRobotEventRequestArgs.WhatEnum.Eefpose);
+
         string selectedRobotID = PlayerPrefsHelper.LoadString(SceneMeta.Id + "/selectedRobotId", null);
         SelectedArmId = PlayerPrefsHelper.LoadString(SceneMeta.Id + "/selectedRobotArmId", null);
         string selectedEndEffectorId = PlayerPrefsHelper.LoadString(SceneMeta.Id + "/selectedEndEffectorId", null);

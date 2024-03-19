@@ -93,6 +93,10 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         {
             await HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
         }
+        else if (validTargets.Count > 0 && validTargets[0].transform.parent.GetComponent<HInteractiveObject>() is HInteractiveObject interactiveParent)
+        {
+            await HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactiveParent);
+        }
         else if (validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
         {
             // Ignore the button which will register as parent by itself

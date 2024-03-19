@@ -371,16 +371,14 @@ namespace Hololens
                 {
                     GlobalOriginalColors[materialName] = renderer.material.color;
                     color = renderer.material.color;
-                    Debug.Log($"Remembering color {color} from material {renderer.material.name}");
                 }
                 else
                 {
-                    Debug.Log($"Color {color} already remembered from {renderer.material}");
                 }
 
                 float h, s, v;
                 Color.RGBToHSV(color, out h, out s, out v);
-                color = Color.HSVToRGB(h, s, v * 0.65f);
+                color = Color.HSVToRGB(h, s, v * 0.4f);
                 renderer.material.color = color;
             }
         }

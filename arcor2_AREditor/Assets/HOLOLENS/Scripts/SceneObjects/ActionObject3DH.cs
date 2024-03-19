@@ -88,7 +88,7 @@ public class ActionObject3DH : ActionObjectH
 
             float h, s, v;
             Color.RGBToHSV(color, out h, out s, out v);
-            color = Color.HSVToRGB(h, s, v * 0.65f);
+            color = Color.HSVToRGB(h, s, v * 0.4f);
             renderer.material.color = color;
         }
     }

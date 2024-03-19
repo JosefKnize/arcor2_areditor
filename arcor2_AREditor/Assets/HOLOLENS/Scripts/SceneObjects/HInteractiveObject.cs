@@ -113,19 +113,16 @@ public abstract class HInteractiveObject : MonoBehaviour
     public virtual async Task<bool> WriteLock(bool lockTree) {
         if (IsLockedByMe) { //object is already locked by this user
             if (lockedTree != lockTree) {
-                Debug.Log("Write Lock: Already locked on client but not tree :shrug:");
                 /*if (await UpdateLock(lockTree ? IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.TREE : IO.Swagger.Model.UpdateLockRequestArgs.NewTypeEnum.OBJECT)) {
                     lockedTree = lockTree;
                     return true;
                 } // if updateLock failed, try to lock normally*/
             } else { //same type of lock
-                Debug.Log("Write Lock: Already locked on client");
                 return true;
             }
         }
 
         try {
-            Debug.Log("Write Lock: Sending to server");
             await WebSocketManagerH.Instance.WriteLock(GetId(), lockTree);
             lockedTree = lockTree;
             LockByMe();
@@ -150,12 +147,10 @@ public abstract class HInteractiveObject : MonoBehaviour
     public virtual async Task<bool> WriteUnlock() {
         if (!IsLocked)
         {
-            Debug.Log("Write Unlock: Not locked on client");
             return true;
         }
 
         try {
-            Debug.Log("Write Unlock: Sending to server");
             await WebSocketManagerH.Instance.WriteUnlock(GetId());
             IsLocked = false;
             return true;

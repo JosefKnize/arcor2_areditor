@@ -13,6 +13,7 @@ using TriLibCore.Interfaces;
 using static RosSharp.Urdf.Link.Visual.Material;
 using System.IO;
 using LibTessDotNet;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 {
@@ -265,7 +266,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             List<IO.Swagger.Model.Parameter> parameters = new List<IO.Swagger.Model.Parameter>();
             foreach (IO.Swagger.Model.ParameterMeta meta in actionObjectMetadata.Settings)
             {
-                IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: meta.Name, value: JsonConvert.SerializeObject(meta.DefaultValue), type: meta.Type);
+                IO.Swagger.Model.ActionParameter ap = new IO.Swagger.Model.ActionParameter(name: meta.Name, value: meta.DefaultValue, type: meta.Type);
                 parameters.Add(DataHelper.ActionParameterToParameter(ap));
             }
 

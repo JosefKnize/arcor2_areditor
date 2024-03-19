@@ -167,8 +167,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
             return;
         }
 
-
-
         parentOfPlacedActionPoint = null;
     }
 
@@ -190,7 +188,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
     private void CreateActionPointAndPlaceActionUsingRobot(HRobotEE ee)
     {
         HProjectManager.Instance.OnActionPointOrientation += FinishPlacingActionPoint;
-        WebSocketManagerH.Instance.AddActionPointUsingRobot(HProjectManager.Instance.GetFreeAPName("global"), ee.GetId(), ee.Robot.GetId(), false, (_, _) => { }, ee.ARMId);
+        WebSocketManagerH.Instance.AddActionPointUsingRobot(HProjectManager.Instance.GetFreeAPName("global"), ee.EEId, ee.Robot.GetId(), false, (_, _) => { }, null);
     }
 
     public async void CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)

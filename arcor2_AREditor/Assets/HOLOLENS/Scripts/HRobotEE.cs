@@ -35,9 +35,6 @@ public class HRobotEE : HInteractiveObject, HISubItem
         ARMId = armId;
         EEId = eeId;
         UpdateLabel();
-        //   SelectorItem = SelectorMenu.Instance.CreateSelectorItem(this);
-
-        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
     }
 
     public void UpdateLabel() {
