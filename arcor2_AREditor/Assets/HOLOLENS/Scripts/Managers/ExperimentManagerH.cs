@@ -55,8 +55,8 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         {
             // Add invisible robots in scene Vector3(Dopøedu/Dozadu, Nahoru/Dolu, Doleva/Doprava)
             refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5445f, 0, 0.6665f), new Vector3(0, 90f, 0));
-            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.375f, 0.141f, 0.03f), new Vector3(0, 90, 0));
-            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.375f, 0, 0.47f), new Vector3(0, 90, 0));
+            refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.38f, 0.141f, 0.03f), new Vector3(0, 90, 0));
+            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.38f, 0, 0.47f), new Vector3(0, 90, 0));
  
             ghostRobotsCreated = true;
         }

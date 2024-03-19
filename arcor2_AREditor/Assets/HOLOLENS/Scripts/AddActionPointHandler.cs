@@ -49,11 +49,11 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
         if (processPinch && aggregator.TryGetPinchProgress(hand, out bool isReadyToPinch, out bool isPinching, out float pinchAmount))
         {
             var interactor = hand.IsLeftHand() ? LeftRayInteractor : RightRayInteractor;
-            ProcessPinch(isPinching, interactor, hand);
+            ProcessPinch(isPinching, pinchAmount, interactor, hand);
         }
     }
 
-    private async void ProcessPinch(bool isPinching, MRTKRayInteractor interactor, XRNode hand)
+    private async void ProcessPinch(bool isPinching, float pinchAmount, MRTKRayInteractor interactor, XRNode hand)
     {
         if ((hand == XRNode.LeftHand && isPinching && WaitingForReleaseLeft) || (hand == XRNode.RightHand && isPinching && WaitingForReleaseRight))
         {
@@ -78,7 +78,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
             HSelectorManager.Instance.OnRelease();
         }
 
-        if (!isPinching)
+        if (!isPinching || (isPinching && pinchAmount > 0.1f))
         {
             return;
         }

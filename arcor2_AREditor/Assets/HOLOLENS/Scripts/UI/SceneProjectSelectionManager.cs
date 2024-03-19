@@ -6,11 +6,9 @@ using IO.Swagger.Model;
 using Hololens;
 using TMPro;
 using RosSharp.Urdf;
-using MixedReality.Toolkit.SpatialManipulation;
 using MixedReality.Toolkit;
-using Unity.XR.CoreUtils;
-using UnityEngine.XR.Interaction.Toolkit;
-using RestSharp;
+using System.Timers;
+
 
 public class ListScenes : Singleton<ListScenes>
 {
@@ -556,5 +554,34 @@ public static class StatefulInteractableShortClickExtension
                 Debug.Log("Ignored long click");
             }
         });
+    }
+}
+
+public static class StatefulInteractableLongHoverExtension
+{
+    private static Dictionary<StatefulInteractable, Timer> HoverStartedDictionary = new();
+    public static void RegisterOnLongHover(this StatefulInteractable interactable, System.Action callback)
+    {
+        interactable.firstHoverEntered.AddListener((arg) =>
+        {
+            var timer = new Timer(1200);
+            timer.Elapsed += (sender, e) => TimerElapsed(interactable, callback);
+            timer.AutoReset = false;
+            timer.Enabled = true;
+            HoverStartedDictionary[interactable] = timer;
+            
+        });
+
+        interactable.lastHoverExited.AddListener((arg) =>
+        {
+            var timer = HoverStartedDictionary[interactable];
+            HoverStartedDictionary.Remove(interactable);
+            timer.Dispose();
+        });
+    }
+
+    private static void TimerElapsed(StatefulInteractable interactable, System.Action callback)
+    {
+        callback.Invoke();
     }
 }

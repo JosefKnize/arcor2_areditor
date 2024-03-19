@@ -562,6 +562,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TransformGizmo: {fileID: 2743777568733603179}
   CollidCube: {fileID: 5415831799912985755}
+  Xrotation: 0
+  Yrotation: 0
 --- !u!1 &6129829909511807177
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,17 +696,17 @@ PrefabInstance:
     - target: {fileID: 968243829547990733, guid: 2e91802d12732c64c97b7414a92c62b4,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.05
+      value: 0.045
       objectReference: {fileID: 0}
     - target: {fileID: 968243829547990733, guid: 2e91802d12732c64c97b7414a92c62b4,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.05
+      value: 0.045
       objectReference: {fileID: 0}
     - target: {fileID: 968243829547990733, guid: 2e91802d12732c64c97b7414a92c62b4,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.05
+      value: 0.045
       objectReference: {fileID: 0}
     - target: {fileID: 968243829547990733, guid: 2e91802d12732c64c97b7414a92c62b4,
         type: 3}

@@ -71,6 +71,16 @@ public class HSelectorManager : Singleton<HSelectorManager>
         WaitingForReleaseAfterPlacingAP,
     }
 
+    private void Update()
+    {
+        // Processing long hovered object from update since the call that adds them to list is from different thread and couldn't manipulate UI
+        if (LongHoveredObjects.FirstOrDefault() is HInteractiveObject interactive)
+        {
+            LongHoveredObjects.Remove(interactive);
+            SelectedObject = interactive;
+        }
+    }
+
     public void renameClicked(bool removeOnCancel, UnityAction confirmCallback = null, bool keepObjectLocked = false)
     {
         //if (selectedObject is null)
@@ -416,6 +426,12 @@ public class HSelectorManager : Singleton<HSelectorManager>
             AddActionPointHandler.Instance.unregisterHandlers();
             EndedPlacingActionPoint?.Invoke(this, new EventArgs());
         }
+    }
+
+    private List<HInteractiveObject> LongHoveredObjects = new List<HInteractiveObject>();
+    internal void OnObjectLongHover(HInteractiveObject HInteractiveObject)
+    {
+        LongHoveredObjects.Add(HInteractiveObject);
     }
 
     #endregion

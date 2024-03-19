@@ -484,6 +484,7 @@ namespace Hololens
             }
 
             transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+            transform.GetComponent<StatefulInteractable>().RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectLongHover(this));
 
         }
 

@@ -59,7 +59,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             GameManagerH.Instance.HideLoadingScreen();
             UrdfManagerH.Instance.OnRobotUrdfModelLoaded -= OnRobotModelLoaded;
             MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
-            Destroy(imageTakingcameraGameObject);
         }
     }
 
@@ -111,31 +110,19 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
     {
         if (objectsModels.TryGetValue(args.Name, out GameObject selectButton))
         {
-            if(use3DModels)
-            {
-                args.RootGameObject.gameObject.transform.parent = selectButton.transform;
-                args.RootGameObject.gameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
-                FitModelToCube(args.RootGameObject.gameObject, 0.08f, selectButton);
+            args.RootGameObject.gameObject.transform.parent = selectButton.transform;
+            args.RootGameObject.gameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
+            FitModelToCube(args.RootGameObject.gameObject, 0.08f, selectButton);
 
-                // Fix model going black when making it small
-                Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
-                var renderers = args.RootGameObject.GetComponentsInChildren<Renderer>();
-                foreach (Renderer renderer in renderers)
-                {
-                    foreach (var material in renderer.materials)
-                    {
-                        material.shader = unlitColorShader;
-                    }
-                }
-            }
-            else
+            // Fix model going black when making it small
+            Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
+            var renderers = args.RootGameObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
             {
-                float moveDownOffstet = args.RootGameObject.gameObject.transform.localScale.y / 2;
-                moveDownOffstet = 0;
-                args.RootGameObject.gameObject.transform.position = new Vector3(1000, 1000 - moveDownOffstet, 1001);
-                args.RootGameObject.gameObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
-                SaveCameraViewAsPicture(args.Name);
-                Destroy(args.RootGameObject.gameObject);
+                foreach (var material in renderer.materials)
+                {
+                    material.shader = unlitColorShader;
+                }
             }
             loadedModels++;
         }
@@ -147,35 +134,21 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         {
             RobotModelH RobotModel = UrdfManagerH.Instance.GetRobotModelInstance(args.RobotType);
 
-            if (use3DModels)
-            {
-                RobotModel.RobotModelGameObject.transform.parent = selectButton.transform;
-                RobotModel.RobotModelGameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
-                RobotModel.RobotModelGameObject.gameObject.transform.localRotation = Quaternion.Euler(0, 90, 0);
-                RobotModel.SetActiveAllVisuals(true);
-                FitModelToCube(RobotModel.RobotModelGameObject.gameObject, 0.08f, selectButton);
+            RobotModel.RobotModelGameObject.transform.parent = selectButton.transform;
+            RobotModel.RobotModelGameObject.transform.localPosition = selectButton.transform.Find("Frontplate").transform.localPosition;
+            RobotModel.RobotModelGameObject.gameObject.transform.localRotation = Quaternion.Euler(0, 90, 0);
+            RobotModel.SetActiveAllVisuals(true);
+            FitModelToCube(RobotModel.RobotModelGameObject.gameObject, 0.08f, selectButton);
 
-                // Fix model going black when making small
-                Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
-                var renderers = RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>();
-                foreach (Renderer renderer in renderers)
-                {
-                    foreach (var material in renderer.materials)
-                    {
-                        material.shader = unlitColorShader;
-                    }
-                }
-            }
-            else
+            // Fix model going black when making small
+            Shader unlitColorShader = Shader.Find("Mixed Reality Toolkit/Standard");
+            var renderers = RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
             {
-                float moveDownOffstet = RobotModel.RobotModelGameObject.gameObject.transform.localScale.y / 2;
-                RobotModel.RobotModelGameObject.gameObject.transform.position = new Vector3(1000, 1000 - moveDownOffstet, 1001);
-                //RobotModel.RobotModelGameObject.gameObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
-                RobotModel.RobotModelGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 90, 0);
-                RobotModel.SetActiveAllVisuals(true);
-                SaveCameraViewAsPicture(args.RobotType);
-                loadedModels++;
-                Destroy(RobotModel.RobotModelGameObject);
+                foreach (var material in renderer.materials)
+                {
+                    material.shader = unlitColorShader;
+                }
             }
             loadedModels++;
         }
@@ -286,31 +259,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
             }
         }
     }
-
-    private void SaveCameraViewAsPicture(string pictureName)
-    {
-        RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
-        robotImageTakingCamera.targetTexture = renderTexture;
-
-        Texture2D screenShot = new Texture2D(robotImageWidth, robotImageHeight, TextureFormat.RGB24, false);
-        robotImageTakingCamera.Render();
-        
-        // Read pixels from the RenderTexture to the Texture2D
-        RenderTexture.active = renderTexture;
-        Rect captureRect = new Rect((Screen.width - robotImageWidth) / 2, (Screen.height - robotImageHeight) / 2, robotImageWidth, robotImageHeight);
-        screenShot.ReadPixels(captureRect, 0, 0);
-        robotImageTakingCamera.targetTexture = null;
-        RenderTexture.active = null;
-        Destroy(renderTexture);
-
-        // Convert the Texture2D to a byte array
-        var bytes = screenShot.EncodeToPNG();
-
-        System.IO.Directory.CreateDirectory($"{Application.dataPath}/RobotImages/");
-        File.WriteAllBytes($"{Application.dataPath}/RobotImages/{pictureName}.png", bytes);
-        Debug.Log("Robot image saved: " + $"{Application.dataPath}/RobotImages/{pictureName}.png");
-    }
-
 
     private void AddVirtualCollisionObjectResponseCallback(string objectType, string data)
     {

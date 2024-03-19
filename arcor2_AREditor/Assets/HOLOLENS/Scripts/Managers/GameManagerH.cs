@@ -739,7 +739,6 @@ public class GameManagerH : Singleton<GameManagerH>
     {
         SetGameState(GameStateEnum.MainScreen);
         SetEditorState(EditorStateEnum.Closed);
-        HideLoadingScreen();
     }
 
     /// <summary>
