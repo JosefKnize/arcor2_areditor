@@ -335,12 +335,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     private void FinishMakingConnection(HAction action)
     {
-        if (action is HStartAction)
-        {
-            // Maybe Notify
-            return;
-        }
-
         selectorState = SelectorState.Normal; // TODO maybe start making connection from this
         Output.GetOtherAction(action);
         AddActionPointHandler.Instance.unregisterHandlers();
@@ -373,7 +367,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
                         break;
                 }
             }
-            else if (selectorState == SelectorState.MakingConnection && newSelectedObject is HAction action)
+            else if (selectorState == SelectorState.MakingConnection && newSelectedObject is HAction action && action is not HStartAction)
             {
                 FinishMakingConnection(action);
             }

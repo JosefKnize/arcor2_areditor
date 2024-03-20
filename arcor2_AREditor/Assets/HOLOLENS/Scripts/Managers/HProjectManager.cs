@@ -172,9 +172,9 @@ public class HProjectManager : Base.Singleton<HProjectManager>
                 AnyAvailableAction = true;
                 break;
             }
-        StartAction = Instantiate(StartPrefab, SceneManagerH.Instance.SceneOrigin.transform).GetComponent<HStartAction>();
+        StartAction = Instantiate(StartPrefab, SceneManagerH.Instance.SceneOrigin.transform).GetComponentInChildren<HStartAction>();
         StartAction.Init(null, null, null, null, "START");
-        EndAction = Instantiate(EndPrefab, SceneManagerH.Instance.SceneOrigin.transform).GetComponent<HEndAction>();
+        EndAction = Instantiate(EndPrefab, SceneManagerH.Instance.SceneOrigin.transform).GetComponentInChildren<HEndAction>();
         EndAction.Init(null, null, null, null, "END");
 
         foreach (SceneObjectOverride objectOverrides in project.ObjectOverrides)
