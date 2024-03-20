@@ -581,7 +581,6 @@ public class SceneManagerH : Singleton<SceneManagerH>
         actionObject.SetVisibility(ActionObjectsVisibility);
         actionObject.ActionObjectUpdate(sceneObject);
 
-        //actionObject.RegisterTransformationEvents();
         return actionObject;
     }
 

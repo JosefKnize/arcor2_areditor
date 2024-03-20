@@ -78,7 +78,7 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
             HSelectorManager.Instance.OnRelease();
         }
 
-        if (!isPinching || (isPinching && pinchAmount > 0.1f))
+        if (!isPinching || (isPinching && pinchAmount > 0.25f))
         {
             return;
         }

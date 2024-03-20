@@ -197,6 +197,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     private void CreateActionPointAndPlaceActionUsingRobot(HRobotEE ee)
     {
+        selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
         HProjectManager.Instance.OnActionPointOrientation += FinishPlacingActionPoint;
         WebSocketManagerH.Instance.AddActionPointUsingRobot(HProjectManager.Instance.GetFreeAPName("global"), ee.EEId, ee.Robot.GetId(), false, (_, _) => { }, null);
     }
