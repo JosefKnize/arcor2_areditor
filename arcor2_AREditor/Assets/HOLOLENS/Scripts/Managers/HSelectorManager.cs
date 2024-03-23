@@ -81,16 +81,9 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-    public void renameClicked(bool removeOnCancel, UnityAction confirmCallback = null, bool keepObjectLocked = false)
+    internal void ConfigureClicked()
     {
-        //if (selectedObject is null)
-        //    return;
-
-        //if (removeOnCancel)
-        //    RenameDialog.Open(selectedObject, true, keepObjectLocked, () => selectedObject.Remove(), confirmCallback);
-        //else
-        //    RenameDialog.Open(selectedObject, false, keepObjectLocked, null, confirmCallback);
-        //// RenameDialog.Open();
+        ParameterConfigurationManager.Instance.ShowConfigurationWindow(selectedObject);
     }
 
     public async void DuplicateObjectClicked()
@@ -169,7 +162,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         HProjectManager.Instance.OnActionPointAddedToScene += AddDefaultOrientation;
         HProjectManager.Instance.OnActionPointOrientation += FinishPlacingActionPoint;
 
-        bool result = await HProjectManager.Instance.AddActionPoint(name, parent);
+        bool result = await HProjectManager.Instance.AddActionPoint(name, parent, position);
 
         if (!result)
         {
@@ -180,10 +173,10 @@ public class HSelectorManager : Singleton<HSelectorManager>
         parentOfPlacedActionPoint = null;
     }
 
-    private void FinishPlacingActionPoint(object sender, HololensActionPointOrientationEventArgs args)
+    private async void FinishPlacingActionPoint(object sender, HololensActionPointOrientationEventArgs args)
     {
-        CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
-        args.ActionPoint.WriteUnlock();
+        await CreateAction(placedActionId, placedActionProvider, args.ActionPoint);
+        await args.ActionPoint.WriteUnlock();
         HProjectManager.Instance.OnActionPointOrientation -= FinishPlacingActionPoint;
     }
 
@@ -202,7 +195,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         WebSocketManagerH.Instance.AddActionPointUsingRobot(HProjectManager.Instance.GetFreeAPName("global"), ee.EEId, ee.Robot.GetId(), false, (_, _) => { }, null);
     }
 
-    public async void CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)
+    public async Task CreateAction(string action_id, IActionProviderH actionProvider, HActionPoint actionPoint, string newName = null)
     {
         ActionMetadataH actionMetadata = actionProvider.GetActionMetadata(action_id);
         List<IO.Swagger.Model.ActionParameter> parameters = new List<IO.Swagger.Model.ActionParameter>();
@@ -293,7 +286,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
                             // there are no valid joints in the scene
                         }
                     }
-
                 }
                 break;
             case "string_enum":
@@ -395,7 +387,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         {
             if (interactive is HAction3D action)
             {
-                CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
+                await CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
                 selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
             }
             else if (interactive is HActionPoint3D actionPoint)

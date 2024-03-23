@@ -10,6 +10,7 @@ using RequestResult = Base.RequestResult;
 using System.Threading;
 using MixedReality.Toolkit;
 using Microsoft.MixedReality.GraphicsTools;
+using System.Linq;
 
 
 namespace Hololens
@@ -596,7 +597,6 @@ namespace Hololens
 
         public async void StartTransform(SelectEnterEventArgs arg0)
         {
-
             if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.SceneEditor && await WriteLock(true))
             {
                 initialPosition = transform.localPosition;
@@ -631,6 +631,25 @@ namespace Hololens
             {
                 objectManipulator.AllowedManipulations = TransformFlags.Move;
             }
+        }
+
+        internal async void UploadParametersAsync()
+        {
+            if (await WriteLock(true))
+            {
+                try
+                {
+                    List<IO.Swagger.Model.Parameter> SwaggerParameters = ObjectParameters.Values.Select(parameter => new IO.Swagger.Model.Parameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
+                    await WebSocketManagerH.Instance.UpdateObjectParameters(GetId(), SwaggerParameters, false);
+                }
+                catch (RequestFailedException e)
+                {
+                    Debug.Log("Failed to upload action parameter");
+                }
+
+                await WriteUnlock();
+            }
+            
         }
     }
 }

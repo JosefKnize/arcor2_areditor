@@ -862,34 +862,25 @@ public class HProjectManager : Base.Singleton<HProjectManager>
     /// <param name="name">Name of new action point</param>
     /// <param name="parent">Parent object (global AP if parent is null)</param>
     /// <returns></returns>
-    public async Task<bool> AddActionPoint(string name, IActionPointParentH parent)
+    public async Task<bool> AddActionPoint(string name, IActionPointParentH parent, Vector3 position)
     {
         try
         {
             Vector3 point;
-            Vector3 position_R;
             var aggregator = XRSubsystemHelpers.GetFirstRunningSubsystem<HandsAggregatorSubsystem>();
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
-            if (aggregator.TryGetJoint(TrackedHandJoint.IndexTip, XRNode.RightHand, out HandJointPose pose))
-            {
-                position_R = pose.Position;
-            }
-            else
-            {
-                position_R = ray.GetPoint(0.5f);
-            }
+           
             if (parent == null)
             {
-                point = TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(position_R));
+                point = TransformConvertor.UnityToROS(GameManagerH.Instance.Scene.transform.InverseTransformPoint(position));
             }
             else
             {
-                point = TransformConvertor.UnityToROS(parent.GetTransform().InverseTransformPoint(position_R));
+                point = TransformConvertor.UnityToROS(parent.GetTransform().InverseTransformPoint(position));
             }
-            Position position = DataHelper.Vector3ToPosition(point);
-            await WebSocketManagerH.Instance.AddActionPoint(name, parent == null ? "" : parent.GetId(), position);
 
-
+            Position ServerPosition = DataHelper.Vector3ToPosition(point);
+            await WebSocketManagerH.Instance.AddActionPoint(name, parent == null ? "" : parent.GetId(), ServerPosition);
             return true;
         }
         catch (RequestFailedException e)

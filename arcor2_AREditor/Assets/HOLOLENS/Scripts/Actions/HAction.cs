@@ -282,4 +282,22 @@ public abstract class HAction : HInteractiveObject
                 transform.Rotate(-90 * GameManagerH.Instance.Scene.transform.up);
             }
         }
+
+    internal async void UploadParametersAsync()
+    {
+        if(await WriteLock(true))
+        {
+            try
+            {
+                List<ActionParameter> SwaggerParameters = Parameters.Values.Select(parameter => new ActionParameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
+                await WebSocketManagerH.Instance.UpdateAction(GetId(), SwaggerParameters, GetFlows());
+            }
+            catch (RequestFailedException e)
+            {
+                Debug.Log("Failed to upload action parameter");
+            }
+
+            await WriteUnlock();
+        }
+    }
 }

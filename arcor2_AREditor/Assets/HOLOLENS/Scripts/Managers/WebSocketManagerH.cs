@@ -515,6 +515,19 @@ public class WebSocketManagerH : Singleton<WebSocketManagerH> {
 
     }
 
+    public async Task UpdateObjectParameters(string id, List<IO.Swagger.Model.Parameter> parameters, bool dryRun)
+    {
+        int r_id = Interlocked.Increment(ref requestID);
+        IO.Swagger.Model.UpdateObjectParametersRequestArgs args = new UpdateObjectParametersRequestArgs(id: id, parameters: parameters);
+        IO.Swagger.Model.UpdateObjectParametersRequest request = new IO.Swagger.Model.UpdateObjectParametersRequest(r_id, "UpdateObjectParameters", dryRun: dryRun, args: args);
+        SendDataToServer(request.ToJson(), r_id, true);
+        IO.Swagger.Model.UpdateObjectParametersResponse response = await WaitForResult<IO.Swagger.Model.UpdateObjectParametersResponse>(r_id);
+        if (response == null || !response.Result)
+        {
+            throw new RequestFailedException(response == null ? new List<string>() { "Failed to stop scene" } : response.Messages);
+        }
+    }
+
     /// <summary>
     /// Removes project parameter
     /// </summary>
@@ -1200,6 +1213,26 @@ public class WebSocketManagerH : Singleton<WebSocketManagerH> {
         IO.Swagger.Model.AddActionRequest request = new IO.Swagger.Model.AddActionRequest(r_id, "AddAction", args);
         SendDataToServer(request.ToJson(), r_id, true);
         IO.Swagger.Model.AddActionResponse response = await WaitForResult<IO.Swagger.Model.AddActionResponse>(r_id);
+
+        if (response == null || !response.Result)
+            throw new RequestFailedException(response == null ? "Request timed out" : response.Messages[0]);
+    }
+
+    /// <summary>
+    /// Asks server to update action parameters and flows.
+    /// Throws RequestFailedException when request failed
+    /// </summary>
+    /// <param name="actionId">UUID of action</param>
+    /// <param name="actionParameters">New values of action parameters</param>
+    /// <param name="flows">New values of logical flows</param>
+    /// <returns></returns>
+    public async Task UpdateAction(string actionId, List<IO.Swagger.Model.ActionParameter> actionParameters, List<Flow> flows)
+    {
+        int r_id = Interlocked.Increment(ref requestID);
+        IO.Swagger.Model.UpdateActionRequestArgs args = new IO.Swagger.Model.UpdateActionRequestArgs(actionId: actionId, parameters: actionParameters, flows: flows);
+        IO.Swagger.Model.UpdateActionRequest request = new IO.Swagger.Model.UpdateActionRequest(r_id, "UpdateAction", args);
+        SendDataToServer(request.ToJson(), r_id, true);
+        IO.Swagger.Model.UpdateActionResponse response = await WaitForResult<IO.Swagger.Model.UpdateActionResponse>(r_id);
 
         if (response == null || !response.Result)
             throw new RequestFailedException(response == null ? "Request timed out" : response.Messages[0]);

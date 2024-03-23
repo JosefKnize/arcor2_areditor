@@ -1,4 +1,5 @@
 using Base;
+using Hololens;
 using MixedReality.Toolkit;
 using System;
 using System.Collections;
@@ -12,12 +13,19 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
 
     public StatefulInteractable DeleteButton;
     public StatefulInteractable DuplicateButton;
+    public StatefulInteractable ConfigureButton;
     // TODO rename
 
     private void Start()
     {
         DeleteButton.OnClicked.AddListener(DeleteClicked);
         DuplicateButton.OnClicked.AddListener(DuplicateClicked);
+        ConfigureButton.OnClicked.AddListener(ConfigClicked);
+    }
+
+    private void ConfigClicked()
+    {
+        HSelectorManager.Instance.ConfigureClicked();
     }
 
     private void DuplicateClicked()
@@ -32,6 +40,8 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
 
     internal void Display(HInteractiveObject selectedObject)
     {
+        EnableButtonsBasedOnObject(selectedObject);
+
         NearObjectMenuGameObject.SetActive(true);
         UI3DHelper.PlaceOnClosestCollisionPointAtBottom(selectedObject, Camera.main.transform.position, NearObjectMenuGameObject.transform);
 
@@ -41,8 +51,25 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
         NearObjectMenuGameObject.transform.rotation = lookRotation;
 
         // move to camera
-        //NearObjectMenuGameObject.transform.localPosition -= new Vector3(0, 0, 0.2f);
         NearObjectMenuGameObject.transform.position -= new Vector3(0, 0.05f, 0);
+    }
+
+    private void EnableButtonsBasedOnObject(HInteractiveObject selectedObject)
+    {
+        switch (selectedObject)
+        {
+            case HAction3D:
+            case ActionObjectH:
+                DeleteButton.gameObject.SetActive(true);
+                DuplicateButton.gameObject.SetActive(true);
+                ConfigureButton.gameObject.SetActive(true);
+                break;
+            case HActionPoint3D:
+                DeleteButton.gameObject.SetActive(true);
+                DuplicateButton.gameObject.SetActive(true);
+                ConfigureButton.gameObject.SetActive(false);
+                break;
+        }
     }
 
     internal void Hide()
