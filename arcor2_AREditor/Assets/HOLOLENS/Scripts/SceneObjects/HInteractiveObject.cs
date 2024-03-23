@@ -187,5 +187,4 @@ public abstract class HInteractiveObject : MonoBehaviour
     }
 
     public abstract void EnableVisual(bool enable);
-
 }

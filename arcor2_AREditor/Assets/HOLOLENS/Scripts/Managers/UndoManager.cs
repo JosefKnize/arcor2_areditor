@@ -45,7 +45,7 @@ public class UndoManager : Singleton<UndoManager>
     {
         UndoActions.Add(record);
 
-        if (UndoActions.Count > 10)
+        if (UndoActions.Count > 50)
         {
             UndoActions.RemoveAt(0);
             RedoActions.Clear();
@@ -53,10 +53,79 @@ public class UndoManager : Singleton<UndoManager>
         UpdateButtonStates();
     }
 
+
+    #region ActionPoint specific
+
+    public void Undo(HActionPoint3D actionPoint)
+    {
+        var undoRecord = UndoActions.LastOrDefault(x => x is ActionPointUpdateUndoRecord apur && apur.ActionPoint == actionPoint);
+        if (undoRecord is not null)
+        {
+            ExecuteSpecificUndo(undoRecord);
+        }
+    }
+
+    public void Redo(HActionPoint3D actionPoint)
+    {
+        var undoRecord = RedoActions.LastOrDefault(x => x is ActionPointUpdateUndoRecord apur && apur.ActionPoint == actionPoint);
+        if (undoRecord is not null)
+        {
+            ExecuteSpecificRedo(undoRecord);
+        }
+    }
+
+    internal bool HasUndo(HActionPoint3D actionPoint) => UndoActions.Any(x => x is ActionPointUpdateUndoRecord apur && apur.ActionPoint == actionPoint);
+    internal bool HadRedo(HActionPoint3D actionPoint) => RedoActions.Any(x => x is ActionPointUpdateUndoRecord apur && apur.ActionPoint == actionPoint);
+
+    #endregion
+
+    #region ActionObject specific
+
+    public void Undo(ActionObjectH actionObject)
+    {
+        var undoRecord = UndoActions.LastOrDefault(x => x is ActionObjectUpdateUndoRecord aour && aour.ActionObject == actionObject);
+        if (undoRecord is not null)
+        {
+            ExecuteSpecificUndo(undoRecord);
+        }
+    }
+
+    public void Redo(ActionObjectH actionObject)
+    {
+        var undoRecord = RedoActions.LastOrDefault(x => x is ActionObjectUpdateUndoRecord aour && aour.ActionObject == actionObject);
+        if (undoRecord is not null)
+        {
+            ExecuteSpecificRedo(undoRecord);
+        }
+    }
+
+    internal bool HasUndo(ActionObjectH actionObject) => UndoActions.Any(x => x is ActionObjectUpdateUndoRecord aour && aour.ActionObject == actionObject);
+    internal bool HadRedo(ActionObjectH actionObject) => RedoActions.Any(x => x is ActionObjectUpdateUndoRecord aour && aour.ActionObject == actionObject);
+
+    #endregion
+
+    public void ExecuteSpecificUndo(UndoRecord undoRecord)
+    {
+        undoRecord.Undo();
+        UndoActions.Remove(undoRecord);
+        RedoActions.Add(undoRecord);
+        UpdateButtonStates();
+    }
+
+    public void ExecuteSpecificRedo(UndoRecord undoRecord)
+    {
+        undoRecord.Redo();
+        RedoActions.Remove(undoRecord);
+        UndoActions.Add(undoRecord);
+        UpdateButtonStates();
+    }
+
     public void UpdateButtonStates()
     {
         UndoInteractable.enabled = UndoActions.Count > 0;
         RedoInteractable.enabled = RedoActions.Count > 0;
+
+        NearObjectMenuManager.Instance.EnableButtonsBasedOnObject();
     }
 }
 
