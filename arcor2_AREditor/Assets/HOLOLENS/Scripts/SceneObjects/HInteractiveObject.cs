@@ -128,7 +128,7 @@ public abstract class HInteractiveObject : MonoBehaviour
             LockByMe();
             return true;
         } catch (RequestFailedException ex) {
-        //    Notifications.Instance.ShowNotification("Failed to lock " + GetName(), ex.Message);
+            await WriteUnlock();
             return false;
         }
     }
