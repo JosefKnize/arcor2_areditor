@@ -85,7 +85,10 @@ public class TransformGizmoHandler : MonoBehaviour
 
     public void HideLastGizmo()
     {
-        LastActivatedGizmo?.SetActive(false);
+        if(LastActivatedGizmo?.activeInHierarchy ?? false)
+        {
+            LastActivatedGizmo?.SetActive(false);
+        }
     }
 
     public void ShowGizmo()

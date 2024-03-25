@@ -391,12 +391,12 @@ public class HProjectManager : Base.Singleton<HProjectManager>
         }
         if (StartAction != null)
         {
-            Destroy(StartAction.gameObject);
+            Destroy(StartAction.gameObject.transform.parent.gameObject);
             StartAction = null;
         }
         if (EndAction != null)
         {
-            Destroy(EndAction.gameObject);
+            Destroy(EndAction.gameObject.transform.parent.gameObject);
             EndAction = null;
         }
         ActionPoints.Clear();

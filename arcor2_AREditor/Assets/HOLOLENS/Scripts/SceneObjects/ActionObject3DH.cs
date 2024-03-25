@@ -79,11 +79,6 @@ public class ActionObject3DH : ActionObjectH
             {
                 GlobalOriginalColors[materialName] = renderer.material.color;
                 color = renderer.material.color;
-                Debug.Log($"Remembering color {color} from material {renderer.material.name}");
-            }
-            else
-            {
-                Debug.Log($"Color {color} already remembered from {renderer.material}");
             }
 
             float h, s, v;

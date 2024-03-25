@@ -369,7 +369,7 @@ public class SceneManagerH : Singleton<SceneManagerH>
             PlayerPrefsHelper.SaveString(SceneMeta.Id + "/selectedEndEffectorId", SelectedEndEffector.EEId);
         }
 
-        OnRobotSelected(this, EventArgs.Empty);
+        OnRobotSelected?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

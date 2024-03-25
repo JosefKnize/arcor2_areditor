@@ -387,8 +387,8 @@ public class HSelectorManager : Singleton<HSelectorManager>
         {
             if (interactive is HAction3D action)
             {
-                await CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
                 selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
+                await CreateAction(placedActionId, placedActionProvider, action.ActionPoint);
             }
             else if (interactive is HActionPoint3D actionPoint)
             {

@@ -28,6 +28,8 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
         ConfigureButton.OnClicked.AddListener(ConfigClicked);
         UndoButton.OnClicked.AddListener(UndoClicked);
         RedoButton.OnClicked.AddListener(RedoClicked);
+
+        GameManagerH.Instance.OnGameStateChanged += (_, _) => { selectedObject = null; Hide(); };
     }
 
     private void Update()
