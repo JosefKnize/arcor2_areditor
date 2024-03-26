@@ -32,21 +32,15 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
         GameManagerH.Instance.OnGameStateChanged += (_, _) => { selectedObject = null; Hide(); };
     }
 
-    private void Update()
-    {
-        if (NearObjectMenuGameObject.activeSelf)
-        {
-            UI3DHelper.PlaceOnClosestCollisionPointAtBottom(selectedObject, Camera.main.transform.position, NearObjectMenuGameObject.transform);
-            NearObjectMenuGameObject.transform.position += NearObjectMenuGameObject.transform.forward * -0.06f;
-            NearObjectMenuGameObject.transform.position -= new Vector3(0, 0.06f, 0);
-        }
-    }
-
     internal void Display(HInteractiveObject selectedObject)
     {
         this.selectedObject = selectedObject;
         EnableButtonsBasedOnObject();
         NearObjectMenuGameObject.SetActive(true);
+
+        UI3DHelper.PlaceOnClosestCollisionPointAtBottom(selectedObject, Camera.main.transform.position, NearObjectMenuGameObject.transform);
+        NearObjectMenuGameObject.transform.position += NearObjectMenuGameObject.transform.forward * -0.06f;
+        NearObjectMenuGameObject.transform.position -= new Vector3(0, 0.06f, 0);
     }
 
     internal void Hide()

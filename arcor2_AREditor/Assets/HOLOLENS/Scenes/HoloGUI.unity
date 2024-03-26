@@ -17267,6 +17267,11 @@ PrefabInstance:
       propertyPath: maxViewDegrees
       value: 360
       objectReference: {fileID: 0}
+    - target: {fileID: 1765622893285320683, guid: f443144a6d408c34bb8a7d70a73644c4,
+        type: 3}
+      propertyPath: useFixedVerticalPosition
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2335485236933921044, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
       propertyPath: m_Name
