@@ -17,7 +17,6 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
     private GameObject refDobotM1;
     private GameObject refDobotMagician;
-    private GameObject refConveyorBelt;
 
     public GameObject TrackedCamera;
     public GameObject SceneOrigin;
@@ -56,7 +55,6 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
             // Add invisible robots in scene Vector3(Dopøedu/Dozadu, Nahoru/Dolu, Doleva/Doprava)
             refDobotM1 = CreateGhostRobot("DobotM1", new Vector3(-0.5445f, 0, 0.6665f), new Vector3(0, 90f, 0));
             refDobotMagician = CreateGhostRobot("DobotMagician", new Vector3(-0.38f, 0.141f, 0.03f), new Vector3(0, 90, 0));
-            refConveyorBelt = CreateGhostConveyorBelt("ConveyorBelt", new Vector3(-0.38f, 0, 0.47f), new Vector3(0, 90, 0));
  
             ghostRobotsCreated = true;
         }
@@ -81,8 +79,6 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
     private void OnModelLoaded(object sender, ImportedMeshEventArgsH args)
     {
-        args.RootGameObject.gameObject.transform.parent = refConveyorBelt.transform;
-
         args.RootGameObject.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
         args.RootGameObject.gameObject.transform.localPosition = new Vector3(0, 0, 0);
         MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
@@ -122,7 +118,6 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
         // Measure distance in robots
 
-        var conveyor_belt = GameObject.Find("conveyor_belt");
         var dobot_magician = GameObject.Find("dobot_magician");
         var dobot_m1 = GameObject.Find("dobot_m1");
 
@@ -134,12 +129,10 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         float DobotMagician_angleDifference = Mathf.Abs(dobot_magician.transform.localEulerAngles.y - refDobotMagician.transform.localEulerAngles.y);
         DobotMagician_angleDifference = (DobotMagician_angleDifference > 180f) ? 360f - DobotMagician_angleDifference : DobotMagician_angleDifference;
 
-        float ConveyorBelt_distance = Vector3.Distance(refConveyorBelt.transform.position, conveyor_belt.transform.position);
-        float ConveyorBelt_angleDifference = Mathf.Abs(conveyor_belt.transform.localEulerAngles.y - refConveyorBelt.transform.localEulerAngles.y);
-        ConveyorBelt_angleDifference = (ConveyorBelt_angleDifference > 180f) ? 360f - ConveyorBelt_angleDifference : ConveyorBelt_angleDifference;
 
-        float averageDistance = (DobotM1_distance + DobotMagician_distance + ConveyorBelt_distance) / 3;
-        float averageAngleDifference = (DobotM1_angleDifference + DobotMagician_angleDifference + ConveyorBelt_angleDifference) / 3;
+
+        float averageDistance = (DobotM1_distance + DobotMagician_distance) / 3;
+        float averageAngleDifference = (DobotM1_angleDifference + DobotMagician_angleDifference) / 3;
 
         string filePath = Path.Combine(Application.persistentDataPath, $"Experiment_{DateTime.Now.ToString("dd.MM_HH.mm")}.txt");
 
@@ -148,6 +141,6 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
             Directory.CreateDirectory(Application.persistentDataPath);
         }
 
-        File.WriteAllText(filePath, $"Time: {time}\nDistance: {totalDistance}\nRobot position error: {averageDistance}\nRobot rotation error: {averageAngleDifference}\nDobotM1: {dobot_m1.transform.localPosition}{dobot_m1.transform.localEulerAngles}\nConveyorBelt: {conveyor_belt.transform.localPosition}{conveyor_belt.transform.localEulerAngles}\nDobotMagician: {dobot_magician.transform.localPosition}{dobot_magician.transform.localEulerAngles}");
+        File.WriteAllText(filePath, $"Time: {time}\nDistance: {totalDistance}\nRobot position error: {averageDistance}\nRobot rotation error: {averageAngleDifference}\nDobotM1: {dobot_m1.transform.localPosition}{dobot_m1.transform.localEulerAngles}\nDobotMagician: {dobot_magician.transform.localPosition}{dobot_magician.transform.localEulerAngles}");
     }
 }
