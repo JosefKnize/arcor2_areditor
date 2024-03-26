@@ -156,8 +156,8 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
 
 
-        float averageDistance = (DobotM1_distance + DobotMagician_distance) / 3;
-        float averageAngleDifference = (DobotM1_angleDifference + DobotMagician_angleDifference) / 3;
+        float averageDistance = (DobotM1_distance + DobotMagician_distance) / 2;
+        float averageAngleDifference = (DobotM1_angleDifference + DobotMagician_angleDifference) / 2;
 
         string filePath = Path.Combine(Application.persistentDataPath, $"Experiment_{DateTime.Now.ToString("dd.MM_HH.mm")}.txt");
 
