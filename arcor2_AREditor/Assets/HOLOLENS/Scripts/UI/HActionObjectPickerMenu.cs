@@ -171,6 +171,11 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
         // create one button for each object type
         foreach (ActionObjectMetadataH actionObject in ActionsManagerH.Instance.ActionObjectsMetadata.Values.OrderBy(x => x.Type))
         {
+            if (actionObject.Type == "MillingMachine")
+            {
+                continue;
+            }
+
             if (actionObject.Abstract || actionObject.CollisionObject)
                 continue;
 
