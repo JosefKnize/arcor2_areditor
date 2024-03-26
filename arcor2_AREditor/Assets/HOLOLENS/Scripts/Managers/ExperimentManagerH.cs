@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.XR.ARSubsystems;
 
 public class ExperimentManager : Base.Singleton<ExperimentManager>
 {
@@ -27,6 +28,8 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     public bool DisplayModels { get; private set; } = false;
 
     private bool ghostRobotsCreated = false;
+    private StreamWriter cameraPositionLogger;
+    private float lastLogTime;
 
     // Start is called before the first frame update
     void Start()
@@ -41,7 +44,43 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
         {
             totalDistance += Vector3.Distance(TrackedCamera.transform.position, lastPosition);
             lastPosition = TrackedCamera.transform.position;
+
+            if (Time.time - lastLogTime >= 0.1f)
+            {
+                LogCameraData();
+                lastLogTime = Time.time; 
+            }
         }
+    }
+
+    private void LogCameraData()
+    {
+        Vector3 cameraPositionRelativeToReference = SceneOrigin.transform.InverseTransformPoint(TrackedCamera.transform.position);
+        Quaternion cameraRotationRelativeToReference = Quaternion.Inverse(SceneOrigin.transform.rotation) * TrackedCamera.transform.rotation;
+
+        string data = string.Format("{0:F3};{1:F3};{2:F3};{3:F3};{4:F3};{5:F3};{6:F3}",
+                                     cameraPositionRelativeToReference.x,
+                                     cameraPositionRelativeToReference.y,
+                                     cameraPositionRelativeToReference.z,
+                                     cameraRotationRelativeToReference.eulerAngles.x,
+                                     cameraRotationRelativeToReference.eulerAngles.y,
+                                     cameraRotationRelativeToReference.eulerAngles.z,
+                                     Time.time);
+        Debug.Log(data);
+        cameraPositionLogger.WriteLine(data);
+    }
+
+    private void StartLoggingCameraPosition()
+    {
+        var filePath = Path.Combine(Application.persistentDataPath, $"Experiment_CameraPath_{DateTime.Now.ToString("dd.MM_HH.mm")}.txt");
+        Debug.Log(filePath);
+        cameraPositionLogger = new StreamWriter(filePath, true);
+    }
+
+    private void StopLoggingCameraPosition()
+    {
+        cameraPositionLogger.Close();
+        cameraPositionLogger = null;
     }
 
     public void StartExperiment()
@@ -58,23 +97,8 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
  
             ghostRobotsCreated = true;
         }
-    }
 
-    GameObject CreateGhostConveyorBelt(string type, Vector3 scenePosition, Vector3 rotation)
-    {
-        var gameObject = new GameObject($"GhostRobot_ConveyorBelt");
-        gameObject.transform.parent = SceneOrigin.transform;
-        gameObject.transform.localEulerAngles = rotation;
-        gameObject.transform.localPosition = scenePosition;
-
-        if (DisplayModels)
-        {
-            MeshImporterH.Instance.OnMeshImported += OnModelLoaded;
-            var actionObject = ActionsManagerH.Instance.ActionObjectsMetadata.Values.First(x => x.Type == type);
-            MeshImporterH.Instance.LoadModel(actionObject.ObjectModel.Mesh, actionObject.Type);
-        }
-
-        return gameObject;
+        StartLoggingCameraPosition();
     }
 
     private void OnModelLoaded(object sender, ImportedMeshEventArgsH args)
@@ -114,6 +138,7 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
     public void StopExperiment()
     {
         Running = false;
+        StopLoggingCameraPosition();
         var time = DateTime.Now - startTime;
 
         // Measure distance in robots
