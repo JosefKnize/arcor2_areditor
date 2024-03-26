@@ -47,7 +47,7 @@ public class HGizmo : MonoBehaviour
         var renderers = axis.GetComponentsInChildren<Renderer>();
         foreach (var renderer in renderers.Take(2))
         {
-            renderer.material.color = renderer.material.color / 1.3f;
+            renderer.material.color = renderer.material.color / 1.8f;
         }
     }
 
@@ -56,7 +56,7 @@ public class HGizmo : MonoBehaviour
         var renderers = axis.GetComponentsInChildren<Renderer>();
         foreach (var renderer in renderers.Take(2))
         {
-            renderer.material.color = 1.3f * renderer.material.color;
+            renderer.material.color = 1.8f * renderer.material.color;
         }
     }
 

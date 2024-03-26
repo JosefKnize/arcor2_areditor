@@ -22098,7 +22098,7 @@ MonoBehaviour:
   maintainScaleOnInitialization: 1
   smoothing: 1
   lifetime: 0
-  referenceDirection: 0
+  referenceDirection: 1
   minDistance: 0
   maxDistance: 1000
   minViewDegrees: 0
