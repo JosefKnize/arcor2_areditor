@@ -7,7 +7,6 @@ using Hololens;
 using TMPro;
 using RosSharp.Urdf;
 using MixedReality.Toolkit;
-using System.Timers;
 
 
 public class ListScenes : Singleton<ListScenes>
@@ -530,58 +529,4 @@ public class ListScenes : Singleton<ListScenes>
         }
     }
 
-}
-
-public static class StatefulInteractableShortClickExtension
-{
-    private static Dictionary<StatefulInteractable, DateTime> clickStartedDictionary = new();
-    public static void RegisterOnShortClick(this StatefulInteractable interactable, System.Action callback)
-    {
-        interactable.firstSelectEntered.AddListener((args) =>
-        {
-            clickStartedDictionary[interactable] = DateTime.Now;
-        });
-
-        interactable.lastSelectExited.AddListener((args) =>
-        {
-            var difference = DateTime.Now - clickStartedDictionary[interactable];
-            if (difference.TotalMilliseconds < 300)
-            {
-                callback();
-            }
-            else
-            {
-                Debug.Log("Ignored long click");
-            }
-        });
-    }
-}
-
-public static class StatefulInteractableLongHoverExtension
-{
-    private static Dictionary<StatefulInteractable, Timer> HoverStartedDictionary = new();
-    public static void RegisterOnLongHover(this StatefulInteractable interactable, System.Action callback)
-    {
-        interactable.firstHoverEntered.AddListener((arg) =>
-        {
-            var timer = new Timer(1200);
-            timer.Elapsed += (sender, e) => TimerElapsed(interactable, callback);
-            timer.AutoReset = false;
-            timer.Enabled = true;
-            HoverStartedDictionary[interactable] = timer;
-            
-        });
-
-        interactable.lastHoverExited.AddListener((arg) =>
-        {
-            var timer = HoverStartedDictionary[interactable];
-            HoverStartedDictionary.Remove(interactable);
-            timer.Dispose();
-        });
-    }
-
-    private static void TimerElapsed(StatefulInteractable interactable, System.Action callback)
-    {
-        callback.Invoke();
-    }
 }

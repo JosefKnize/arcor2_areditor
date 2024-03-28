@@ -447,7 +447,6 @@ namespace Hololens
 
             var om = gameObject.AddComponent(typeof(ObjectManipulator)) as ObjectManipulator;
             om.AllowedManipulations = TransformFlags.None;
-
             om.firstHoverEntered.AddListener(HoverEntered);
             om.lastHoverExited.AddListener(HoverExited);
 
@@ -484,8 +483,8 @@ namespace Hololens
                 transform.GetComponent<StatefulInteractable>().customReticle = AddActionReticle;
             }
 
-            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
-            transform.GetComponent<StatefulInteractable>().RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectLongHover(this));
+            transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnObjectInteraction(this));
+            transform.GetComponent<StatefulInteractable>().RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectSelected(this));
 
         }
 
@@ -517,8 +516,6 @@ namespace Hololens
             objectManipulator.firstSelectEntered.AddListener((_) => transform.GetComponent<TransformGizmoHandler>()?.HideLastGizmo());
 
             // Register start and stop transforms which will handle locks and calls to servers
-            //boundsControl.ManipulationStarted.AddListener(StartTransform);
-            //boundsControl.ManipulationEnded.AddListener(EndTransform);
             foreach (var gizmoInteractable in transform.GetComponentsInChildren<StatefulInteractable>(true))
             {
                 gizmoInteractable.firstSelectEntered.AddListener(StartTransform);

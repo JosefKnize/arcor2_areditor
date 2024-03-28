@@ -40,7 +40,7 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
 
         UI3DHelper.PlaceOnClosestCollisionPointAtBottom(selectedObject, Camera.main.transform.position, NearObjectMenuGameObject.transform);
         NearObjectMenuGameObject.transform.position += NearObjectMenuGameObject.transform.forward * -0.06f;
-        NearObjectMenuGameObject.transform.position -= new Vector3(0, 0.06f, 0);
+        NearObjectMenuGameObject.transform.position -= new Vector3(0, 0.1f, 0);
     }
 
     internal void Hide()
@@ -63,7 +63,8 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
                 DeleteButton.gameObject.SetActive(true);
                 DuplicateButton.gameObject.SetActive(true);
                 ConfigureButton.gameObject.SetActive(true);
-                
+                UndoButton.gameObject.SetActive(false);
+                RedoButton.gameObject.SetActive(false);
                 break;
             case HActionPoint3D actionPoint:
                 DeleteButton.gameObject.SetActive(true);

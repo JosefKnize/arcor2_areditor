@@ -30,8 +30,9 @@ public class HAction3D : HAction
 
     public override void Init(IO.Swagger.Model.Action projectAction, ActionMetadataH metadata,HActionPoint ap, IActionProviderH actionProvider) {
         base.Init(projectAction, metadata, ap, actionProvider);
-        transform.GetComponent<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
-        transform.GetComponent<StatefulInteractable>().RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectLongHover(this));
+        transform.GetComponent<StatefulInteractable>().RegisterOnShortClick(() => HSelectorManager.Instance.OnObjectInteraction(this, false));
+        //transform.GetComponent<StatefulInteractable>().RegisterOnLongSelect(() => HSelectorManager.Instance.OnObjectSelected(this));
+        transform.GetComponent<StatefulInteractable>().RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectSelected(this));
     }
 
     protected override void Start() {

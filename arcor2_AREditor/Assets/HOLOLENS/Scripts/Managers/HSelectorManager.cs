@@ -71,16 +71,6 @@ public class HSelectorManager : Singleton<HSelectorManager>
         WaitingForReleaseAfterPlacingAP,
     }
 
-    private void Update()
-    {
-        // Processing long hovered object from update since the call that adds them to list is from different thread and couldn't manipulate UI
-        if (LongHoveredObjects.FirstOrDefault() is HInteractiveObject interactive)
-        {
-            LongHoveredObjects.Remove(interactive);
-            SelectedObject = interactive;
-        }
-    }
-
     internal void ConfigureClicked()
     {
         ParameterConfigurationManager.Instance.ShowConfigurationWindow(selectedObject);
@@ -342,14 +332,18 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     #region Selection inputs
 
-    public void OnSelectObject(HInteractiveObject newSelectedObject)
+    public void OnObjectInteraction(HInteractiveObject interactedObject, bool selectObject = true)
     {
-        SelectedObject = newSelectedObject;
+        if (selectObject)
+        {
+            SelectedObject = interactedObject;
+        }
+
         if (GameManagerH.Instance.GetGameState() == GameManagerH.GameStateEnum.ProjectEditor)
         {
             if (selectorState == SelectorState.Normal)
             {
-                switch (newSelectedObject)
+                switch (interactedObject)
                 {
                     case ActionObjectH actionObjectH:
                         DisplayActionPickerMenu(actionObjectH);
@@ -359,7 +353,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
                         break;
                 }
             }
-            else if (selectorState == SelectorState.MakingConnection && newSelectedObject is HAction action && action is not HStartAction)
+            else if (selectorState == SelectorState.MakingConnection && interactedObject is HAction action && action is not HStartAction)
             {
                 FinishMakingConnection(action);
             }
@@ -415,10 +409,9 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-    private List<HInteractiveObject> LongHoveredObjects = new List<HInteractiveObject>();
-    internal void OnObjectLongHover(HInteractiveObject HInteractiveObject)
+    internal void OnObjectSelected(HInteractiveObject newSelectedObject)
     {
-        LongHoveredObjects.Add(HInteractiveObject);
+        SelectedObject = newSelectedObject;
     }
 
     #endregion

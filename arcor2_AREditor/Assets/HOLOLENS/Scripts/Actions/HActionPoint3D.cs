@@ -281,8 +281,8 @@ public class HActionPoint3D : HActionPoint
     {
         var objectManipulator = transform.GetComponent<ObjectManipulator>();
 
-        objectManipulator.OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
-        objectManipulator.RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectLongHover(this));
+        objectManipulator.OnClicked.AddListener(() => HSelectorManager.Instance.OnObjectInteraction(this));
+        objectManipulator.RegisterOnLongHover(() => HSelectorManager.Instance.OnObjectSelected(this));
 
 
         // Send new position to server after ending manipulation

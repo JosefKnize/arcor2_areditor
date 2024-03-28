@@ -23,7 +23,7 @@ public abstract class HStartEndAction : HAction
     public virtual void Init(IO.Swagger.Model.Action projectAction, ActionMetadataH metadata, HActionPoint ap, IActionProviderH actionProvider, string actionType) {
         base.Init(projectAction, metadata, ap, actionProvider);
 
-        transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnSelectObject(this));
+        transform.GetComponentInChildren<StatefulInteractable>().OnClicked.AddListener(() => HSelectorManager.Instance.OnObjectInteraction(this));
 
 
         if (!HProjectManager.Instance.ProjectMeta.HasLogic) {
