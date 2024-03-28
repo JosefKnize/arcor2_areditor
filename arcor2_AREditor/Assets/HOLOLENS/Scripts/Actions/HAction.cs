@@ -210,6 +210,7 @@ public abstract class HAction : HInteractiveObject
                 HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
             } catch (RequestFailedException ex) {
                 Debug.LogError(ex);
+                HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
                 HNotificationManager.Instance.ShowNotification("Failed to add connection");
             }
         }
