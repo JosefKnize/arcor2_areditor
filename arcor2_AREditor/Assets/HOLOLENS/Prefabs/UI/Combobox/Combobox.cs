@@ -36,15 +36,6 @@ public class ComboBox : MonoBehaviour
     {
         var statefulInteractable = transform.GetComponent<StatefulInteractable>();
         statefulInteractable.OnClicked.AddListener(ComboboxClicked);
-
-        List<string> a = new List<string>()
-        {
-            "Ahoj",
-            "Èau",
-            "Hi",
-        };
-
-        Items = a.Cast<object>().ToList();
     }
 
     void Update()
