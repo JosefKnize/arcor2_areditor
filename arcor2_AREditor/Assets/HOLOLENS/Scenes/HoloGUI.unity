@@ -22475,7 +22475,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
+  m_VertexColorAlwaysGammaSpace: 1
   m_AdditionalShaderChannelsFlag: 31
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -24165,7 +24165,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3464395001503918207}
-  - component: {fileID: 6930810733460482735}
   - component: {fileID: 6930810733460482737}
   - component: {fileID: 6930810733460482736}
   m_Layer: 5
@@ -24175,18 +24174,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &6930810733460482735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6930810733460482734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4bb728f8fecb17409c8663ca0bad7ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6930810733460482736
 MonoBehaviour:
   m_ObjectHideFlags: 0
