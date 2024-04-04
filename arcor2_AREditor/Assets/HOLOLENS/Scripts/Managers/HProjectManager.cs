@@ -524,6 +524,7 @@ public class HProjectManager : Base.Singleton<HProjectManager>
         // Call function in corresponding action that will delete it and properly remove all references and connections.
         // We don't want to update project, because we are calling this method only upon received update from server.
         ActionPoints[apIdToRemove].Actions[Id].DeleteAction();
+        aToRemove.ActionPoint.UpdatePositionsOfPucks();
     }
 
 

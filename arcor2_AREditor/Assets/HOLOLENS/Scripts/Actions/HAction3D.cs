@@ -123,6 +123,11 @@ public class HAction3D : HAction
         }
     }
 
+    public async Task RemoveAwaitable()
+    {
+        await Task.Run(() => Remove());
+    }
+
     public async override void Remove() {
         try {
             await this.Input.RemoveAllLogicItemsAsync();

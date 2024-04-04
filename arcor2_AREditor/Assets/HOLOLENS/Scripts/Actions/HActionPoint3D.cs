@@ -106,7 +106,6 @@ public class HActionPoint3D : HActionPoint
                 action.transform.localPosition = new Vector3(0, 0, 0);
                 action.transform.localScale = new Vector3(0, 0, 0);
             }
-
         }
         else
         {
@@ -232,6 +231,12 @@ public class HActionPoint3D : HActionPoint
     {
         try
         {
+            List<Task> removalTasks = new List<Task>();
+            foreach (HAction3D action in Actions.Values)
+            {
+                removalTasks.Add(action.RemoveAwaitable());
+            }
+            await Task.WhenAll(removalTasks);
             await WebSocketManagerH.Instance.RemoveActionPoint(GetId(), false);
         }
         catch (RequestFailedException ex)
@@ -294,7 +299,6 @@ public class HActionPoint3D : HActionPoint
 
     public async void EndTransform(SelectExitEventArgs arg0)
     {
-        Debug.Log("End AP transform");
         if (IsLockedByMe)
         {
             await UploadNewPositionAsync();
@@ -321,7 +325,6 @@ public class HActionPoint3D : HActionPoint
 
     public async void StartTransform(SelectEnterEventArgs arg0)
     {
-        Debug.Log("Start AP transform");
         var objectManipulator = transform.GetComponent<ObjectManipulator>();
         initialPosition = transform.localPosition;
 
@@ -332,7 +335,6 @@ public class HActionPoint3D : HActionPoint
         }
         else
         {
-            Debug.Log("Cant move object because it's locked");
             objectManipulator.AllowedManipulations = TransformFlags.None;
             // TODO probably notify user MAYBE just sound
         }
