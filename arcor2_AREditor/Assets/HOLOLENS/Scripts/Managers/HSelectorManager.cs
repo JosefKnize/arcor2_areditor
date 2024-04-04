@@ -111,6 +111,9 @@ public class HSelectorManager : Singleton<HSelectorManager>
     public void OpenRemoveObjectDialog()
     {
         var dialog = ConfirmDialog.GetComponent<HConfirmDialog>();
+        ConfirmDialog.transform.position = NearObjectMenuManager.Instance.NearObjectMenuGameObject.transform.position;
+        ConfirmDialog.transform.position = ConfirmDialog.transform.position - Camera.main.transform.forward * 0.05f;
+
         dialog.Open($"Remove {SelectedObject.GetObjectTypeName().ToLower()}",
                     $"Do you want to remove {SelectedObject.GetName()}",
                     () => RemoveSelectedObject(),
