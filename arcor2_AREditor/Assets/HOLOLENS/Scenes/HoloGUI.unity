@@ -9692,6 +9692,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9068894983387194500, guid: cca6164bb2744884a92a100266f5f3aa,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.2
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4665157281537287932, guid: cca6164bb2744884a92a100266f5f3aa, type: 3}
     m_RemovedGameObjects:
@@ -17108,7 +17113,7 @@ PrefabInstance:
     - target: {fileID: 24573922451562723, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
       propertyPath: m_Size.x
-      value: 272
+      value: 164
       objectReference: {fileID: 0}
     - target: {fileID: 24573922451562723, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
@@ -17298,7 +17303,7 @@ PrefabInstance:
     - target: {fileID: 3450833885017814221, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 274
+      value: 166
       objectReference: {fileID: 0}
     - target: {fileID: 3450833885017814221, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
@@ -17583,7 +17588,7 @@ PrefabInstance:
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 274
+      value: 166
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
@@ -17593,7 +17598,7 @@ PrefabInstance:
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 137
+      value: 83
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4,
         type: 3}
@@ -25247,7 +25252,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5628623142102339694}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
