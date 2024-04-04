@@ -7,6 +7,7 @@ using Base;
 using MixedReality.Toolkit;
 using TMPro;
 using System;
+using UnityEngine.InputSystem.HID;
 
 public class HActionPickerMenu : Singleton<HActionPickerMenu>
 {
@@ -34,14 +35,23 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu>
 
     public void ShowMenu(ActionObjectH parent)
     {
-        // Adjust position
         var collider = parent.InteractionObjectCollider.GetComponent<Collider>();
-        parent.InteractionObjectCollider.SetActive(true);
-        var closestPoint = collider.ClosestPoint(Camera.main.transform.position);
-        parent.InteractionObjectCollider.SetActive(false);
 
-        ActionPickerMenu.transform.position = closestPoint;
+        parent.InteractionObjectCollider.SetActive(true);
+
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        if (collider.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+        {
+            ActionPickerMenu.transform.position = hit.point;
+        }
+        else
+        {
+            var closestPoint = collider.ClosestPoint(Camera.main.transform.position - new Vector3(0, 0, 0.3f));
+            ActionPickerMenu.transform.position = closestPoint;
+        }
+
         ActionPickerMenu.SetActive(true);
+        parent.InteractionObjectCollider.SetActive(false);
     }
 
     public void CloseMenu()
