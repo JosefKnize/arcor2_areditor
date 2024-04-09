@@ -197,25 +197,22 @@ public abstract class HAction : HInteractiveObject
     
         }
 
-       public async virtual void GetOtherAction(HAction input) {
-
+    public async virtual void GetOtherAction(HAction input) 
+    {
         if (await HConnectionManagerArcoro.Instance.ValidateConnection(Output, input.Input, GetProjectLogicIf())) {
             if (input == null) {
-                HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
                 return;
             }
             try {
                 await WebSocketManagerH.Instance.AddLogicItem(GetId(), input.GetId(), GetProjectLogicIf(), false);
                 Output.ifValue = null;
-                HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
             } catch (RequestFailedException ex) {
                 Debug.LogError(ex);
-                HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
                 HNotificationManager.Instance.ShowNotification("Failed to add connection");
             }
         }
-
-        }
+        HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
+    }
 
     
         private IO.Swagger.Model.ProjectLogicIf GetProjectLogicIf() {
@@ -245,9 +242,9 @@ public abstract class HAction : HInteractiveObject
                  //   GameManagerH.Instance.ShowLoadingScreen("Removing old connection...");
                     await WebSocketManagerH.Instance.RemoveLogicItem(logicItem.Data.Id);
                   //  GameManagerH.Instance.HideLoadingScreen();
-                    if (!await otherAction.WriteLock(false)) {
-                        return;
-                    }
+                    //if (!await otherAction.WriteLock(false)) {
+                    //    return;
+                    //}
                     //ConnectionManagerArcoro.Instance.CreateConnectionToPointer(otherAction.Input.gameObject);
                     AddConnection();
                     

@@ -320,7 +320,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
     private void FinishMakingConnection(HAction action)
     {
-        selectorState = SelectorState.Normal; // TODO maybe start making connection from this
+        selectorState = SelectorState.Normal;
         Output.GetOtherAction(action);
         AddActionPointHandler.Instance.unregisterHandlers();
     }
