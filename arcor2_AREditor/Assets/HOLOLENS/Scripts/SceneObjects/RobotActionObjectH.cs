@@ -9,13 +9,13 @@ using UnityEngine;
 using Base;
 using RequestResult = Base.RequestResult;
 using Unity.XR.CoreUtils;
+using MixedReality.Toolkit;
 
 namespace Hololens
 {
 
     public class RobotActionObjectH : ActionObjectH, HIRobot
     {
-        public GameObject InteractObject;
         public TextMeshPro ActionObjectName;
         public GameObject RobotPlaceholderPrefab;
         public GameObject LockIcon;
@@ -250,23 +250,40 @@ namespace Hololens
 
         private async void RobotModelLoaded()
         {
-            RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            RobotModel.RobotModelGameObject.transform.parent = Visual.transform;
-            RobotModel.RobotModelGameObject.transform.localPosition = Vector3.zero;
-            RobotModel.RobotModelGameObject.transform.localRotation = Quaternion.identity;
-
-            RobotModel.SetActiveAllVisuals(true);
             RobotPlaceholder.SetActive(false);
-
             Destroy(RobotPlaceholder);
+            RobotModel.SetActiveAllVisuals(true);
 
             robotColliders.Clear();
             robotRenderers.Clear();
             robotRenderers.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Renderer>(true));
             robotColliders.AddRange(RobotModel.RobotModelGameObject.GetComponentsInChildren<Collider>(true));
 
+            // HACK: Collision cube must be calculated after rescaling model, but before applying rotation
+            // Also it must be child element when rotation is applied to model
+            InteractionObjectCollider.transform.parent = RobotModel.RobotModelGameObject.transform;
+            RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            RobotModel.RobotModelGameObject.transform.parent = Visual.transform;
+            RobotModel.RobotModelGameObject.transform.localPosition = Vector3.zero;
+            CalculateTotalBoundingBox();
+            RobotModel.RobotModelGameObject.transform.localRotation = Quaternion.identity;
+            InteractionObjectCollider.transform.parent = Visual.transform;
 
 
+            SetupManipulationComponents();
+
+            SetOutlineSizeBasedOnScale();
+
+            UpdateColor();
+
+            SetDefaultJoints();
+
+            if (GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.PackageRunning || GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.LoadingPackage)
+                await WebSocketManagerH.Instance.RegisterForRobotEvent(GetId(), true, RegisterForRobotEventRequestArgs.WhatEnum.Joints);
+        }
+
+        private void CalculateTotalBoundingBox()
+        {
             if (robotRenderers.Count > 0)
             {
                 Bounds totalBounds = new Bounds();
@@ -278,7 +295,6 @@ namespace Hololens
                     totalBounds.Encapsulate(renderer.bounds);
                 }
 
-                //Vector3 rotatedSize = InteractionObjectCollider.transform.rotation * totalBounds.size;
                 var rotatedSize = transform.InverseTransformVector(totalBounds.size);
                 rotatedSize = rotatedSize.Abs();
 
@@ -286,18 +302,6 @@ namespace Hololens
                 InteractionObjectCollider.transform.position = totalBounds.center;
                 InteractionObjectCollider.transform.localRotation = Quaternion.identity;
             }
-
-            SetupManipulationComponents();
-
-            SetOutlineSizeBasedOnScale();
-
-            //SetVisibility(0.7f, forceShaderChange: true);
-            UpdateColor();
-
-            SetDefaultJoints();
-
-            if (GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.PackageRunning || GameManagerH.Instance.GetGameState() != GameManagerH.GameStateEnum.LoadingPackage)
-                await WebSocketManagerH.Instance.RegisterForRobotEvent(GetId(), true, RegisterForRobotEventRequestArgs.WhatEnum.Joints);
         }
 
         private void SetOutlineSizeBasedOnScale()
@@ -821,10 +825,7 @@ namespace Hololens
             if (RobotModel != null)
             {
                 RobotModel.RobotModelGameObject.SetActive(enable);
-                //   interactObject.SetActive(enable);
-
             }
-            //   RobotModel.RobotModelGameObject.SetActive(enable);
         }
 
         string HIRobot.LockOwner()

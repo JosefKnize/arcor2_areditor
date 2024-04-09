@@ -239,13 +239,11 @@ public abstract class HAction : HInteractiveObject
                         otherAction = HProjectManager.Instance.GetAction(logicItem.Data.End);
                     else
                         otherAction = HProjectManager.Instance.GetAction(logicItem.Data.Start);
-                 //   GameManagerH.Instance.ShowLoadingScreen("Removing old connection...");
                     await WebSocketManagerH.Instance.RemoveLogicItem(logicItem.Data.Id);
-                  //  GameManagerH.Instance.HideLoadingScreen();
+                    // There was a bug where actions stayed locked after this. And you dont need to lock action in order to make connections
                     //if (!await otherAction.WriteLock(false)) {
                     //    return;
                     //}
-                    //ConnectionManagerArcoro.Instance.CreateConnectionToPointer(otherAction.Input.gameObject);
                     AddConnection();
                     
                 } catch (RequestFailedException ex) {
