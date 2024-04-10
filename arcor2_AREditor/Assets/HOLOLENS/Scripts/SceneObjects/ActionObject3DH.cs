@@ -258,10 +258,11 @@ public class ActionObject3DH : ActionObjectH
 
         // HACK: Collision cube must be calculated after rescaling model, but before applying rotation
         // Also it must be child element when rotation is applied to model
-        InteractionObjectCollider.transform.parent = Model.transform;
-        Model.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
         Model.gameObject.transform.parent = Visual.transform;
+        Model.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
         Model.gameObject.transform.localPosition = Vector3.zero;
+
+        InteractionObjectCollider.transform.parent = Model.transform;
         CalculateTotalBoundingBox();
         Model.gameObject.transform.localRotation = Quaternion.identity;
         InteractionObjectCollider.transform.parent = Visual.transform;
@@ -286,9 +287,7 @@ public class ActionObject3DH : ActionObjectH
                 totalBounds.Encapsulate(renderer.bounds);
             }
 
-            var rotatedSize = transform.InverseTransformVector(totalBounds.size);
-            rotatedSize = rotatedSize.Abs();
-            InteractionObjectCollider.transform.localScale = rotatedSize;
+            InteractionObjectCollider.transform.localScale = totalBounds.size;
             InteractionObjectCollider.transform.position = totalBounds.center;
             InteractionObjectCollider.transform.localRotation = Quaternion.identity;
         }

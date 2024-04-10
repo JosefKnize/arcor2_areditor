@@ -261,14 +261,14 @@ namespace Hololens
 
             // HACK: Collision cube must be calculated after rescaling model, but before applying rotation
             // Also it must be child element when rotation is applied to model
-            InteractionObjectCollider.transform.parent = RobotModel.RobotModelGameObject.transform;
-            RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
             RobotModel.RobotModelGameObject.transform.parent = Visual.transform;
+            RobotModel.RobotModelGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
             RobotModel.RobotModelGameObject.transform.localPosition = Vector3.zero;
+
+            InteractionObjectCollider.transform.parent = RobotModel.RobotModelGameObject.transform;
             CalculateTotalBoundingBox();
             RobotModel.RobotModelGameObject.transform.localRotation = Quaternion.identity;
             InteractionObjectCollider.transform.parent = Visual.transform;
-
 
             SetupManipulationComponents();
 
@@ -295,9 +295,7 @@ namespace Hololens
                     totalBounds.Encapsulate(renderer.bounds);
                 }
 
-                var rotatedSize = transform.InverseTransformVector(totalBounds.size);
-                rotatedSize = rotatedSize.Abs();
-                InteractionObjectCollider.transform.localScale = rotatedSize;
+                InteractionObjectCollider.transform.localScale = totalBounds.size;
                 InteractionObjectCollider.transform.position = totalBounds.center;
                 InteractionObjectCollider.transform.localRotation = Quaternion.identity;
             }
