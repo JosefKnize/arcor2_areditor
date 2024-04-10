@@ -297,7 +297,6 @@ namespace Hololens
 
                 var rotatedSize = transform.InverseTransformVector(totalBounds.size);
                 rotatedSize = rotatedSize.Abs();
-
                 InteractionObjectCollider.transform.localScale = rotatedSize;
                 InteractionObjectCollider.transform.position = totalBounds.center;
                 InteractionObjectCollider.transform.localRotation = Quaternion.identity;

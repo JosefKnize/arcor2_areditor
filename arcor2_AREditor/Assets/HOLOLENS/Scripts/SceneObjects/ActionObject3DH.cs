@@ -244,11 +244,6 @@ public class ActionObject3DH : ActionObjectH
         }
 
         Model = args.RootGameObject;
-        Model.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-        Model.gameObject.transform.parent = Visual.transform;
-        Model.gameObject.transform.localPosition = Vector3.zero;
-        Model.gameObject.transform.localRotation = Quaternion.identity;
-
         gameObject.GetComponent<BindParentToChildH>().ChildToBind = Model;
 
         foreach (Renderer child in Model.GetComponentsInChildren<Renderer>(true))
@@ -261,6 +256,25 @@ public class ActionObject3DH : ActionObjectH
         aoRenderers.AddRange(Model.GetComponentsInChildren<Renderer>(true));
         Colliders.AddRange(Model.GetComponentsInChildren<MeshCollider>(true));
 
+        // HACK: Collision cube must be calculated after rescaling model, but before applying rotation
+        // Also it must be child element when rotation is applied to model
+        InteractionObjectCollider.transform.parent = Model.transform;
+        Model.gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
+        Model.gameObject.transform.parent = Visual.transform;
+        Model.gameObject.transform.localPosition = Vector3.zero;
+        CalculateTotalBoundingBox();
+        Model.gameObject.transform.localRotation = Quaternion.identity;
+        InteractionObjectCollider.transform.parent = Visual.transform;
+
+        SetupManipulationComponents();
+
+        SetVisibility(visibility, forceShaderChange: true);
+
+        MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
+    }
+
+    private void CalculateTotalBoundingBox()
+    {
         if (aoRenderers.Count > 0)
         {
             Bounds totalBounds = new Bounds();
@@ -274,17 +288,10 @@ public class ActionObject3DH : ActionObjectH
 
             var rotatedSize = transform.InverseTransformVector(totalBounds.size);
             rotatedSize = rotatedSize.Abs();
-
             InteractionObjectCollider.transform.localScale = rotatedSize;
             InteractionObjectCollider.transform.position = totalBounds.center;
             InteractionObjectCollider.transform.localRotation = Quaternion.identity;
         }
-
-        SetupManipulationComponents();
-
-        SetVisibility(visibility, forceShaderChange: true);
-
-        MeshImporterH.Instance.OnMeshImported -= OnModelLoaded;
     }
 
 
