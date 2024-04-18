@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using MixedReality.Toolkit.Input;
 using System;
 
-public class AddActionPointHandler : Singleton<AddActionPointHandler>
+public class HandInteractionHandler : Singleton<HandInteractionHandler>
 {
     public bool WaitingForReleaseLeft;
     public bool WaitingForReleaseRight;
@@ -91,11 +91,11 @@ public class AddActionPointHandler : Singleton<AddActionPointHandler>
 
         if (validTargets.Count > 0 && validTargets[0].transform.GetComponent<HInteractiveObject>() is HInteractiveObject interactive)
         {
-            await HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
+            await HSelectorManager.Instance.OnObjectInteractionFromActionPointsHandler(GhostActionPoint.transform.position, interactive);
         }
         else if (validTargets.Count > 0 && validTargets[0].transform.parent.GetComponent<HInteractiveObject>() is HInteractiveObject interactiveParent)
         {
-            await HSelectorManager.Instance.OnSelectObjectFromActionPointsHandler(GhostActionPoint.transform.position, interactiveParent);
+            await HSelectorManager.Instance.OnObjectInteractionFromActionPointsHandler(GhostActionPoint.transform.position, interactiveParent);
         }
         else if (validTargets.Count > 0 && validTargets[0].transform.tag == "MakeParentButton")
         {

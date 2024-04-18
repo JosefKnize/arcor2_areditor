@@ -27,12 +27,7 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 
     private bool use3DModels = true;
 
-    // Taking PNG picture of robots
-    private RenderTexture renderTexture;
-    private GameObject imageTakingcameraGameObject;
-    private Camera robotImageTakingCamera;
-    private const int robotImageWidth = 1920;
-    private const int robotImageHeight = 1080;
+
 
     public Dictionary<string, GameObject> objectsModels = new Dictionary<string, GameObject>();
 
@@ -156,11 +151,6 @@ public class HActionObjectPickerMenu : Singleton<HActionObjectPickerMenu>
 
     public void LoadModels(object sender, EventArgs args)
     {
-        imageTakingcameraGameObject = new GameObject("RobotImageTakingCamera");
-        robotImageTakingCamera = imageTakingcameraGameObject.AddComponent<Camera>();
-        imageTakingcameraGameObject.transform.position = new Vector3(1000,1000,1000);
-        robotImageTakingCamera.clearFlags = CameraClearFlags.Nothing;
-
         GameManagerH.Instance.ShowLoadingScreen();
         destroyObjects();
         UrdfManagerH.Instance.OnRobotUrdfModelLoaded += OnRobotModelLoaded;

@@ -142,7 +142,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
 
         selectorState = SelectorState.PlacingAction;
         StartedPlacingActionPoint?.Invoke(this, new EventArgs());
-        AddActionPointHandler.Instance.registerHandlers();
+        HandInteractionHandler.Instance.registerHandlers();
 
     }
 
@@ -315,21 +315,21 @@ public class HSelectorManager : Singleton<HSelectorManager>
         selectorState = SelectorState.MakingConnection;
         action.AddConnection();
         Output = action;
-        AddActionPointHandler.Instance.registerHandlers(false);
+        HandInteractionHandler.Instance.registerHandlers(false);
     }
 
     private void FinishMakingConnection(HAction action)
     {
         selectorState = SelectorState.Normal;
         Output.GetOtherAction(action);
-        AddActionPointHandler.Instance.unregisterHandlers();
+        HandInteractionHandler.Instance.unregisterHandlers();
     }
 
     private void CancelMakingConnection()
     {
         selectorState = SelectorState.Normal;
         HConnectionManagerArcoro.Instance.DestroyConnectionToMouse();
-        AddActionPointHandler.Instance.unregisterHandlers();
+        HandInteractionHandler.Instance.unregisterHandlers();
     }
     #endregion
 
@@ -378,7 +378,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         }
     }
 
-    internal async Task OnSelectObjectFromActionPointsHandler(Vector3 position, HInteractiveObject interactive)
+    internal async Task OnObjectInteractionFromActionPointsHandler(Vector3 position, HInteractiveObject interactive)
     {
         if (selectorState == SelectorState.PlacingAction)
         {
@@ -389,7 +389,8 @@ public class HSelectorManager : Singleton<HSelectorManager>
             }
             else if (interactive is HActionPoint3D actionPoint)
             {
-                RegisterParentOfActionPoint(actionPoint);
+                selectorState = SelectorState.WaitingForReleaseAfterPlacingAP;
+                await CreateAction(placedActionId, placedActionProvider, actionPoint);
             }
             else if (interactive is HRobotEE ee)
             {
@@ -407,7 +408,7 @@ public class HSelectorManager : Singleton<HSelectorManager>
         if (selectorState == SelectorState.WaitingForReleaseAfterPlacingAP)
         {
             selectorState = SelectorState.Normal;
-            AddActionPointHandler.Instance.unregisterHandlers();
+            HandInteractionHandler.Instance.unregisterHandlers();
             EndedPlacingActionPoint?.Invoke(this, new EventArgs());
         }
     }
@@ -418,47 +419,4 @@ public class HSelectorManager : Singleton<HSelectorManager>
     }
 
     #endregion
-}
-
-public static class UI3DHelper
-{
-    public static void PlaceOnClosestCollisionPoint(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
-    {
-        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
-        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
-        var wasColliderActive = collider.transform.gameObject.activeSelf;
-        collider.transform.gameObject.SetActive(true);
-        var closestPoint = collider.ClosestPoint(source);
-        collider.transform.gameObject.SetActive(wasColliderActive);
-        movedObject.position = closestPoint;
-    }
-
-    public static void PlaceOnClosestCollisionPointInMiddle(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
-    {
-        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
-        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
-        var wasColliderActive = collider.transform.gameObject.activeSelf;
-        collider.transform.gameObject.SetActive(true);
-
-        source.y = collider.bounds.center.y;
-
-        var closestPoint = collider.ClosestPoint(source);
-        collider.transform.gameObject.SetActive(wasColliderActive);
-        movedObject.position = closestPoint;
-    }
-
-    public static void PlaceOnClosestCollisionPointAtBottom(HInteractiveObject interactiveObject, Vector3 source, Transform movedObject)
-    {
-        var collidCubeGameObject = interactiveObject.transform.Find("Visual").Find("CollidCube");
-        var collider = collidCubeGameObject.GetComponent<BoxCollider>();
-        var wasColliderActive = collider.transform.gameObject.activeSelf;
-        collider.transform.gameObject.SetActive(true);
-
-        //source.y = collider.bounds.center.y;
-        source.y = collider.bounds.min.y;
-
-        var closestPoint = collider.ClosestPoint(source);
-        collider.transform.gameObject.SetActive(wasColliderActive);
-        movedObject.position = closestPoint;
-    }
 }

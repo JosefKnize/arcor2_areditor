@@ -1,18 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Base;
-using IO.Swagger.Model;
 using Newtonsoft.Json;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Hololens;
-using Base;
-
-using UnityEngine.XR.Interaction.Toolkit;
-using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit;
 using RequestResult = Base.RequestResult;
 

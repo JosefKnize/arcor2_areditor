@@ -17,7 +17,7 @@ public class HConnectionManagerArcoro : Base.Singleton<HConnectionManagerArcoro>
 
     private void Start()
     {
-        virtualPointer = AddActionPointHandler.Instance.GhostActionPoint.transform.Find("Connection").gameObject;
+        virtualPointer = HandInteractionHandler.Instance.GhostActionPoint.transform.Find("Connection").gameObject;
     }
 
     public Connection CreateConnection(GameObject o1, GameObject o2)
