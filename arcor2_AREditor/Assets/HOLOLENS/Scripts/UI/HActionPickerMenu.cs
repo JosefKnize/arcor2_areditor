@@ -39,16 +39,8 @@ public class HActionPickerMenu : Singleton<HActionPickerMenu>
 
         parent.InteractionObjectCollider.SetActive(true);
 
-        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        if (collider.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-        {
-            ActionPickerMenu.transform.position = hit.point;
-        }
-        else
-        {
-            var closestPoint = collider.ClosestPoint(Camera.main.transform.position - new Vector3(0, 0, 0.3f));
-            ActionPickerMenu.transform.position = closestPoint;
-        }
+        var closestPoint = collider.ClosestPoint(Camera.main.transform.position - new Vector3(0, 0.3f, 0));
+        ActionPickerMenu.transform.position = closestPoint;
 
         ActionPickerMenu.SetActive(true);
         parent.InteractionObjectCollider.SetActive(false);

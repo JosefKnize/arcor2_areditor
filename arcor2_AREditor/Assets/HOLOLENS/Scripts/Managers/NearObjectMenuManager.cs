@@ -19,7 +19,6 @@ public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
 
     private HInteractiveObject selectedObject;
 
-    // TODO rename
 
     private void Start()
     {
