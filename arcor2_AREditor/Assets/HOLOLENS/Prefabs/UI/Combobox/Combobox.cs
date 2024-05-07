@@ -52,6 +52,7 @@ public class ComboBox : MonoBehaviour
         else
         {
             dropDownGameObject = Instantiate(DropdownPrefab);
+            dropDownGameObject.transform.parent = transform;
             var dropDownButtonCollection = dropDownGameObject.transform.Find("Canvas");
 
             var button = Instantiate(SelectedButtonPrefab, dropDownButtonCollection);
