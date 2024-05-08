@@ -1,6 +1,8 @@
+using ARServer.Models;
 using Base;
 using MixedReality.Toolkit.UX;
 using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -10,8 +12,50 @@ public class StringParameterEditor : ParameterEditorBase
 {
     public MRTKUGUIInputField InputField;
 
+    private void Start()
+    {
+        Debug.Log(InputField);
+        InputField.onEndEdit.AddListener(OnEdit);
+    }
+
+    private void OnEdit(string newValue)
+    {
+
+        switch (Parameter.Type)
+        {
+            case ParameterMetadata.STR:
+                break;
+            case ParameterMetadata.INT:
+                var intExtra = (IntParameterExtra)Parameter.ParameterMetadata.ParameterExtra;
+                var parsedInt = int.Parse(newValue);
+                
+                if (parsedInt < intExtra.Minimum)
+                {
+                    InputField.text = intExtra.Minimum.ToString();
+                }
+                else if(parsedInt > intExtra.Maximum)
+                {
+                    InputField.text = intExtra.Maximum.ToString();
+                }
+                break;
+            case ParameterMetadata.DOUBLE:
+                var doubleExtra = (DoubleParameterExtra)Parameter.ParameterMetadata.ParameterExtra;
+                var parsedDouble = double.Parse(newValue);
+                if (parsedDouble < doubleExtra.Minimum)
+                {
+                    InputField.text = doubleExtra.Minimum.ToString();
+                }
+                else if (parsedDouble > doubleExtra.Maximum)
+                {
+                    InputField.text = doubleExtra.Maximum.ToString();
+                }
+                break;
+        }
+    }
+
     public override void MoveValueFromEditorToParameter()
     {
+        
         switch(Parameter.Type)
         {
             case ParameterMetadata.STR:
@@ -28,6 +72,7 @@ public class StringParameterEditor : ParameterEditorBase
 
     public override void MoveValueFromParameterToEditor()
     {
+        
         switch (Parameter.Type)
         {
             case ParameterMetadata.STR:

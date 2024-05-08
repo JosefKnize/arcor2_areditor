@@ -2,6 +2,7 @@ using Base;
 using Hololens;
 using MixedReality.Toolkit;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ public class ParameterConfigurationManager : Singleton<ParameterConfigurationMan
 
     private List<ParameterEditorBase> parameterEditors = new();
     private HInteractiveObject configuredObject;
+    private List<Parameter> editedParameters;
 
     private void Start()
     {
@@ -63,9 +65,11 @@ public class ParameterConfigurationManager : Singleton<ParameterConfigurationMan
 
     public void GenerateWindowContent(Dictionary<string, Base.Parameter> parameters)
     {
+        editedParameters = parameters.Values.ToList();
+
         GameObject editorGameObject = null;
         ParameterEditorBase editor;
-        foreach (var parameter in parameters.Values)
+        foreach (var parameter in editedParameters)
         {
             switch (parameter.ParameterMetadata.Type)
             {
@@ -126,10 +130,10 @@ public class ParameterConfigurationManager : Singleton<ParameterConfigurationMan
         switch (configuredObject)
         {
             case HAction action:
-                action.UploadParametersAsync();
+                action.UploadNewParametersAsync(editedParameters);
                 break;
             case ActionObjectH robot:
-                robot.UploadParametersAsync();
+                robot.UploadNewParametersAsync(editedParameters);
                 break;
         }
     }

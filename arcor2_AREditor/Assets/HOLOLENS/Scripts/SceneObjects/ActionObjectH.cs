@@ -630,13 +630,13 @@ namespace Hololens
             }
         }
 
-        internal async void UploadParametersAsync()
+        internal async void UploadNewParametersAsync(List<Base.Parameter> editedParameters)
         {
             if (await WriteLock(true))
             {
                 try
                 {
-                    List<IO.Swagger.Model.Parameter> SwaggerParameters = ObjectParameters.Values.Select(parameter => new IO.Swagger.Model.Parameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
+                    List<IO.Swagger.Model.Parameter> SwaggerParameters = editedParameters.Select(parameter => new IO.Swagger.Model.Parameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
                     await WebSocketManagerH.Instance.UpdateObjectParameters(GetId(), SwaggerParameters, false);
                 }
                 catch (RequestFailedException e)

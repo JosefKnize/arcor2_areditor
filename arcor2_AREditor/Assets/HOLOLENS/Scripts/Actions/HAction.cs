@@ -279,13 +279,13 @@ public abstract class HAction : HInteractiveObject
             }
         }
 
-    internal async void UploadParametersAsync()
+    internal async void UploadNewParametersAsync(List<Base.Parameter> editedParameters)
     {
         if(await WriteLock(true))
         {
             try
             {
-                List<ActionParameter> SwaggerParameters = Parameters.Values.Select(parameter => new ActionParameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
+                List<ActionParameter> SwaggerParameters = editedParameters.Select(parameter => new ActionParameter(parameter.Name, parameter.Type, parameter.Value)).ToList();
                 await WebSocketManagerH.Instance.UpdateAction(GetId(), SwaggerParameters, GetFlows());
             }
             catch (RequestFailedException e)
