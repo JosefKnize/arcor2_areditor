@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 20% changed - Added some logic for transform and resize, visibility and Undo. Added workaround for locking race condition
+ Edited by: Josef Kníže
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +14,6 @@ using TMPro;
 using UnityEngine;
 using Base;
 using RequestResult = Base.RequestResult;
-using Unity.XR.CoreUtils;
-using MixedReality.Toolkit;
 
 namespace Hololens
 {

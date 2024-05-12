@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 90% changed - Basically reworked this from start, but the logic is similar.
+ Edited by: Josef Kníže
+*/
+
 using UnityEngine;
 using UnityEngine.Events;
 using MixedReality.Toolkit.UX.Deprecated;

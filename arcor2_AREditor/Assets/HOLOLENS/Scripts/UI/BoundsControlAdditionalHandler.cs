@@ -1,3 +1,9 @@
+/*
+ Author: Josef kníže
+ Description: Class that expands BoundsControl, since the original behavior didn't hide the cube around object if BoundsControl is disabled.
+    This script is also making sure that only one BoundsControl is enabled while editing robots.
+*/
+
 using Hololens;
 using MixedReality.Toolkit;
 using MixedReality.Toolkit.SpatialManipulation;

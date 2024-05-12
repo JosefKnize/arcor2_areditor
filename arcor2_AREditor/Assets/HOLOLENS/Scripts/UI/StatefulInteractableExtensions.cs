@@ -1,3 +1,7 @@
+/*
+ Author: Josef Kníže
+*/
+
 using MixedReality.Toolkit;
 using System;
 using System.Collections;

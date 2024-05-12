@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 10% changed - Added some missing function from tablet version of AREDITOR
+ Edited by: Josef Kníže
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +13,6 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using NativeWebSocket;
 using IO.Swagger.Model;
-using UnityEditor;
 using UnityEngine.Events;
 using Base;
 

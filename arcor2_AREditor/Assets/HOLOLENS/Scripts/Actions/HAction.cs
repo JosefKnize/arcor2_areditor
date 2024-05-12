@@ -1,4 +1,9 @@
-using System.Collections;
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 5% changed - Smaller fixes
+ Edited by: Josef Kníže
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 using System;

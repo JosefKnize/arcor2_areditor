@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using ARServer.Models;
 using IO.Swagger.Model;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 
-namespace Hololens {
+namespace Hololens
+{
     public class ActionObjectMetadataH : ObjectTypeMeta
     {
         private Dictionary<string, ActionMetadataH> actionsMetadata = new Dictionary<string, ActionMetadataH>();

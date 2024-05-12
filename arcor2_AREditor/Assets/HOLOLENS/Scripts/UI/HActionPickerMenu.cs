@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 50% changed - A lot of changes, moved a lot of logic to SelectorManager, changed the order of adding action
+ Edited by: Josef Kníže
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;

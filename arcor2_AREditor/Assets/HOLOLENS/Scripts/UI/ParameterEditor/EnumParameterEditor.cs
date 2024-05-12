@@ -1,3 +1,6 @@
+/*
+ Author: Josef kníže
+*/
 using Base;
 using Newtonsoft.Json;
 using System.Collections;

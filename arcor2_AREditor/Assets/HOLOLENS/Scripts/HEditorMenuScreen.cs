@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 using Base;
 using IO.Swagger.Model;
 using Newtonsoft.Json;
@@ -11,8 +8,7 @@ using TMPro;
 
 public class HEditorMenuScreen : Singleton<HEditorMenuScreen>
 {
-    // public StatefulInteractable closeSceneButton;
-    // public StatefulInteractable notificationButton;
+
     public StatefulInteractable switchSceneState;
     public TextMeshProUGUI AppStateText;
 

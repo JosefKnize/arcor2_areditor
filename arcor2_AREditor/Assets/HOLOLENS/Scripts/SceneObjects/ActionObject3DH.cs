@@ -1,18 +1,16 @@
-using System.Collections;
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 20% changed - Added some logic for transform and resize, visibility, adding AP as son of this object. Fixed bounds calculation
+ Edited by: Josef Kníže
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Base;
 using Hololens;
 using IO.Swagger.Model;
 using TriLibCore;
 using System;
-using TriLibCore.General;
-using MixedReality.Toolkit.SpatialManipulation;
-using MixedReality.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit;
-using System.Threading.Tasks;
-using Unity.XR.CoreUtils;
 
 public class ActionObject3DH : ActionObjectH
 {

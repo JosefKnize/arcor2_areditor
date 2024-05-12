@@ -1,10 +1,14 @@
-using System.Collections;
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 5% changed - Added workaround for locking race condition
+ Edited by: Josef Kníže
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
 using Base;
-using UnityEngine.XR.Interaction.Toolkit;
 
 public abstract class HInteractiveObject : MonoBehaviour
 {

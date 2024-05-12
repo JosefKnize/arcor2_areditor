@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿/*
+ Author: Josef Kníže
+*/
+
+using UnityEngine;
 
 public static class UI3DHelper
 {

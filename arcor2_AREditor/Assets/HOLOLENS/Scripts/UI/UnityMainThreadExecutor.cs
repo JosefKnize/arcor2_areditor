@@ -1,3 +1,7 @@
+/*
+ Author: Josef Kníže
+*/
+
 using Base;
 using System.Collections;
 using System.Collections.Generic;

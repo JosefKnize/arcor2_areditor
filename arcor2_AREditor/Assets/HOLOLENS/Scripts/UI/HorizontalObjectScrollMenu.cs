@@ -1,11 +1,9 @@
-using MixedReality.Toolkit;
+/*
+ Author: Josef Kníže
+*/
+
 using MixedReality.Toolkit.SpatialManipulation;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
-using static UnityEngine.GraphicsBuffer;
 
 public class HorizontalObjectScrollMenu : MonoBehaviour
 {

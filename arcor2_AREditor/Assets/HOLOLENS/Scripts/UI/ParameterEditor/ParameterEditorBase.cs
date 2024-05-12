@@ -1,3 +1,8 @@
+/*
+ Author: Josef kníže
+ Description: Base class for parameter editors. Implementations of this class are responsible for handling UI elements and displaying/collecting set value
+*/
+
 using Base;
 using System;
 using System.Collections;

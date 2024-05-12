@@ -1,15 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 70% changed - Basically reworked this logic into UI GameObjects, kept some of the functions for loading scene/project 
+ Edited by: Josef Kníže
+*/
+
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 using Base;
 using System.Threading.Tasks;
 using System.Threading;
 using Newtonsoft.Json;
 using IO.Swagger.Model;
-using TMPro;
-using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit;
 
 public class HHandMenuManager : Singleton<HHandMenuManager>

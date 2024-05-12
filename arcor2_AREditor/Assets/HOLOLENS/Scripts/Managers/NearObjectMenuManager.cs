@@ -1,11 +1,11 @@
+/*
+ Author: Josef Kníže
+*/
+
 using Base;
 using Hololens;
 using MixedReality.Toolkit;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class NearObjectMenuManager : Singleton<NearObjectMenuManager>
 {

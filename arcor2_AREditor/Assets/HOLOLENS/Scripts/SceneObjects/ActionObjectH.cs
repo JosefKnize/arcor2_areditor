@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 20% changed - Added some logic for transform and resize, visibility and Undo. Added workaround for locking race condition
+ Edited by: Josef Kníže
+*/
+
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,7 +13,6 @@ using Base;
 using MixedReality.Toolkit.SpatialManipulation;
 using UnityEngine.XR.Interaction.Toolkit;
 using RequestResult = Base.RequestResult;
-using System.Threading;
 using MixedReality.Toolkit;
 using Microsoft.MixedReality.GraphicsTools;
 using System.Linq;

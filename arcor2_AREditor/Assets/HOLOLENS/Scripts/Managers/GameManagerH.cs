@@ -1,14 +1,15 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 3% changed - Smaller changes, fixed API, 
+ Edited by: Josef Kníže
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Threading.Tasks;
-using UnityEngine.UI;
 using IO.Swagger.Model;
-using UnityEngine.XR.ARFoundation;
-using UnityEngine.Events;
-using System.Collections;
-using Newtonsoft.Json;
 using Base;
 using RosSharp.Urdf;
 using Hololens;

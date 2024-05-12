@@ -1,7 +1,8 @@
+/*
+ Author: Josef Kníže
+*/
+
 using MixedReality.Toolkit;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 

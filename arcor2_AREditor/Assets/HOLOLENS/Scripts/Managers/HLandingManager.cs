@@ -1,8 +1,11 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 10% changed - Migrated to MRTK3 and fixed some work with strings
+ Edited by: Josef Kníže
+*/
+
 using System;
-using System.Threading.Tasks;
 using Base;
-using UnityEngine.UI;
-using Hololens;
 using UnityEngine;
 using MixedReality.Toolkit.UX;
 using MixedReality.Toolkit;

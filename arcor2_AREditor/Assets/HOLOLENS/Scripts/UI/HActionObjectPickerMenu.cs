@@ -1,3 +1,11 @@
+/*
+ Author: Simona Hiadlovská
+ Description: Manager that handles loading robot models and displaying them in menu for adding
+ Amount of changes: 20% changed - Fixed some displaying, reused the code so it works with MRTK3 UI
+ Edited by: Josef Kníže
+*/
+
+
 using System.Collections;
 using System;
 using System.Collections.Generic;

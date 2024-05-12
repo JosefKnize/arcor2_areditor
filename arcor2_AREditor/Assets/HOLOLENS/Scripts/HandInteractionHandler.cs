@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 90% changed - Ported to MRTK3, kept the idea but most code was rewritten.
+ Edited by: Josef Kníže
+*/
+
 using UnityEngine;
 using Base;
 using UnityEngine.InputSystem;

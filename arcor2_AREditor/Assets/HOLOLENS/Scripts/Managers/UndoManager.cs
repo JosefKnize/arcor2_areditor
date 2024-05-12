@@ -1,10 +1,10 @@
+/*
+ Author: Josef Kníže
+*/
+
 using Base;
 using Hololens;
-using IO.Swagger.Model;
-using MixedReality.Toolkit;
 using MixedReality.Toolkit.UX;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

@@ -1,23 +1,18 @@
-using System.Collections;
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 90% changed - Reworked most of logic, moved some logic here from other scripts
+ Edited by: Josef Kníže
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 using Base;
 using System.Threading.Tasks;
 using Hololens;
-using UnityEngine.Events;
 using System;
-using LunarConsolePluginInternal;
 using System.Linq;
 using Newtonsoft.Json;
-using System.Threading;
-using System.Diagnostics;
-using Debug = UnityEngine.Debug;
-using MixedReality.Toolkit.UX;
-using MixedReality.Toolkit.UX.Deprecated;
-using RosSharp.Urdf;
 using IO.Swagger.Model;
-using RosSharp.RosBridgeClient;
-using static System.Collections.Specialized.BitVector32;
 
 public class HSelectorManager : Singleton<HSelectorManager>
 {

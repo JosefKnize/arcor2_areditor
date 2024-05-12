@@ -1,3 +1,7 @@
+/*
+ Author: Josef kníže
+*/
+
 using ARServer.Models;
 using Base;
 using MixedReality.Toolkit.UX;

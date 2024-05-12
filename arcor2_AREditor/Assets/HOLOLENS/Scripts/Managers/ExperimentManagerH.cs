@@ -1,14 +1,11 @@
-using Base;
-using Hololens;
+/*
+ Author: Josef Kníže
+*/
+
 using IO.Swagger.Model;
-using QRTracking;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.XR.ARSubsystems;
 
 public class ExperimentManager : Base.Singleton<ExperimentManager>
 {
@@ -72,7 +69,7 @@ public class ExperimentManager : Base.Singleton<ExperimentManager>
 
     private void StartLoggingCameraPosition()
     {
-        var filePath = Path.Combine(Application.persistentDataPath, $"Experiment_CameraPath_{DateTime.Now.ToString("dd.MM_HH.mm")}.txt");
+        var filePath = Path.Combine(Application.persistentDataPath, $"Experiment_CameraPath_{DateTime.Now.ToString("dd.MM_HH.mm.ss")}.txt");
         Debug.Log(filePath);
         cameraPositionLogger = new StreamWriter(filePath, true);
     }

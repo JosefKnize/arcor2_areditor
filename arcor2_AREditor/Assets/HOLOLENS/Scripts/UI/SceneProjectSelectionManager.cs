@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 10% changed - Added some logic, fixed some events and moved add AP orientation logic to SelectorManagerH
+ Edited by: Josef Kníže
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;

@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 50% changed - Added some logic that was needed because of transform rework.
+ Edited by: Josef Kníže
+*/
+
 using MixedReality.Toolkit.SpatialManipulation;
 using System;
 using System.Collections;

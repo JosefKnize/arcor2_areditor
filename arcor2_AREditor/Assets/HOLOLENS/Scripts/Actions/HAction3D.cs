@@ -1,3 +1,9 @@
+/*
+ Author: Simona Hiadlovská
+ Amount of changes: 5% changed - Small fixes for recursive removal of AP, action and connections
+ Edited by: Josef Kníže
+*/
+
 using System;
 using System.Threading.Tasks;
 using Base;
@@ -7,8 +13,6 @@ using Hololens;
 using MixedReality.Toolkit;
 using RequestResult = Base.RequestResult;
 
-//[RequireComponent(typeof(OutlineOnClick))]
-//[RequireComponent(typeof(Target))]
 public class HAction3D : HAction
 {
     public Renderer Visual;

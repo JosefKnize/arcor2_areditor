@@ -1,3 +1,7 @@
+/*
+ Author: Josef Kníže
+*/
+
 using Base;
 using Hololens;
 using MixedReality.Toolkit;
